@@ -1,3 +1,5 @@
+const { pinChannelID } = require("../config.json");
+
 module.exports = {
     name: "pin",
     description: "send messages to pin channel",
@@ -5,8 +7,7 @@ module.exports = {
     usage: " <message>",
     guildOnly: false,
     async execute(message, args) {
-        // zen szerveren memes channel
-        const channelID = "703148400463314954";
+        const channelID = pinChannelID;
         const channel = await message.client.channels.fetch(channelID);
         if (channel) {
             let messageText = args.join(" ");
