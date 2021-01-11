@@ -1,14 +1,14 @@
-import { readdirSync } from "fs";
-import { Client, Collection } from "discord.js";
-const bot = new Client();
+const fs = require("fs");
+const Discord = require("discord.js");
+const bot = new Discord.Client();
 
-import { token, prefix } from "./config.json";
+const { token, prefix } = require("./config.json");
 
-bot.commands = new Collection();
+bot.commands = new Discord.Collection();
 
-const commandFiles = readdirSync("./commands").filter((file) =>
-    file.endsWith(".js")
-);
+const commandFiles = fs
+    .readdirSync("./commands")
+    .filter((file) => file.endsWith(".js"));
 
 for (const file of commandFiles) {
     const command = require(`./commands/${file}`);
