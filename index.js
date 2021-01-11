@@ -1,27 +1,26 @@
-const fs = require('fs');
-const Discord = require('discord.js');
-const bot = new Discord.Client();
+import { readdirSync } from "fs";
+import { Client, Collection } from "discord.js";
+const bot = new Client();
 
-const { token, prefix } = require('./config.json');
+import { token, prefix } from "./config.json";
 
-bot.commands = new Discord.Collection();
+bot.commands = new Collection();
 
-const commandFiles = fs
-    .readdirSync('./commands')
-    .filter((file) => file.endsWith('.js'));
+const commandFiles = readdirSync("./commands").filter((file) =>
+    file.endsWith(".js")
+);
 
 for (const file of commandFiles) {
     const command = require(`./commands/${file}`);
     bot.commands.set(command.name, command);
 }
 
-bot.on('ready', () => {
-    console.log('E.L.I.A. is online!');
+bot.on("ready", () => {
+    console.log("E.L.I.A. is online!");
 });
 
-bot.on('message', (message) => {
+bot.on("message", (message) => {
     try {
-
         if (!message.content.startsWith(prefix) || message.author.bot) return;
 
         const args = message.content.slice(prefix.length).split(/ +/);
@@ -31,7 +30,7 @@ bot.on('message', (message) => {
 
         if (!command) return message.reply("I can't understand that command!");
 
-        if (command.guildOnly && message.channel.type !== 'text') {
+        if (command.guildOnly && message.channel.type !== "text") {
             return message.reply("I can't execute that command inside DMs!");
         }
 
@@ -47,12 +46,13 @@ bot.on('message', (message) => {
 
         if (!bot.commands.has(commandName)) return;
 
-        command.execute(message, args)
-
+        command.execute(message, args);
     } catch (error) {
         console.error(error);
-        message.reply('there was an error trying to execute that command!').then(r => null);
+        message
+            .reply("there was an error trying to execute that command!")
+            .then((_r) => null);
     }
 });
 
-bot.login(token).then(r => null);
+bot.login(token).then((_r) => null);
