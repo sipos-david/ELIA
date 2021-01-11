@@ -1,11 +1,13 @@
 const fs = require("fs");
 const Discord = require("discord.js");
 const bot = new Discord.Client();
+const SoundEffect = require("./commands/soundeffects/soundEffectTemplate.js");
 
 const { token, prefix } = require("./config.json");
 
 bot.commands = new Discord.Collection();
 
+// import generic commands
 const commandFiles = fs
     .readdirSync("./commands")
     .filter((file) => file.endsWith(".js"));
@@ -15,10 +17,27 @@ for (const file of commandFiles) {
     bot.commands.set(command.name, command);
 }
 
+// import sound effects
+console.log("------\nGenerating soundeffect commands:");
+
+const soundEffects = fs
+    .readdirSync("./resources/soundeffects")
+    .filter((file) => file.endsWith(".mp3"));
+
+for (const soundEffect of soundEffects) {
+    const command = new SoundEffect(
+        soundEffect.replace(".mp3", "").toLowerCase()
+    );
+    bot.commands.set(command.name, command);
+    console.log("\t" + soundEffect + " -> " + command.name);
+}
+
+// on start
 bot.on("ready", () => {
-    console.log("E.L.I.A. is online!");
+    console.log("------------\nE.L.I.A. is online!\n------------");
 });
 
+// interpret commands
 bot.on("message", (message) => {
     try {
         if (!message.content.startsWith(prefix) || message.author.bot) return;
@@ -55,4 +74,5 @@ bot.on("message", (message) => {
     }
 });
 
+// bot login
 bot.login(token).then((_r) => null);
