@@ -17,18 +17,19 @@ class SoundEffect {
         if (msg.member.voice.channel) {
             // Only try to join the sender's voice channel if they are in one themselves
             msg.delete();
-            let connection = await msg.member.voice.channel.join();
-            const dispatcher = connection.play(
-                "./resources/soundeffects/" + this.name + ".mp3",
-                {
+
+            const voiceChannel = msg.member.voice.channel;
+            const connection = await voiceChannel.join();
+
+            connection
+                .play("./resources/soundeffects/" + this.name + ".mp3", {
+                    seek: 0,
                     volume: this.soundEffectVolume,
-                }
-            );
-            dispatcher.on("finish", () => {
-                console.log(msg.author.username + " played: " + this.name);
-                dispatcher.destroy();
-                connection.disconnect();
-            });
+                })
+                .on("finish", () => {
+                    console.log(msg.author.username + " played: " + this.name);
+                    voiceChannel.leave();
+                });
         } else {
             msg.reply("You need to join a voice channel first!");
         }
