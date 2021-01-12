@@ -9,7 +9,7 @@ module.exports = {
         const channelID = "703131306476699648";
         const channel = await message.client.channels.fetch(channelID);
         if (channel) {
-            messageText = args.join(" ");
+            let messageText = args.join(" ");
             channel.send(`${message.author.toString()} ` + messageText);
             message.delete();
             console.log(message.author.username + " sent memes");

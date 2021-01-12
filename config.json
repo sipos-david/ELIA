@@ -2,5 +2,6 @@
     "prefix": "!",
     "token": "",
     "pinChannelID": "703148400463314954",
-    "musicVolume": "0.4"
+    "musicVolume": "0.4",
+    "botSpamChannelID": "702983707363115018"
 }

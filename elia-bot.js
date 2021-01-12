@@ -1,12 +1,14 @@
 const fs = require("fs");
 const Discord = require("discord.js");
-const bot = new Discord.Client();
+let bot = new Discord.Client();
 const SoundEffect = require("./source/commands/soundeffects/soundEffectTemplate.js");
-const setDefaultActivity = require("./source/tools/defaultActivity.js");
-
+const ActivityDisplay = require("./source/tools/activityDisplay.js");
 const { token, prefix } = require("./config.json");
+const MusicQueue = require("./source/tools/musicQueue.js");
 
 bot.commands = new Discord.Collection();
+bot.musicQueue = new MusicQueue(bot);
+bot.activityDisplay = new ActivityDisplay(bot);
 
 // import generic commands
 const commandFiles = fs
@@ -35,7 +37,7 @@ for (const soundEffect of soundEffects) {
 
 // on start
 bot.on("ready", () => {
-    setDefaultActivity(bot);
+    bot.activityDisplay.setDefault();
     console.log("------------\nE.L.I.A. is online!\n------------");
 });
 

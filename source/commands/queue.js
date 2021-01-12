@@ -2,8 +2,8 @@ const ytSearch = require("yt-search");
 const validURL = require("../tools/urlChecker.js");
 
 module.exports = {
-    name: "play",
-    description: "Joins and plays a video from youtube",
+    name: "queue",
+    description: "Queue a video from youtube",
     async execute(msg, args, bot) {
         const voiceChannel = msg.member.voice.channel;
         if (!voiceChannel)
@@ -17,7 +17,7 @@ module.exports = {
             return msg.channel.send("You need to send the second argument!");
 
         if (validURL(args[0])) {
-            bot.musicQueue.playMusic(msg, voiceChannel, args[0]);
+            bot.musicQueue.queueMusic(msg, args[0]);
         } else {
             const videoFinder = async (query) => {
                 const videoResult = await ytSearch(query);
@@ -29,12 +29,7 @@ module.exports = {
             const video = await videoFinder(args.join(" "));
 
             if (video) {
-                bot.musicQueue.playMusic(
-                    msg,
-                    voiceChannel,
-                    video.url,
-                    video.title
-                );
+                bot.musicQueue.queueMusic(msg, video.url);
             } else {
                 msg.channel.send("No video results found.");
             }
