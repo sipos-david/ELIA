@@ -1,6 +1,10 @@
+const CommandTypeEnum = require("../tools/commandTypeEnum.js");
+
 module.exports = {
     name: "getqueue",
     description: "Get the songs in the queue",
+    usage: " ",
+    type: CommandTypeEnum.MUSIC,
     async execute(msg, _args, bot) {
         const voiceChannel = msg.member.voice.channel;
         if (!voiceChannel)

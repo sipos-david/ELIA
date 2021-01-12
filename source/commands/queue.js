@@ -1,9 +1,14 @@
 const ytSearch = require("yt-search");
 const validURL = require("../tools/urlChecker.js");
+const CommandTypeEnum = require("../tools/commandTypeEnum.js");
 
 module.exports = {
     name: "queue",
-    description: "Queue a video from youtube",
+    description:
+        "Queue a video from youtube, if no music plays starts playing it.",
+    usage:
+        " *required:* <Youtube link> *or search terms:* <term1> <term2> <term3> ...",
+    type: CommandTypeEnum.MUSIC,
     async execute(msg, args, bot) {
         const voiceChannel = msg.member.voice.channel;
         if (!voiceChannel)

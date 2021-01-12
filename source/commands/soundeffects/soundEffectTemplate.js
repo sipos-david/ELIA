@@ -1,3 +1,4 @@
+const CommandTypeEnum = require("../../tools/commandTypeEnum.js");
 class SoundEffect {
     constructor(_name, volume) {
         this.name = _name;
@@ -9,8 +10,8 @@ class SoundEffect {
     }
 
     args = false;
-    usage = "";
-    guildOnly = true;
+    usage = " ";
+    type = CommandTypeEnum.SOUNDEFFECT;
     soundEffectVolume;
 
     async execute(msg, _args, _bot) {

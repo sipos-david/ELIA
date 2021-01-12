@@ -1,8 +1,11 @@
 const Discord = require("discord.js");
+const CommandTypeEnum = require("../tools/commandTypeEnum.js");
 
 module.exports = {
     name: "poll",
     description: "Sends a poll",
+    usage: " ",
+    type: CommandTypeEnum.OTHER,
 
     emojis: ["0️⃣", "1️⃣", "2️⃣", "3️⃣", "4️⃣", "5️⃣", "6️⃣", "7️⃣", "8️⃣", "9️⃣", "🔟"],
 

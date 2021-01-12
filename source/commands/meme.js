@@ -1,9 +1,11 @@
+const CommandTypeEnum = require("../tools/commandTypeEnum.js");
+
 module.exports = {
     name: "meme",
     description: "send memes to specific channel",
     args: true,
     usage: " <link>",
-    guildOnly: false,
+    type: CommandTypeEnum.OTHER,
     async execute(message, args, _bot) {
         // zen szerveren memes channel
         const channelID = "703131306476699648";

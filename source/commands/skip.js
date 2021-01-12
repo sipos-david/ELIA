@@ -1,6 +1,10 @@
+const CommandTypeEnum = require("../tools/commandTypeEnum.js");
+
 module.exports = {
     name: "skip",
     description: "Skip a song",
+    usage: " ",
+    type: CommandTypeEnum.MUSIC,
     async execute(msg, args, bot) {
         const voiceChannel = msg.member.voice.channel;
         if (!voiceChannel)

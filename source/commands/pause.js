@@ -1,6 +1,10 @@
+const CommandTypeEnum = require("../tools/commandTypeEnum.js");
+
 module.exports = {
     name: "pause",
     description: "Pause playing the song",
+    usage: " ",
+    type: CommandTypeEnum.MUSIC,
     async execute(msg, _args, bot) {
         const voiceChannel = msg.member.voice.channel;
         if (!voiceChannel)
