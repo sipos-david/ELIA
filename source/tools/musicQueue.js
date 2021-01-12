@@ -1,7 +1,6 @@
 const playFromURL = require("../tools/urlPlay.js");
 const getYoutubeTitle = require("get-youtube-title");
 const getYouTubeID = require("get-youtube-id");
-const playMusicCommand = require("../commands/play.js");
 
 class MusicQueue {
     constructor(bot) {
@@ -13,6 +12,7 @@ class MusicQueue {
     voiceChannel = null;
     connection = null;
     currentSong = null;
+    paused = false;
 
     continuePlayingMusic() {
         if (this.musicQueueArray.length > 0) {
@@ -52,6 +52,7 @@ class MusicQueue {
         if (this.voiceChannel != null) this.voiceChannel.leave();
         this.connection = null;
         this.currentSong = null;
+        this.bot.activityDisplay.setDefault();
     }
 
     async skipSong(msg) {
@@ -87,24 +88,40 @@ class MusicQueue {
         });
     }
 
-    pauseMusic() {
+    async pauseMusic() {
         if (
-            this.playingMusic &&
+            !this.paused &&
             this.voiceChannel != null &&
             this.connection != null
         ) {
-            this.connection.dispatcher.pause();
+            this.paused = true;
+            if (this.connection.dispatcher != null) {
+                this.connection.dispatcher.pause();
+                msg.reply("You paused the music.");
+                console.log(msg.author.username + " paused the music");
+            }
+        } else {
+            msg.reply("You can't pause the music right now.");
         }
+        msg.delete();
     }
 
-    resumeMusic() {
+    async resumeMusic() {
         if (
-            this.playingMusic &&
+            this.paused &&
             this.voiceChannel != null &&
             this.connection != null
         ) {
+            this.paused = false;
+            if (this.connection.dispatcher != null) {
+                msg.reply("You resumed playing the music.");
+                console.log(msg.author.username + " resumed playing the music");
+            }
             this.connection.dispatcher.resume();
+        } else {
+            msg.reply("You can't resume the music right now.");
         }
+        msg.delete();
     }
 
     async getCurrentSong(msg) {
