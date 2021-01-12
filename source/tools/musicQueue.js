@@ -76,7 +76,7 @@ class MusicQueue {
             }
             msg.reply(replyMsg);
         } else {
-            msg.reply("It seems there is no music playing.");
+            msg.reply("It seems there are no music in the queue.");
         }
     }
 
@@ -88,7 +88,7 @@ class MusicQueue {
         });
     }
 
-    async pauseMusic() {
+    async pauseMusic(msg) {
         if (
             !this.paused &&
             this.voiceChannel != null &&
@@ -106,7 +106,7 @@ class MusicQueue {
         msg.delete();
     }
 
-    async resumeMusic() {
+    async resumeMusic(msg) {
         if (
             this.paused &&
             this.voiceChannel != null &&
