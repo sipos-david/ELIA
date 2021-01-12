@@ -13,7 +13,7 @@ class SoundEffect {
     guildOnly = true;
     soundEffectVolume;
 
-    async execute(msg, _args) {
+    async execute(msg, _args, _bot) {
         if (msg.member.voice.channel) {
             // Only try to join the sender's voice channel if they are in one themselves
             msg.delete();

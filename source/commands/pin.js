@@ -1,4 +1,4 @@
-const { pinChannelID } = require("../config.json");
+const { pinChannelID } = require("../../config.json");
 
 module.exports = {
     name: "pin",
@@ -6,7 +6,7 @@ module.exports = {
     args: true,
     usage: " <message>",
     guildOnly: false,
-    async execute(message, args) {
+    async execute(message, args, _bot) {
         const channelID = pinChannelID;
         const channel = await message.client.channels.fetch(channelID);
         if (channel) {

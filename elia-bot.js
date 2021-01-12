@@ -1,7 +1,8 @@
 const fs = require("fs");
 const Discord = require("discord.js");
 const bot = new Discord.Client();
-const SoundEffect = require("./commands/soundeffects/soundEffectTemplate.js");
+const SoundEffect = require("./source/commands/soundeffects/soundEffectTemplate.js");
+const setDefaultActivity = require("./source/tools/defaultActivity.js");
 
 const { token, prefix } = require("./config.json");
 
@@ -9,11 +10,11 @@ bot.commands = new Discord.Collection();
 
 // import generic commands
 const commandFiles = fs
-    .readdirSync("./commands")
+    .readdirSync("./source/commands")
     .filter((file) => file.endsWith(".js"));
 
 for (const file of commandFiles) {
-    const command = require(`./commands/${file}`);
+    const command = require(`./source/commands/${file}`);
     bot.commands.set(command.name, command);
 }
 
@@ -34,6 +35,7 @@ for (const soundEffect of soundEffects) {
 
 // on start
 bot.on("ready", () => {
+    setDefaultActivity(bot);
     console.log("------------\nE.L.I.A. is online!\n------------");
 });
 
@@ -65,7 +67,7 @@ bot.on("message", (message) => {
 
         if (!bot.commands.has(commandName)) return;
 
-        command.execute(message, args);
+        command.execute(message, args, bot);
     } catch (error) {
         console.error(error);
         message

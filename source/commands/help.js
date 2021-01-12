@@ -1,4 +1,4 @@
-const { prefix } = require("../config.json");
+const { prefix } = require("../../config.json");
 
 module.exports = {
     name: "help",
@@ -6,7 +6,7 @@ module.exports = {
     aliases: ["commands"],
     usage: " [command name]",
     cooldown: 5,
-    execute(message, args) {
+    execute(message, args, _bot) {
         const data = [];
         const { commands } = message.client;
 
@@ -58,5 +58,7 @@ module.exports = {
         data.push(`**Cooldown:** ${command.cooldown || 3} second(s)`);
 
         message.channel.send(data, { split: true });
+
+        message.delete();
     },
 };
