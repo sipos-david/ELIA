@@ -87,8 +87,8 @@ class MusicQueue {
     }
 
     getYoutubeTitleFromId(id) {
-        return new Promise((resolve, _reject) => {
-            getYoutubeTitle(id, function (_err, title) {
+        return new Promise((resolve, reject) => {
+            getYoutubeTitle(id, function (err, title) {
                 resolve(title);
             });
         });
