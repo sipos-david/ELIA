@@ -12,7 +12,7 @@ class ActivityDisplay {
     }
 
     setDefault() {
-        this._bot.user.setActivity("your commands! Use " + prefix + "help", {
+        this._bot.user.setActivity(prefix + "help", {
             type: "LISTENING",
         });
     }
