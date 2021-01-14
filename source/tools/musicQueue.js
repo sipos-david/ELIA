@@ -18,19 +18,25 @@ class MusicQueue {
         if (this.musicQueueArray.length > 0) {
             this.playMusicFromQueue();
         } else {
+            this.playingMusic = false;
             this.voiceChannel.leave();
             this.bot.activityDisplay.setDefault();
         }
     }
 
     async playMusic(msg, voiceChannel, url, title = null) {
-        this.musicQueueArray.unshift(url);
+        if (voiceChannel == null) return;
 
-        if (this.voiceChannel == null) {
-            this.voiceChannel = voiceChannel;
-            this.connection = await voiceChannel.join();
-        } else if (voiceChannel.id != this.voiceChannel.id) {
-            this.voiceChannel.leave();
+        if (this.currentSong != null)
+            this.musicQueueArray.unshift(this.currentSong);
+
+        this.musicQueueArray.unshift(url);
+        this.playingMusic = true;
+
+        if (
+            this.voiceChannel == null ||
+            voiceChannel.id != this.voiceChannel.id
+        ) {
             this.voiceChannel = voiceChannel;
             this.connection = await voiceChannel.join();
         }
@@ -61,19 +67,19 @@ class MusicQueue {
     }
 
     async getQueuedMusic(msg) {
-        if (this.musicQueueArray.lentgh > 0) {
-            let replyMsg = "***The current queue:***\n\n";
-
+        if (this.musicQueueArray.lentgh > 0 || this.currentSong != null) {
             let currentId = getYouTubeID(this.currentSong);
             let currenTitle = await this.getYoutubeTitleFromId(currentId);
-            replyMsg += "1. " + currenTitle + "\n";
+            let replyMsg = "\n***The current song: ***\n" + currenTitle;
 
-            let i;
-            for (i = 0; i < this.musicQueueArray.length; i++) {
+            replyMsg += "\n\n***The current queue:***\n";
+
+            for (let i = 0; i < this.musicQueueArray.length; i++) {
                 let id = getYouTubeID(this.musicQueueArray[i]);
                 let title = await this.getYoutubeTitleFromId(id);
-                replyMsg += i + 2 + ". " + title + "\n";
+                replyMsg += i + 1 + ". " + title + "\n";
             }
+
             msg.reply(replyMsg);
         } else {
             msg.reply("It seems there are no music in the queue.");
@@ -81,8 +87,8 @@ class MusicQueue {
     }
 
     getYoutubeTitleFromId(id) {
-        return new Promise((resolve, reject) => {
-            getYoutubeTitle(id, function (err, title) {
+        return new Promise((resolve, _reject) => {
+            getYoutubeTitle(id, function (_err, title) {
                 resolve(title);
             });
         });
@@ -141,10 +147,7 @@ class MusicQueue {
 
     playMusicFromQueue(msg, title = null) {
         if (this.musicQueueArray.length > 0) {
-            if (this.playingMusic) this.pauseMusic();
-
             this.currentSong = this.musicQueueArray.shift();
-
             playFromURL(
                 this.bot,
                 msg,
