@@ -9,7 +9,10 @@ module.exports = {
         " *required:* <Youtube link> *or search terms:* <term1> <term2> <term3> ...",
     type: CommandTypeEnum.MUSIC,
     async execute(msg, args, bot) {
-        const voiceChannel = msg.member.voice.channel;
+        if (!args.length)
+            return msg.channel.send("You need to send the second argument!");
+
+        let voiceChannel = msg.member.voice.channel;
         if (!voiceChannel)
             return msg.channel.send(
                 "You need to be in a channel to execute this command!"
@@ -17,8 +20,6 @@ module.exports = {
         const permissions = voiceChannel.permissionsFor(msg.client.user);
         if (!permissions.has("CONNECT") || !permissions.has("SPEAK"))
             return msg.channel.send("You don't have the correct permissions");
-        if (!args.length)
-            return msg.channel.send("You need to send the second argument!");
 
         if (validURL(args[0])) {
             bot.musicQueue.playMusic(msg, voiceChannel, args[0]);
