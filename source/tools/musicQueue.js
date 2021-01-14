@@ -18,9 +18,7 @@ class MusicQueue {
         if (this.musicQueueArray.length > 0) {
             this.playMusicFromQueue();
         } else {
-            this.playingMusic = false;
-            this.voiceChannel.leave();
-            this.bot.activityDisplay.setDefault();
+            this.stopMusic();
         }
     }
 
@@ -55,7 +53,9 @@ class MusicQueue {
     stopMusic() {
         this.musicQueueArray = new Array();
         this.playingMusic = false;
+        this.pauseMusic = false;
         if (this.voiceChannel != null) this.voiceChannel.leave();
+        this.voiceChannel = null;
         this.connection = null;
         this.currentSong = null;
         this.bot.activityDisplay.setDefault();
