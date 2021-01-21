@@ -2,11 +2,15 @@
     "name": "elia",
     "version": "1.0.0",
     "description": "Experimental Listening Information Android",
-    "main": "index.js",
+    "main": "elia-bot.js",
     "scripts": {
         "test": "echo \"Error: no test specified\" && exit 1"
     },
-    "author": "xShipi",
+    "author": "xShipi <sipisipos@gmail.com>",
+    "repository": {
+        "type": "git",
+        "url": "https://github.com/xShipi/ELIA.git"
+    },
     "license": "ISC",
     "dependencies": {
         "@discordjs/opus": "^0.3.3",
