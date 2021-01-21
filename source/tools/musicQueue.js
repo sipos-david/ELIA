@@ -13,6 +13,7 @@ class MusicQueue {
     connection = null;
     currentSong = null;
     paused = false;
+    lastSong = null;
 
     continuePlayingMusic() {
         if (this.musicQueueArray.length > 0) {
@@ -47,6 +48,20 @@ class MusicQueue {
         console.log(msg.author.username + " queued: " + url);
         if (this.musicQueueArray.push(url) == 1 && this.playingMusic == false) {
             this.playMusic(msg, msg.member.voice.channel, url);
+        }
+    }
+
+    async replayMusic(msg) {
+        if (this.lastSong != null) {
+            this.bot.musicQueue.playMusic(
+                msg,
+                msg.member.voice.channel,
+                this.lastSong
+            );
+            msg.reply("You replayed a song!");
+            console.log(msg.author.username + " replayed a song");
+        } else {
+            msg.reply("It seems there are no song to replay.");
         }
     }
 
@@ -198,7 +213,9 @@ class MusicQueue {
 
     playMusicFromQueue(msg, title = null) {
         if (this.musicQueueArray.length > 0) {
+            this.lastSong = this.currentSong;
             this.currentSong = this.musicQueueArray.shift();
+            if (this.lastSong == null) this.lastSong = this.currentSong;
             playFromURL(
                 this.bot,
                 msg,
