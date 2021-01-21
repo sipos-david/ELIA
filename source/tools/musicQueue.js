@@ -85,6 +85,58 @@ class MusicQueue {
         }
     }
 
+    removeFromQueue(number, msg) {
+        if (number.indexOf("-") === -1) {
+            this.removeSongFromQueue(parseInt(number) - 1, msg);
+        } else {
+            let indexes = number.split("-");
+            if (indexes.length <= 1) return;
+            let indexFrom = parseInt(indexes[0]) - 1;
+            let indexTo = parseInt(indexes[1]) - 1;
+            if (indexFrom == indexTo) this.removeSongFromQueue(indexFrom, msg);
+            else if (indexFrom < indexTo)
+                this.removeSongsRangeFromQueue(indexFrom, indexTo, msg);
+            else this.removeSongsRangeFromQueue(indexTo, indexFrom, msg);
+        }
+    }
+
+    async removeSongFromQueue(index, msg) {
+        if (index < 0 || index > this.musicQueueArray.length) return;
+        let removedSong = await this.getYoutubeTitleFromId(
+            getYouTubeID(this.musicQueueArray[index])
+        );
+        if (index == 0 && this.musicQueueArray.length == 1)
+            this.musicQueueArray = new Array();
+        else this.musicQueueArray.splice(index, 1);
+        console.log(msg.author.username + " removed a song");
+        msg.reply("Removed song: " + removedSong);
+    }
+
+    async removeSongsRangeFromQueue(indexFrom, indexTo, msg) {
+        let removedSongs = new Array();
+
+        for (let i = indexFrom; i <= indexTo; i++) {
+            removedSongs.push(this.musicQueueArray[i]);
+        }
+
+        if (indexFrom == 0 && indexTo == this.musicQueueArray.length - 1)
+            this.musicQueueArray = new Array();
+        else this.musicQueueArray.splice(indexFrom, indexTo - indexFrom + 1);
+
+        let replyMsg = "***Removed " + removedSongs.length + " songs:***\n";
+        for (let i = 0; i < removedSongs.length; i++) {
+            let removedSong = await this.getYoutubeTitleFromId(
+                getYouTubeID(removedSongs[i])
+            );
+            replyMsg += removedSong + "\n";
+        }
+        console.log(
+            msg.author.username + " removed " + removedSongs.length + " songs"
+        );
+
+        msg.reply(replyMsg);
+    }
+
     getYoutubeTitleFromId(id) {
         return new Promise((resolve, reject) => {
             getYoutubeTitle(id, function (err, title) {
