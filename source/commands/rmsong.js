@@ -2,7 +2,7 @@ const CommandTypeEnum = require("../tools/commandTypeEnum.js");
 
 module.exports = {
     name: "rmsong",
-    description: "Remove's the song",
+    description: "Remove's a song or a range of songs from the music queue",
     usage:
         " *required:* <number in the queue> *or range in queue:* <from>-<to>",
     type: CommandTypeEnum.MUSIC,
