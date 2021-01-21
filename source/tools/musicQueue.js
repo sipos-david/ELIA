@@ -14,6 +14,8 @@ class MusicQueue {
     currentSong = null;
     paused = false;
     lastSong = null;
+    loopSong = false;
+    loopQueue = false;
 
     continuePlayingMusic() {
         if (this.musicQueueArray.length > 0) {
@@ -73,6 +75,8 @@ class MusicQueue {
         this.voiceChannel = null;
         this.connection = null;
         this.currentSong = null;
+        this.loopSong = false;
+        this.loopQueue = false;
         this.bot.activityDisplay.setDefault();
     }
 
@@ -80,6 +84,47 @@ class MusicQueue {
         msg.reply("You skipped a song!");
         console.log(msg.author.username + " skipped a song");
         this.continuePlayingMusic();
+    }
+
+    loopCurrentSong(msg) {
+        if (this.playingMusic) {
+            if (this.loopSong) {
+                this.loopSong = false;
+                msg.reply("You stopped looping the current song!");
+                console.log(
+                    msg.author.username + " stopped looping the current song"
+                );
+            } else {
+                this.loopSong = true;
+                msg.reply("You started looping the current song!");
+                console.log(
+                    msg.author.username + " started looping the current song"
+                );
+                if (
+                    this.currentSong != null &&
+                    (this.musicQueueArray.lenth == 0 ||
+                        this.musicQueueArray[0] != this.currentSong)
+                )
+                    this.musicQueueArray.unshift(this.currentSong);
+            }
+        }
+    }
+
+    loopMusicQueue(msg) {
+        if (this.playingMusic) {
+            if (this.loopQueue) {
+                this.loopQueue = false;
+                msg.reply("You stopped looping the queue!");
+                console.log(msg.author.username + " stopped looping the queue");
+            } else {
+                this.loopQueue = true;
+                msg.reply("You started looping the queue!");
+                console.log(msg.author.username + " started looping the queue");
+                if (this.currentSong != null && !this.loopSong) {
+                    this.musicQueueArray.push(this.currentSong);
+                }
+            }
+        }
     }
 
     async getQueuedMusic(msg) {
@@ -230,6 +275,9 @@ class MusicQueue {
             this.lastSong = this.currentSong;
             this.currentSong = this.musicQueueArray.shift();
             if (this.lastSong == null) this.lastSong = this.currentSong;
+            if (this.loopSong) this.musicQueueArray.unshift(this.currentSong);
+            if (this.loopQueue && !this.loopSong)
+                this.musicQueueArray.push(this.currentSong);
             playFromURL(
                 this.bot,
                 msg,
