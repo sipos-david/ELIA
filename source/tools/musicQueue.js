@@ -211,6 +211,19 @@ class MusicQueue {
         }
     }
 
+    shuffleMusic(msg) {
+        if (this.musicQueueArray.length >= 2) {
+            for (var i = this.musicQueueArray.length - 1; i > 0; i--) {
+                var j = Math.floor(Math.random() * (i + 1));
+                var temp = this.musicQueueArray[i];
+                this.musicQueueArray[i] = this.musicQueueArray[j];
+                this.musicQueueArray[j] = temp;
+            }
+            msg.reply("You shuffled the music.");
+            console.log(msg.author.username + " shuffled the music");
+        }
+    }
+
     playMusicFromQueue(msg, title = null) {
         if (this.musicQueueArray.length > 0) {
             this.lastSong = this.currentSong;
