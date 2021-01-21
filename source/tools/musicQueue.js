@@ -67,19 +67,18 @@ class MusicQueue {
     }
 
     async getQueuedMusic(msg) {
-        if (this.musicQueueArray.lentgh > 0 || this.currentSong != null) {
+        if (this.currentSong != null) {
             let currentId = getYouTubeID(this.currentSong);
             let currenTitle = await this.getYoutubeTitleFromId(currentId);
             let replyMsg = "\n***The current song: ***\n" + currenTitle;
-
-            replyMsg += "\n\n***The current queue:***\n";
-
-            for (let i = 0; i < this.musicQueueArray.length; i++) {
-                let id = getYouTubeID(this.musicQueueArray[i]);
-                let title = await this.getYoutubeTitleFromId(id);
-                replyMsg += i + 1 + ". " + title + "\n";
+            if (this.musicQueueArray.length > 0) {
+                replyMsg += "\n\n***The current queue:***\n";
+                for (let i = 0; i < this.musicQueueArray.length; i++) {
+                    let id = getYouTubeID(this.musicQueueArray[i]);
+                    let title = await this.getYoutubeTitleFromId(id);
+                    replyMsg += i + 1 + ". " + title + "\n";
+                }
             }
-
             msg.reply(replyMsg);
         } else {
             msg.reply("It seems there are no music in the queue.");
