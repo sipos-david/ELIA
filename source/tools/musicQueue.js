@@ -45,7 +45,7 @@ class MusicQueue {
     async queueMusic(msg, url) {
         await msg.reply(":musical_note: Queued: ***" + url + "***");
         console.log(msg.author.username + " queued: " + url);
-        if (this.musicQueueArray.push(url) == 1) {
+        if (this.musicQueueArray.push(url) == 1 && this.playingMusic == false) {
             this.bot.musicQueue.playMusic(msg, msg.member.voice.channel, url);
         }
     }
