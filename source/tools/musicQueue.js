@@ -78,6 +78,7 @@ class MusicQueue {
 
     async skipSong(msg) {
         msg.reply("You skipped a song!");
+        console.log(msg.author.username + " skipped a song");
         this.continuePlayingMusic();
     }
 
