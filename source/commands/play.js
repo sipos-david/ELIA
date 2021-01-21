@@ -1,6 +1,7 @@
 const ytSearch = require("yt-search");
 const validURL = require("../tools/urlChecker.js");
 const CommandTypeEnum = require("../tools/commandTypeEnum.js");
+const getYoutubePlaylistId = require("../tools/urlPlaylist.js");
 
 module.exports = {
     name: "play",
@@ -22,7 +23,10 @@ module.exports = {
             return msg.channel.send("You don't have the correct permissions");
 
         if (validURL(args[0])) {
-            bot.musicQueue.playMusic(msg, voiceChannel, args[0]);
+            let id = getYoutubePlaylistId(args[0]);
+            if (id != null)
+                bot.musicQueue.playYoutubePlaylist(msg, voiceChannel, id);
+            else bot.musicQueue.playMusic(msg, voiceChannel, args[0]);
         } else {
             const videoFinder = async (query) => {
                 const videoResult = await ytSearch(query);

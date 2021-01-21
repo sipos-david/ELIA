@@ -1,6 +1,7 @@
 const playFromURL = require("../tools/urlPlay.js");
 const getYoutubeTitle = require("get-youtube-title");
 const getYouTubeID = require("get-youtube-id");
+const ytpl = require("ytpl");
 
 class MusicQueue {
     constructor(bot) {
@@ -23,6 +24,18 @@ class MusicQueue {
         } else {
             this.stopMusic();
         }
+    }
+
+    async playYoutubePlaylist(msg, voiceChannel, id) {
+        let playlist = await ytpl(id, {});
+        if (playlist.items.length > 1) {
+            for (let i = 1; i < playlist.items.length; i++) {
+                this.musicQueueArray.push(playlist.items[i].url);
+            }
+        }
+        msg.reply("You stared playing a Youtube Playlist!");
+        console.log(msg.author.username + " imported a youtube playlist");
+        this.playMusic(msg, voiceChannel, playlist.items[0].url);
     }
 
     async playMusic(msg, voiceChannel, url, title = null) {
