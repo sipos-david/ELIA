@@ -1,5 +1,3 @@
-const DataComponent = require("../data/DataComponent");
-
 class MessageComponent {
     constructor(dataComponent) {
         this.dataComponent = dataComponent;
