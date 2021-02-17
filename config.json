@@ -1,7 +1,14 @@
 {
     "prefix": "!",
-    "token": "",
-    "pinChannelID": "703148400463314954",
-    "musicVolume": "0.4",
-    "botSpamChannelID": "702983707363115018"
+    "defaultMusicVolume": "0.4",
+    "servers": [
+        {
+            "id": "267640263348846592",
+            "pinTextChannelID": "703148400463314954",
+            "memeTextChannelID": "703131306476699648",
+            "musicVolume": "0.4",
+            "musicControlTextChannelID": "811618747948990535",
+            "botSpamChannelID": "702983707363115018"
+        }
+    ]
 }
