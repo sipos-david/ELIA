@@ -120,7 +120,12 @@ class Elia {
             }
 
             // execute commands
-            command.execute(message, args, this);
+            command.execute(message, args, this).then((_args) => {
+                if (command.shouldDelete && message)
+                    message.delete({
+                        timeout: this.dataComponent.getMessageDisplayTime(),
+                    });
+            });
             // Handle every error, so the thread doesn't get blocked
         } catch (error) {
             this.loggingComponent.error(error);

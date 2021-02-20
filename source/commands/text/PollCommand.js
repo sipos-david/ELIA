@@ -56,7 +56,6 @@ class PollCommand extends Command {
         }
 
         elia.loggingComponent.log(message.author.username + " created a poll");
-        message.delete();
     }
 }
 

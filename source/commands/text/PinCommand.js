@@ -7,6 +7,7 @@ class PinCommand extends Command {
     usage = " <message>";
     hasArguments = true;
     type = CommandTypeEnum.OTHER;
+    shouldDelete = false;
     async execute(message, args, elia) {
         const channelID = elia.dataComponent.getPinChannelId(message.guild.id);
         const channel = await message.client.channels.fetch(channelID);

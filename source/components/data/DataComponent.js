@@ -7,6 +7,10 @@ class DataComponent {
         return DataSource.token;
     }
 
+    getMessageDisplayTime() {
+        return parseInt(DataSource.messageDisplayTime);
+    }
+
     getPrefix() {
         return DataSource.prefix;
     }

@@ -1,6 +1,7 @@
 {
     "prefix": "!",
     "defaultMusicVolume": "0.4",
+    "messageDisplayTime": "10000",
     "servers": [
         {
             "id": "267640263348846592",

@@ -12,7 +12,13 @@ class MessageComponent {
      * @param {*} answer the answer in string
      */
     reply(message, answer) {
-        message.reply(this.buildBaseEmbed().setTitle(answer));
+        message.reply(this.buildBaseEmbed().setTitle(answer)).then((msg) => {
+            if (msg)
+                if (msg.channel.type !== "dm")
+                    msg.delete({
+                        timeout: this.elia.dataComponent.getMessageDisplayTime(),
+                    });
+        });
     }
 
     /**

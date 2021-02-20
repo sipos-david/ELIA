@@ -7,6 +7,7 @@ class MemeCommand extends Command {
     hasArguments = true;
     usage = " <link>";
     type = CommandTypeEnum.OTHER;
+    shouldDelete = false;
     async execute(message, args, elia) {
         const channelID = elia.dataComponent.getMemeChannelId(message.guild.id);
         const channel = await message.client.channels.fetch(channelID);

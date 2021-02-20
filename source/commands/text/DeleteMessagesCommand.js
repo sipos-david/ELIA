@@ -6,6 +6,7 @@ class DeleteMessagesCommand extends Command {
     description = "deletes messages";
     usage = " *required:* <number of messages before this command>";
     type = CommandTypeEnum.UTILITY;
+    shouldDelete = false;
     async execute(message, args, elia) {
         if (message.channel.type === "dm")
             return elia.messageComponent.reply(
