@@ -38,7 +38,7 @@ class Elia {
         /**
          * The MessageComponent for ELIA
          */
-        this.messageComponent = new MessageComponent();
+        this.messageComponent = new MessageComponent(this);
         /**
          * The Map of the usable commands.
          */
@@ -114,7 +114,8 @@ class Elia {
             // check if the command need arguments
             if (command.hasArguments && !args.length) {
                 return this.messageComponent.replyDidntProvideCommandArgs(
-                    message
+                    message,
+                    command
                 );
             }
 
