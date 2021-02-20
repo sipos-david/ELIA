@@ -94,16 +94,17 @@ class MusicQueue {
         }
     }
 
-    stopMusic() {
+    stopMusic(message) {
         this.musicQueueArray = new Array();
         this.playingMusic = false;
         this.pauseMusic = false;
         if (this.voiceChannel != null) {
             this.voiceChannel.leave();
-            elia.messageComponent.reply(
-                message,
-                "Bye Bye :smiling_face_with_tear:"
-            );
+            if (message != null)
+                this.elia.messageComponent.reply(
+                    message,
+                    "Bye Bye :smiling_face_with_tear:"
+                );
         }
         this.voiceChannel = null;
         this.connection = null;

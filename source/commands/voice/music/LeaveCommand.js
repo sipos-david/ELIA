@@ -8,7 +8,7 @@ class LeaveCommand extends Command {
     type = CommandTypeEnum.MUSIC;
     async execute(message, _args, elia) {
         if (elia.musicComponent.messageSenderInVoiceChannel(message)) {
-            elia.musicComponent.musicQueue.stopMusic();
+            elia.musicComponent.musicQueue.stopMusic(message);
         }
     }
 }
