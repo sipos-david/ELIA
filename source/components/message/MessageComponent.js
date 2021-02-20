@@ -108,8 +108,8 @@ class MessageComponent {
             .then(() => {
                 if (message.channel.type === "dm") return;
                 message
-                    .reply("I've sent you a DM with all my commands!")
-                    .then(message.delete());
+                    .then(message.delete())
+                    .reply("I've sent you a DM with all my commands!");
             })
             .catch((error) => {
                 this.elia.loggingCompont.error(
