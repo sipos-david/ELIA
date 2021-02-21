@@ -121,10 +121,19 @@ class Elia {
 
             // execute commands
             command.execute(message, args, this).then((_args) => {
-                if (command.shouldDelete && message)
-                    message.delete({
-                        timeout: this.dataComponent.getMessageDisplayTime(),
-                    });
+                if (
+                    command.shouldDelete &&
+                    message &&
+                    !message.deleted &&
+                    message.deletable
+                )
+                    message
+                        .delete({
+                            timeout: this.dataComponent.getMessageDisplayTime(),
+                        })
+                        .catch((error) => {
+                            console.log(error);
+                        });
             });
             // Handle every error, so the thread doesn't get blocked
         } catch (error) {
