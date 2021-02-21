@@ -114,13 +114,10 @@ class MessageComponent {
         return message.author
             .send(embedMessage)
             .then(() => {
-                if (message.channel.type === "dm") return;
-                message
-                    .then(message.delete())
-                    .reply("I've sent you a DM with all my commands!");
+                this.reply(message, "I've sent you a DM with all my commands!");
             })
             .catch((error) => {
-                this.elia.loggingCompont.error(
+                this.elia.loggingComponent.error(
                     `Could not send help DM to ${message.author.tag}.\n`,
                     error
                 );
