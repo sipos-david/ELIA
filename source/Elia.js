@@ -125,7 +125,8 @@ class Elia {
                     command.shouldDelete &&
                     message &&
                     !message.deleted &&
-                    message.deletable
+                    message.deletable &&
+                    message.channel.type !== "dm"
                 )
                     message
                         .delete({

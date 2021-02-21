@@ -13,13 +13,17 @@ class MessageComponent {
      */
     reply(message, answer) {
         message.reply(this.buildBaseEmbed().setTitle(answer)).then((msg) => {
-            if (msg && !msg.deleted && msg.deletable)
-                if (msg.channel.type !== "dm")
-                    msg.delete({
-                        timeout: this.elia.dataComponent.getMessageDisplayTime(),
-                    }).catch((error) => {
-                        console.log(error);
-                    });
+            if (
+                msg &&
+                !msg.deleted &&
+                msg.deletable &&
+                msg.channel.type !== "dm"
+            )
+                msg.delete({
+                    timeout: this.elia.dataComponent.getMessageDisplayTime(),
+                }).catch((error) => {
+                    console.log(error);
+                });
         });
     }
 
@@ -111,7 +115,7 @@ class MessageComponent {
             }
         );
 
-        return message.author
+        message.author
             .send(embedMessage)
             .then(() => {
                 this.reply(message, "I've sent you a DM with all my commands!");
@@ -148,8 +152,6 @@ class MessageComponent {
         );
 
         message.channel.send(embedMessage);
-
-        if (message.channel.type === "dm") return;
     }
 }
 
