@@ -8,7 +8,7 @@ class HelpCommand extends Command {
     type = CommandTypeEnum.UTILITY;
     guildOnly = false;
     shouldDelete = false;
-    execute(message, args, elia) {
+    async execute(message, args, elia) {
         elia.loggingComponent.log(message.author.username + " requested help");
 
         if (!args.length) {
