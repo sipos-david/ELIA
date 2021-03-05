@@ -1,0 +1,113 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<svg
+   xmlns:dc="http://purl.org/dc/elements/1.1/"
+   xmlns:cc="http://creativecommons.org/ns#"
+   xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+   xmlns:svg="http://www.w3.org/2000/svg"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:xlink="http://www.w3.org/1999/xlink"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   sodipodi:docname="elia-pic.svg"
+   inkscape:version="1.0 (4035a4fb49, 2020-05-01)"
+   id="svg8"
+   version="1.1"
+   viewBox="0 0 120 120"
+   height="120"
+   width="120"
+   inkscape:export-filename="E:\Development\Projects\ELIA\ELIA\resources\avatar\elia-pic.png"
+   inkscape:export-xdpi="819.20001"
+   inkscape:export-ydpi="819.20001">
+  <defs
+     id="defs2" />
+  <sodipodi:namedview
+     inkscape:pagecheckerboard="true"
+     inkscape:window-maximized="1"
+     inkscape:window-y="-8"
+     inkscape:window-x="1912"
+     inkscape:window-height="1017"
+     inkscape:window-width="1920"
+     showgrid="false"
+     inkscape:document-rotation="0"
+     inkscape:current-layer="layer1"
+     inkscape:document-units="px"
+     inkscape:cy="46.941509"
+     inkscape:cx="27.6995"
+     inkscape:zoom="4.9846437"
+     inkscape:pageshadow="2"
+     inkscape:pageopacity="0.0"
+     borderopacity="1.0"
+     bordercolor="#666666"
+     pagecolor="#ffffff"
+     id="base"
+     units="px" />
+  <metadata
+     id="metadata5">
+    <rdf:RDF>
+      <cc:Work
+         rdf:about="">
+        <dc:format>image/svg+xml</dc:format>
+        <dc:type
+           rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
+        <dc:title />
+      </cc:Work>
+    </rdf:RDF>
+  </metadata>
+  <g
+     transform="matrix(2.3040949,0,0,2.1110425,-91.377304,-12.17242)"
+     id="layer1"
+     inkscape:label="head">
+    <path
+       inkscape:label="head_background"
+       sodipodi:nodetypes="cscc"
+       id="path833"
+       d="m 43.946051,40.3915 c 0.47099,6.298292 -0.54626,15.770532 21.850677,15.601796 C 88.476677,55.822428 88.172359,45.721818 88.109538,40.811809 86.251089,4.8131284 45.958216,5.5956933 43.946051,40.3915 Z"
+       style="fill:#e6e6e6;stroke:#000000;stroke-width:0.529167;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1" />
+    <path
+       inkscape:label="shadow"
+       sodipodi:nodetypes="cccccc"
+       id="path867"
+       d="m 85.438224,28.996764 c 1.67701,3.832246 2.226383,8.085542 2.403242,12.477931 -0.06802,2.660879 0.08261,5.947565 -3.305315,9.292032 -3.366563,2.998991 -7.734432,4.010939 -12.324738,4.581473 -4.772725,0.654486 -8.592253,0.268605 -12.623483,0.113788 22.4028,-0.694919 30.282496,-3.690185 25.850294,-26.465224 z"
+       style="fill:#cccccc;stroke:none;stroke-width:0.119968px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1" />
+    <path
+       inkscape:label="light"
+       sodipodi:nodetypes="cccc"
+       id="path869"
+       d="m 64.800633,14.244706 c -10.90597,3.545304 -15.747481,8.298436 -20.461076,24.028872 0.430755,-5.444197 2.951396,-12.039561 5.768789,-15.571082 3.897127,-4.773576 6.720704,-6.834784 14.692287,-8.45779 z"
+       style="fill:#ffffff;stroke:none;stroke-width:0.119968px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1" />
+    <path
+       style="fill:#4d4d4d;stroke:#000000;stroke-width:0.402031;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+       d="m 48.739267,35.525822 c -0.0047,3.51499 8.427382,16.137219 17.131814,16.137756 8.868426,5.46e-4 18.011892,-12.68554 17.96295,-16.123914 -2.97288,-9.9214 -4.828637,-3.914342 -16.544794,-3.983656 -13.598838,-0.08045 -14.949776,-5.803366 -18.54997,3.969814 z"
+       id="path849"
+       sodipodi:nodetypes="cscsc"
+       inkscape:label="face_background" />
+    <path
+       inkscape:label="left_eye"
+       sodipodi:nodetypes="csc"
+       id="path851"
+       d="m 54.087103,36.643563 c 0,0 6.510225,-6.452738 10.258535,0.133046 1.74293,3.062328 -10.258535,-0.133046 -10.258535,-0.133046 z"
+       style="fill:#61d45a;fill-opacity:1;stroke:none;stroke-width:0.312284px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1" />
+    <path
+       style="fill:#61d45a;fill-opacity:1;stroke:none;stroke-width:0.312284px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
+       d="m 79.015986,36.871138 c 0,0 -6.510225,-6.452738 -10.258535,0.133046 -1.74293,3.062328 10.258535,-0.133046 10.258535,-0.133046 z"
+       id="path854"
+       sodipodi:nodetypes="csc"
+       inkscape:label="right_eye" />
+    <text
+       transform="translate(0,-3.5761934)"
+       inkscape:label="name"
+       style="font-style:normal;font-weight:normal;font-size:4.7987px;line-height:1.25;font-family:sans-serif;white-space:pre;fill:#000000;fill-opacity:1;stroke:none"
+       id="text856"
+       xml:space="preserve"><textPath
+         id="textPath864"
+         xlink:href="#path862"><tspan
+           id="tspan860"
+           style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-family:Bahnschrift;-inkscape-font-specification:Bahnschrift">E.L.I.A. - 01</tspan></textPath></text>
+    <path
+       inkscape:label="name_curve"
+       sodipodi:nodetypes="csc"
+       id="path862"
+       d="m 54.582011,29.923536 c 3.511723,0.323284 7.462427,1.717948 12.367203,1.690539 4.956221,-0.0277 8.335895,-1.0998 11.42264,-1.733204"
+       style="fill:none;stroke:#000000;stroke-width:0.117263px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1" />
+  </g>
+</svg>
