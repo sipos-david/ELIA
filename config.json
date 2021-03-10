@@ -10,6 +10,11 @@
             "musicVolume": "0.4",
             "musicControlTextChannelID": "811618747948990535",
             "botSpamChannelID": "702983707363115018"
+        },
+        {
+            "id": "566310480000581660",
+            "musicVolume": "0.4",
+            "botSpamChannelID": "700393089524564040"
         }
     ]
 }
