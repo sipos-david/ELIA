@@ -7,7 +7,7 @@ class LoggingComponent {
      *
      * @param {*} message the message
      */
-    log(message) {
+    async log(message) {
         console.log(message);
     }
 
