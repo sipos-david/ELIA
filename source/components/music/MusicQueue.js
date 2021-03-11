@@ -380,6 +380,7 @@ class MusicQueue {
             msg.reply(replyMsg).then((msg) =>
                 this.elia.messageComponent.deleteMsgTimeout(msg)
             );
+            this.elia.messageComponent.deleteMsgNow(msg);
         } else {
             this.elia.messageComponent.reply(
                 msg,
@@ -397,6 +398,7 @@ class MusicQueue {
                     "at " +
                     this.currentSong
             ).then((msg) => this.elia.messageComponent.deleteMsgTimeout(msg));
+            this.elia.messageComponent.deleteMsgNow(msg);
         } else {
             this.elia.messageComponent.reply(
                 msg,
