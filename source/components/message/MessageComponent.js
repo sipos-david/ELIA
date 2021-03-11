@@ -1,4 +1,5 @@
 const Discord = require("discord.js");
+const ms = require("ms");
 const CommandTypeEnum = require("../../commands/CommandTypeEnum");
 class MessageComponent {
     constructor(elia) {
@@ -13,17 +14,7 @@ class MessageComponent {
      */
     reply(message, answer) {
         let replyMsg = this.buildBaseEmbed().setTitle(answer);
-
-        if (message.channel.type !== "dm")
-            replyMsg.setFooter(
-                `${message.member.displayName}`,
-                message.author.displayAvatarURL()
-            );
-        else
-            replyMsg.setFooter(
-                `${message.author.username}`,
-                message.author.displayAvatarURL()
-            );
+        this.addFooterToEmbed(message, replyMsg);
 
         message.reply(replyMsg).then((msg) => {
             this.deleteMsgTimeout(msg);
@@ -56,13 +47,9 @@ class MessageComponent {
      */
     replyDidntProvideCommandArgs(message, command) {
         let embedMessage = this.buildBaseEmbed();
+        this.addFooterToEmbed(message, embedMessage);
 
         embedMessage.setTitle(`You didn't provide any arguments!`);
-
-        embedMessage.setFooter(
-            `${message.author.tag}.`,
-            message.author.displayAvatarURL()
-        );
 
         if (command.usage) {
             embedMessage.addField(
@@ -84,11 +71,23 @@ class MessageComponent {
         return new Discord.MessageEmbed().setColor(0x61b15a);
     }
 
+    addFooterToEmbed(message, embedMessage) {
+        if (message.channel.type !== "dm")
+            embedMessage.setFooter(
+                `${message.member.displayName}`,
+                message.author.displayAvatarURL()
+            );
+        else
+            embedMessage.setFooter(
+                `${message.author.username}`,
+                message.author.displayAvatarURL()
+            );
+    }
+
     helpSendAllCommands(message) {
         let embedMessage = this.buildBaseEmbed();
-
+        this.addFooterToEmbed(message, embedMessage);
         embedMessage.setTitle("Here's a list of all my commands:");
-
         embedMessage.setThumbnail(this.elia.bot.user.displayAvatarURL());
 
         let musicCommandsList = [];
@@ -158,6 +157,7 @@ class MessageComponent {
 
     helpCommandUsage(message, command) {
         let embedMessage = this.buildBaseEmbed();
+        this.addFooterToEmbed(message, embedMessage);
 
         embedMessage.setTitle("Here's the help for: " + command.name);
 
@@ -176,8 +176,10 @@ class MessageComponent {
             }
         );
 
-        message.channel.send(embedMessage).then((msg) => this.deleteMsg(msg));
-        this.deleteMsgTimeout(embedMessage);
+        message.channel
+            .send(embedMessage)
+            .then((msg) => this.deleteMsgTimeout(msg));
+        this.deleteMsgNow(message);
     }
 }
 
