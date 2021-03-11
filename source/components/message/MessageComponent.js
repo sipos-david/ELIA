@@ -12,7 +12,20 @@ class MessageComponent {
      * @param {*} answer the answer in string
      */
     reply(message, answer) {
-        message.reply(this.buildBaseEmbed().setTitle(answer)).then((msg) => {
+        let replyMsg = this.buildBaseEmbed().setTitle(answer);
+
+        if (message.channel.type !== "dm")
+            replyMsg.setFooter(
+                `${message.member.displayName}`,
+                message.author.displayAvatarURL()
+            );
+        else
+            replyMsg.setFooter(
+                `${message.author.username}`,
+                message.author.displayAvatarURL()
+            );
+
+        message.reply(replyMsg).then((msg) => {
             this.deleteMsgTimeout(msg);
         });
         this.deleteMsgNow(message);
