@@ -13,18 +13,25 @@ class MessageComponent {
      */
     reply(message, answer) {
         message.reply(this.buildBaseEmbed().setTitle(answer)).then((msg) => {
-            if (
-                msg &&
-                !msg.deleted &&
-                msg.deletable &&
-                msg.channel.type !== "dm"
-            )
-                msg.delete({
-                    timeout: this.elia.dataComponent.getMessageDisplayTime(),
-                }).catch((error) => {
-                    console.log(error);
-                });
+            this.deleteMsgTimeout(msg);
         });
+        this.deleteMsgNow(message);
+    }
+
+    deleteMsgTimeout(msg) {
+        if (msg && !msg.deleted && msg.deletable && msg.channel.type !== "dm")
+            msg.delete({
+                timeout: this.elia.dataComponent.getMessageDisplayTime(),
+            }).catch((error) => {
+                console.log(error);
+            });
+    }
+
+    deleteMsgNow(msg) {
+        if (msg && !msg.deleted && msg.deletable && msg.channel.type !== "dm")
+            msg.delete().catch((error) => {
+                console.log(error);
+            });
     }
 
     /**
@@ -54,7 +61,10 @@ class MessageComponent {
             );
         }
 
-        message.channel.send(embedMessage);
+        message.channel
+            .send(embedMessage)
+            .then((msg) => this.deleteMsgTimeout(msg));
+        this.deleteMsgNow(message);
     }
 
     buildBaseEmbed() {
@@ -117,8 +127,10 @@ class MessageComponent {
 
         message.author
             .send(embedMessage)
-            .then(() => {
+            .then((msg) => {
                 this.reply(message, "I've sent you a DM with all my commands!");
+                this.deleteMsgNow(msg);
+                this.deleteMsgTimeout(embedMessage);
             })
             .catch((error) => {
                 this.elia.loggingComponent.error(
@@ -151,7 +163,8 @@ class MessageComponent {
             }
         );
 
-        message.channel.send(embedMessage);
+        message.channel.send(embedMessage).then((msg) => this.deleteMsg(msg));
+        this.deleteMsgTimeout(embedMessage);
     }
 }
 

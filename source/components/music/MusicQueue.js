@@ -124,7 +124,6 @@ class MusicQueue {
                 "You can't pause the music right now."
             );
         }
-        msg.delete();
     }
 
     async resumeMusic(msg) {
@@ -150,7 +149,6 @@ class MusicQueue {
                 "You can't resume the music right now."
             );
         }
-        msg.delete();
     }
 
     playMusicFromQueue(msg, title = null) {
@@ -379,7 +377,9 @@ class MusicQueue {
                     replyMsg += i + 1 + ". " + title + "\n";
                 }
             }
-            msg.reply(replyMsg);
+            msg.reply(replyMsg).then((msg) =>
+                this.elia.messageComponent.deleteMsgTimeout(msg)
+            );
         } else {
             this.elia.messageComponent.reply(
                 msg,
@@ -396,7 +396,7 @@ class MusicQueue {
                     currenTitle +
                     "at " +
                     this.currentSong
-            );
+            ).then((msg) => this.elia.messageComponent.deleteMsgTimeout(msg));
         } else {
             this.elia.messageComponent.reply(
                 msg,
