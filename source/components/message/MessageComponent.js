@@ -66,7 +66,7 @@ class MessageComponent {
 
         embedMessage.setTitle("Here's a list of all my commands:");
 
-        embedMessage.setThumbnail(this.elia.bot.user.defaultAvatarURL);
+        embedMessage.setThumbnail(this.elia.bot.user.displayAvatarURL());
 
         let musicCommandsList = [];
         let soundEffectCommandsList = [];
@@ -136,7 +136,7 @@ class MessageComponent {
 
         embedMessage.setTitle("Here's the help for: " + command.name);
 
-        embedMessage.setThumbnail(this.elia.bot.user.defaultAvatarURL);
+        embedMessage.setThumbnail(this.elia.bot.user.displayAvatarURL());
 
         embedMessage.addFields(
             {
