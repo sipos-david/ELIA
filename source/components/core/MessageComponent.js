@@ -1,4 +1,4 @@
-const { Client, Message, Discord } = require("discord.js");
+const { Client, Message, MessageEmbed } = require("discord.js");
 const Command = require("../../commands/Command");
 const CommandTypeEnum = require("../../commands/CommandTypeEnum");
 const Elia = require("../../Elia");
@@ -113,17 +113,17 @@ class MessageComponent {
     /**
      * Return a base embed
      *
-     * @returns {Discord.MessageEmbed} a base embedded message
+     * @returns {MessageEmbed} a base embedded message
      */
     buildBaseEmbed() {
-        return new Discord.MessageEmbed().setColor(0x61b15a);
+        return new MessageEmbed().setColor(0x61b15a);
     }
 
     /**
      * Add's a simple footer to the embed message
      *
-     * @param {Discord.MessageEmbed} message
-     * @param {Discord.MessageEmbed} embedMessage the edited embed message
+     * @param {MessageEmbed} message the message to be edited
+     * @param {MessageEmbed} embedMessage the edited embed message
      */
     addFooterToEmbed(message, embedMessage) {
         if (message.channel.type !== "dm")
