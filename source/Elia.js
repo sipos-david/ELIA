@@ -111,7 +111,7 @@ class Elia {
     getAvaliableCommands() {
         let commands = "Avaliable commands: ";
         this.commandMap.forEach((e) => (commands += " " + e.name + ","));
-        commands = commands.substring(0, str.length - 1);
+        commands = commands.substring(0, commands.length - 1);
         this.loggingComponent.log(commands);
     }
 

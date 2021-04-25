@@ -31,7 +31,7 @@ let EliaBot = new Elia(
     messageComponent
 );
 
-// Add function component'
+// Add function component's
 EliaBot.addComponent(new CommandComponent());
 EliaBot.addComponent(new MusicComponent());
 EliaBot.addComponent(new SoundEffectComponent());

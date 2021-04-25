@@ -11,7 +11,7 @@ class HelpCommand extends Command {
         elia.loggingComponent.log(message.author.username + " requested help");
 
         if (!args.length) {
-            elia.messageComponent.helpSendAllCommands(message);
+            elia.messageComponent.helpSendAllCommands(message, elia);
         } else {
             const command = elia.commandMap.get(args[0].toLowerCase());
 
