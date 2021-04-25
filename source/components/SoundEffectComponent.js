@@ -1,5 +1,6 @@
-const SoundEffectCommand = require("../commands/voice/soundeffects/SoundEffectCommand");
+const SoundEffectCommand = require("../commands/voice/SoundEffectCommand");
 const fs = require("fs");
+const Elia = require("../Elia");
 
 /**
  * Component for ELIA which adds sound effect commands
@@ -8,7 +9,7 @@ class SoundEffectComponent {
     /**
      * Adds the sound effect commands to the ELIA object in the parameter.
      *
-     * @param {*} elia an ELIA object
+     * @param {Elia} elia an ELIA object
      */
     init(elia) {
         //import sound effects

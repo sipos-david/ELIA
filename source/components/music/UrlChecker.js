@@ -1,3 +1,9 @@
+/**
+ * Check's if a string is a valid URL or not
+ *
+ * @param {string} str the string containing an URL
+ * @returns {boolean} true if the string is a valid URL, else false
+ */
 module.exports = function validURL(str) {
     let pattern = new RegExp(
         "^(https?:\\/\\/)?" + // protocol

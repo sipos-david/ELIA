@@ -1,18 +1,37 @@
-const Discord = require("discord.js");
-const ms = require("ms");
+const { Client, Message, Discord } = require("discord.js");
+const Command = require("../../commands/Command");
 const CommandTypeEnum = require("../../commands/CommandTypeEnum");
+const Elia = require("../../Elia");
+const DataComponent = require("./DataComponent");
+const LoggingComponent = require("./LoggingComponent");
+
+/**
+ * Component that handles ELIA-s messages. Sends Discord embedded messages.
+ */
 class MessageComponent {
     constructor(bot, dataComponent, loggingComponent) {
+        /**
+         * The Discord Client
+         * @type {Client}
+         */
         this.bot = bot;
+        /**
+         * The component for data
+         * @type {DataComponent}
+         */
         this.dataComponent = dataComponent;
+        /**
+         * The component for logging
+         * @type {LoggingComponent}
+         */
         this.loggingComponent = loggingComponent;
     }
 
     /**
      * Replies to the message.
      *
-     * @param {*} message the Discord message
-     * @param {*} answer the answer in string
+     * @param {Message} message the Discord message to reply to
+     * @param {string} answer the answer in string
      */
     reply(message, answer) {
         let replyMsg = this.buildBaseEmbed().setTitle(answer);
@@ -24,19 +43,41 @@ class MessageComponent {
         this.deleteMsgNow(message);
     }
 
-    deleteMsgTimeout(msg) {
-        if (msg && !msg.deleted && msg.deletable && msg.channel.type !== "dm")
-            msg.delete({
-                timeout: this.dataComponent.getMessageDisplayTime(),
-            }).catch((error) => {
-                console.log(error);
-            });
+    /**
+     * Deletes a message after a given time.
+     *
+     * @param {Message} message the Discord message to delete
+     */
+    deleteMsgTimeout(message) {
+        if (
+            message &&
+            !message.deleted &&
+            message.deletable &&
+            message.channel.type !== "dm"
+        )
+            message
+                .delete({
+                    timeout: this.dataComponent.getMessageDisplayTime(),
+                })
+                .catch((error) => {
+                    this.loggingComponent.error(error);
+                });
     }
 
-    deleteMsgNow(msg) {
-        if (msg && !msg.deleted && msg.deletable && msg.channel.type !== "dm")
-            msg.delete().catch((error) => {
-                console.log(error);
+    /**
+     * Deletes a message instantly.
+     *
+     * @param {Message} message the Discord message to delete
+     */
+    deleteMsgNow(message) {
+        if (
+            message &&
+            !message.deleted &&
+            message.deletable &&
+            message.channel.type !== "dm"
+        )
+            message.delete().catch((error) => {
+                this.loggingComponent.error(error);
             });
     }
 
@@ -44,8 +85,8 @@ class MessageComponent {
      * Replies to the user that no arguments was provided, but
      * it was necessary, with the proper command ussage.
      *
-     * @param {*} message the Discord message
-     * @param {*} command the command object
+     * @param {Message} message the Discord message which has the command
+     * @param {Command} command the used Command
      */
     replyDidntProvideCommandArgs(message, command) {
         let embedMessage = this.buildBaseEmbed();
@@ -69,10 +110,21 @@ class MessageComponent {
         this.deleteMsgNow(message);
     }
 
+    /**
+     * Return a base embed
+     *
+     * @returns {Discord.MessageEmbed} a base embedded message
+     */
     buildBaseEmbed() {
         return new Discord.MessageEmbed().setColor(0x61b15a);
     }
 
+    /**
+     * Add's a simple footer to the embed message
+     *
+     * @param {Discord.MessageEmbed} message
+     * @param {Discord.MessageEmbed} embedMessage the edited embed message
+     */
     addFooterToEmbed(message, embedMessage) {
         if (message.channel.type !== "dm")
             embedMessage.setFooter(
@@ -86,6 +138,12 @@ class MessageComponent {
             );
     }
 
+    /**
+     * Reply's all commands to the user
+     *
+     * @param {Message} message the Discord message which requested all commands
+     * @param {Elia} elia the Elia object which got the request
+     */
     helpSendAllCommands(message, elia) {
         let embedMessage = this.buildBaseEmbed();
         this.addFooterToEmbed(message, embedMessage);
@@ -97,19 +155,19 @@ class MessageComponent {
         let utilityCommandsList = [];
         let otherCommandsList = [];
 
-        elia.commandMap.forEach((element) => {
-            switch (element.type) {
+        elia.commandMap.forEach((command) => {
+            switch (command.type) {
                 case CommandTypeEnum.MUSIC:
-                    musicCommandsList.push(element.name);
+                    musicCommandsList.push(command.name);
                     break;
                 case CommandTypeEnum.SOUNDEFFECT:
-                    soundEffectCommandsList.push(element.name);
+                    soundEffectCommandsList.push(command.name);
                     break;
                 case CommandTypeEnum.UTILITY:
-                    utilityCommandsList.push(element.name);
+                    utilityCommandsList.push(command.name);
                     break;
                 case CommandTypeEnum.OTHER:
-                    otherCommandsList.push(element.name);
+                    otherCommandsList.push(command.name);
                     break;
             }
         });
@@ -157,6 +215,12 @@ class MessageComponent {
             });
     }
 
+    /**
+     * Reply's a command use to the user
+     *
+     * @param {Message} message the Discord message which requested help for a command
+     * @param {Elia} elia the Elia object which got the request
+     */
     helpCommandUsage(message, command) {
         let embedMessage = this.buildBaseEmbed();
         this.addFooterToEmbed(message, embedMessage);

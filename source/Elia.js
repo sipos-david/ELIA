@@ -2,16 +2,21 @@ const DataComponent = require("./components/core/DataComponent");
 const ActivityDisplayComponent = require("./components/core/ActivityDisplayComponent");
 const LoggingComponent = require("./components/core/LoggingComponent");
 const MessageComponent = require("./components/core/MessageComponent");
+const { Client, Message } = require("discord.js");
+const Command = require("./commands/Command");
 
+/**
+ *  Main class for the Discord bot
+ */
 class Elia {
     /**
      * Setup's Elia with all the components.
      *
-     * @param {*} bot The Discord bot client
+     * @param {Client} bot The Discord bot client
      * @param {DataComponent} dataComponent The data used by ELIA
      * @param {LoggingComponent} loggingComponent The component used for logging
      * @param {ActivityDisplayComponent} activityDisplayComponent The component used for displaying the current activity of ELIA
-     * @param {MessageComponent} messageComponent The component for sending messages used by ELIA
+     * @param {MessageComponent} messageComponent The component used by ELIA for sending messages
      */
     constructor(
         bot,
@@ -22,17 +27,36 @@ class Elia {
     ) {
         /**
          * The Discord bot client
+         * @type {Client}
          */
         this.bot = bot;
         /**
          * The Map of the usable commands.
+         * @type {Map<string,Command>}
          */
         this.commandMap = new Map();
 
-        // Core components
+        // Add core components
+
+        /**
+         * The data used by ELIA
+         * @type {DataComponent}
+         */
         this.dataComponent = dataComponent;
+        /**
+         * The component used for logging
+         * @type {LoggingComponent}
+         */
         this.loggingComponent = loggingComponent;
+        /**
+         * The component used for displaying the current activity of ELIA
+         * @type {ActivityDisplayComponent}
+         */
         this.activityDisplayComponent = activityDisplayComponent;
+        /**
+         * The component used by ELIA for sending messages
+         * @type {MessageComponent}
+         */
         this.messageComponent = messageComponent;
     }
 
@@ -47,7 +71,7 @@ class Elia {
     /**
      * Handle the received messages.
      *
-     * @param {*} message the Discord message the bot received
+     * @param {Message} message the Discord message the bot received
      */
     onMessage(message) {
         try {

@@ -1,7 +1,14 @@
-const Command = require("../../Command");
-const CommandTypeEnum = require("../../CommandTypeEnum");
+const Command = require("../Command");
+const CommandTypeEnum = require("../CommandTypeEnum");
 
+/**
+ * Command for playing sound effects
+ */
 class SoundEffectCommand extends Command {
+    /**
+     * @param {string} name the command's name
+     * @param {?number} volume the volume of the played sound
+     */
     constructor(name, volume) {
         super();
         this.name = name;
@@ -9,11 +16,14 @@ class SoundEffectCommand extends Command {
         this.description = "plays " + this.name + "soundeffect";
 
         if (volume != null) this.soundEffectVolume = volume;
-        else this.soundEffectVolume = 0.8;
     }
     usage = " ";
     type = CommandTypeEnum.SOUNDEFFECT;
-    soundEffectVolume;
+    /**
+     * the volume of the played sound
+     * @type {number}
+     */
+    soundEffectVolume = 0.8;
 
     async execute(message, _args, elia) {
         if (elia.musicComponent.messageSenderInVoiceChannel(message)) {

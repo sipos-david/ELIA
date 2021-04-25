@@ -1,3 +1,5 @@
+const Elia = require("../../Elia.js");
+const { VoiceConnection, VoiceChannel, Message } = require("discord.js");
 const playFromURL = require("./UrlPlay.js");
 const ytpl = require("ytpl");
 const ytdl = require("ytdl-core");
@@ -6,51 +8,108 @@ const ytdl = require("ytdl-core");
  * A music queue that play's music.
  */
 class MusicQueue {
-    constructor(newELia) {
-        this.elia = newELia;
-    }
-    // --- Music ---
     /**
-     * Array of Youtube links
+     * @param {Elia} elia the Elia object the music queue uses
+     */
+    constructor(elia) {
+        /**
+         * The ELIA object
+         * @type {Elia}
+         */
+        this.elia = elia;
+    }
+
+    // --- Music ---
+
+    /**
+     * Array of YouTube links
+     * @type {Array<string>}
      */
     musicQueueArray = new Array();
     /**
-     * The cache for youtube titles
+     * The cache for YouTube titles
      *
-     * Key is youtube ID,
+     * Key is YouTube ID,
      * Value is the title
+     * @type {Map<string,string>}
      */
     titleMap = new Map();
     /**
-     * Youtube link to the last song
+     * YouTube link to the last song
+     * @type {?string}
      */
     lastSong = null;
     /**
-     * Youtube link to the current song
+     * YouTube link to the current song
+     * @type {?string}
      */
     currentSong = null;
+    /**
+     * The current song's name
+     * @type {?string}
+     */
     currentSongName = null;
 
     // --- Discord data ---
+
+    /**
+     * The joined voice channel, null if not joined any
+     *
+     * @type {?VoiceChannel}
+     */
     voiceChannel = null;
+    /**
+     * The joined voice channel, null if not joined any
+     *
+     * @type {?VoiceConnection}
+     */
     connection = null;
 
     // --- Flags ---
-    paused = false;
-    playingMusic = false;
-    loopSong = false;
-    loopQueue = false;
+
+    /**
+     * Determines if music is being played is paused or not
+     *
+     * @type {boolean}
+     */
+    isPaused = false;
+    /**
+     * Determines if music is being played
+     *
+     * @type {boolean}
+     */
+    isPlayingMusic = false;
+    /**
+     * Determines if the current song is being looped or not
+     *
+     * @type {boolean}
+     */
+    isLoopingSong = false;
+    /**
+     * Determines if the current queue is being looped or not
+     *
+     * @type {boolean}
+     */
+    isLoopingQueue = false;
 
     // --- Music control functions ---
 
-    async playMusic(msg, voiceChannel, url, title = null) {
+    /**
+     * Play's music. If currently playing music, overrides it, if not, start playing music.
+     *
+     * @param {Message} message the Discord message containing the URL
+     * @param {VoiceChannel} voiceChannel the message sender's voice channel
+     * @param {string} url the YouTube link to the music
+     * @param {string} title the YouTube video's title
+     */
+    async playMusic(message, voiceChannel, url, title = null) {
         if (voiceChannel == null) return;
 
         if (this.currentSong != null)
             this.musicQueueArray.unshift(this.currentSong);
 
         this.musicQueueArray.unshift(url);
-        this.cacheYoutubeTitle(url);
+        this.cacheYouTubeTitle(url);
         this.playingMusic = true;
 
         if (
@@ -61,33 +120,43 @@ class MusicQueue {
             this.connection = await voiceChannel.join();
         }
 
-        this.playMusicFromQueue(msg, title);
+        this.playMusicFromQueue(message, title);
     }
 
-    async replayMusic(msg) {
+    /**
+     * Replay's the current song
+     *
+     * @param {Message} message the Discord message which requested the replay
+     */
+    async replayMusic(message) {
         if (this.lastSong != null) {
             this.elia.musicComponent.musicQueue.playMusic(
-                msg,
-                msg.member.voice.channel,
+                message,
+                message.member.voice.channel,
                 this.lastSong
             );
-            this.elia.messageComponent.reply(msg, "You replayed a song!");
+            this.elia.messageComponent.reply(message, "You replayed a song!");
             this.elia.loggingComponent.log(
-                msg.author.username + " replayed a song"
+                message.author.username + " replayed a song"
             );
         } else {
             this.elia.messageComponent.reply(
-                msg,
+                message,
                 "It seems there are no song to replay."
             );
         }
     }
 
+    /**
+     * Stop's playing music
+     *
+     * @param {Message} message
+     */
     stopMusic(message) {
         this.musicQueueArray = new Array();
         this.titleMap = new Map();
-        this.playingMusic = false;
-        this.pauseMusic = false;
+        this.isPlayingMusic = false;
+        this.isPaused = false;
         if (this.voiceChannel != null) {
             this.voiceChannel.leave();
             if (message != null)
@@ -99,59 +168,78 @@ class MusicQueue {
         this.voiceChannel = null;
         this.connection = null;
         this.currentSong = null;
-        this.loopSong = false;
-        this.loopQueue = false;
+        this.isLoopingSong = false;
+        this.isLoopingQueue = false;
         this.elia.activityDisplayComponent.setDefault();
     }
 
-    async pauseMusic(msg) {
+    /**
+     * Pauses the music
+     *
+     * @param {Message} message the Discord message which requested the pause
+     */
+    async pauseMusic(message) {
         if (
-            !this.paused &&
+            !this.isPaused &&
             this.voiceChannel != null &&
             this.connection != null
         ) {
-            this.paused = true;
+            this.isPaused = true;
             if (this.connection.dispatcher != null) {
                 this.connection.dispatcher.pause();
-                this.elia.messageComponent.reply(msg, "You paused the music.");
+                this.elia.messageComponent.reply(
+                    message,
+                    "You paused the music."
+                );
                 this.elia.loggingComponent.log(
-                    msg.author.username + " paused the music"
+                    message.author.username + " paused the music"
                 );
             }
         } else {
             this.elia.messageComponent.reply(
-                msg,
+                message,
                 "You can't pause the music right now."
             );
         }
     }
 
-    async resumeMusic(msg) {
+    /**
+     * Resumes playing music
+     *
+     * @param {Message} message the Discord message which requested the resume
+     */
+    async resumeMusic(message) {
         if (
-            this.paused &&
+            this.isPaused &&
             this.voiceChannel != null &&
             this.connection != null
         ) {
-            this.paused = false;
+            this.isPaused = false;
             if (this.connection.dispatcher != null) {
                 this.elia.messageComponent.reply(
-                    msg,
+                    message,
                     "You resumed playing the music."
                 );
                 this.elia.loggingComponent.log(
-                    msg.author.username + " resumed playing the music"
+                    message.author.username + " resumed playing the music"
                 );
             }
             this.connection.dispatcher.resume();
         } else {
             this.elia.messageComponent.reply(
-                msg,
+                message,
                 "You can't resume the music right now."
             );
         }
     }
 
-    playMusicFromQueue(msg, title = null) {
+    /**
+     * Play's music from the queue
+     *
+     * @param {?Message} message the Discord message which requested to queue a song, default value is null
+     * @param {?string} title the title of music, default value is null
+     */
+    playMusicFromQueue(message = null, title = null) {
         if (this.musicQueueArray.length > 0) {
             this.lastSong = this.currentSong;
             this.currentSong = this.musicQueueArray.shift();
@@ -162,7 +250,7 @@ class MusicQueue {
             this.elia.activityDisplayComponent.setMusicPlaying();
             playFromURL(
                 this.elia,
-                msg,
+                message,
                 this.connection,
                 this.currentSong,
                 title
@@ -170,17 +258,28 @@ class MusicQueue {
         }
     }
 
-    async queueMusic(msg, url) {
+    /**
+     * Queues a music from YouTube
+     *
+     * @param {Message} message the Discord message which requested to queue a song,
+     * @param {string} url YouTube link to the music
+     */
+    async queueMusic(message, url) {
         await this.elia.messageComponent.reply(
-            msg,
+            message,
             ":musical_note: Queued: ***" + url + "***"
         );
-        this.elia.loggingComponent.log(msg.author.username + " queued: " + url);
+        this.elia.loggingComponent.log(
+            message.author.username + " queued: " + url
+        );
         if (this.musicQueueArray.push(url) == 1 && this.playingMusic == false) {
-            this.playMusic(msg, msg.member.voice.channel, url);
+            this.playMusic(message, message.member.voice.channel, url);
         }
     }
 
+    /**
+     * Continues playing music if the queue is not empty
+     */
     continuePlayingMusic() {
         if (this.musicQueueArray.length > 0 && this.hasMembersInVoice()) {
             this.playMusicFromQueue();
@@ -191,13 +290,25 @@ class MusicQueue {
 
     // --- Queue manipulation functions ---
 
-    async skipSong(msg) {
-        this.elia.messageComponent.reply(msg, "You skipped a song!");
-        this.elia.loggingComponent.log(msg.author.username + " skipped a song");
+    /**
+     * Skip's a song
+     *
+     * @param {Message} message the Discord message which requested to skip a song
+     */
+    async skipSong(message) {
+        this.elia.messageComponent.reply(message, "You skipped a song!");
+        this.elia.loggingComponent.log(
+            message.author.username + " skipped a song"
+        );
         this.continuePlayingMusic();
     }
 
-    shuffleMusic(msg) {
+    /**
+     * Shuffle's the queue
+     *
+     * @param {Message} message the Discord message which requested to shuffle the queue
+     */
+    shuffleMusic(message) {
         if (this.musicQueueArray.length >= 2) {
             for (var i = this.musicQueueArray.length - 1; i > 0; i--) {
                 var j = Math.floor(Math.random() * (i + 1));
@@ -205,84 +316,122 @@ class MusicQueue {
                 this.musicQueueArray[i] = this.musicQueueArray[j];
                 this.musicQueueArray[j] = temp;
             }
-            this.elia.messageComponent.reply(msg, "You shuffled the music.");
+            this.elia.messageComponent.reply(
+                message,
+                "You shuffled the music."
+            );
             this.elia.loggingComponent.log(
-                msg.author.username + " shuffled the music"
+                message.author.username + " shuffled the music"
             );
         }
     }
 
-    removeFromQueue(number, msg) {
+    /**
+     * Removes music from the queue
+     *
+     * @param {string} number the index or range in the queue
+     * @param {Message} message the Discord message which requested to remove the music from the queue
+     */
+    removeFromQueue(number, message) {
         if (number.indexOf("-") === -1) {
-            this.removeSongFromQueue(parseInt(number) - 1, msg);
+            this.removeSongFromQueue(parseInt(number) - 1, message);
         } else {
             let indexes = number.split("-");
             if (indexes.length <= 1) return;
             let indexFrom = parseInt(indexes[0]) - 1;
             let indexTo = parseInt(indexes[1]) - 1;
-            if (indexFrom == indexTo) this.removeSongFromQueue(indexFrom, msg);
+            if (indexFrom == indexTo)
+                this.removeSongFromQueue(indexFrom, message);
             else if (indexFrom < indexTo)
-                this.removeSongsRangeFromQueue(indexFrom, indexTo, msg);
-            else this.removeSongsRangeFromQueue(indexTo, indexFrom, msg);
+                this.removeSongsRangeFromQueue(indexFrom, indexTo, message);
+            else this.removeSongsRangeFromQueue(indexTo, indexFrom, message);
         }
     }
 
-    async removeSongFromQueue(index, msg) {
+    /**
+     * Removes a single entity from the queue
+     *
+     * @param {number} index the index in the queue
+     * @param {Message} message the Discord message which requested to remove the music from the queue
+     */
+    async removeSongFromQueue(index, message) {
         if (index < 0 || index > this.musicQueueArray.length) return;
-        let removedSong = this.getYoutubeTitleFromCache(
+        let removedSong = this.getYouTubeTitleFromCache(
             this.musicQueueArray[index]
         );
-        this.removeYoutubeTitleFromCache(this.musicQueueArray[index]);
+        this.removeYouTubeTitleFromCache(this.musicQueueArray[index]);
         if (index == 0 && this.musicQueueArray.length == 1)
             this.musicQueueArray = new Array();
         else this.musicQueueArray.splice(index, 1);
-        this.elia.loggingComponent.log(msg.author.username + " removed a song");
-        this.elia.messageComponent.reply(msg, "Removed song: " + removedSong);
+        this.elia.loggingComponent.log(
+            message.author.username + " removed a song"
+        );
+        this.elia.messageComponent.reply(
+            message,
+            "Removed song: " + removedSong
+        );
     }
 
-    async removeSongsRangeFromQueue(indexFrom, indexTo, msg) {
+    /**
+     * Removes a range of music from the queue
+     *
+     * @param {number} from the first index in the queue
+     * @param {number} to the last index in the queue
+     * @param {Message} message the Discord message which requested to remove the music from the queue
+     */
+    async removeSongsRangeFromQueue(from, to, message) {
         let removedSongs = new Array();
 
-        for (let i = indexFrom; i <= indexTo; i++) {
+        for (let i = from; i <= to; i++) {
             removedSongs.push(this.musicQueueArray[i]);
         }
 
-        if (indexFrom == 0 && indexTo == this.musicQueueArray.length - 1)
+        if (from == 0 && to == this.musicQueueArray.length - 1)
             this.musicQueueArray = new Array();
-        else this.musicQueueArray.splice(indexFrom, indexTo - indexFrom + 1);
+        else this.musicQueueArray.splice(from, to - from + 1);
 
-        let replyMsg = "***Removed " + removedSongs.length + " songs:***\n";
+        let reply = "***Removed " + removedSongs.length + " songs:***\n";
         for (let i = 0; i < removedSongs.length; i++) {
-            let removedSong = this.getYoutubeTitleFromCache(removedSongs[i]);
-            this.removeYoutubeTitleFromCache(this.musicQueueArray[index]);
-            replyMsg += removedSong + "\n";
+            let removedSong = this.getYouTubeTitleFromCache(removedSongs[i]);
+            this.removeYouTubeTitleFromCache(this.musicQueueArray[index]);
+            reply += removedSong + "\n";
         }
         this.elia.loggingComponent.log(
-            msg.author.username + " removed " + removedSongs.length + " songs"
+            message.author.username +
+                " removed " +
+                removedSongs.length +
+                " songs"
         );
 
-        msg.reply(replyMsg);
+        message.reply(reply);
     }
 
-    loopCurrentSong(msg) {
-        if (this.playingMusic) {
-            if (this.loopSong) {
-                this.loopSong = false;
+    /**
+     * Start's or stop's looping the current song in the queue
+     *
+     * @param {Message} message the Discord message which requested to loop the current song
+     */
+    loopCurrentSong(message) {
+        if (this.isPlayingMusic) {
+            if (this.isLoopingSong) {
+                this.isLoopingSong = false;
                 this.elia.messageComponent.reply(
-                    msg,
+                    message,
                     "You stopped looping the current song!"
                 );
                 this.elia.loggingComponent.log(
-                    msg.author.username + " stopped looping the current song"
+                    message.author.username +
+                        " stopped looping the current song"
                 );
             } else {
-                this.loopSong = true;
+                this.isLoopingSong = true;
                 this.elia.messageComponent.reply(
-                    msg,
+                    message,
                     "You started looping the current song!"
                 );
                 this.elia.loggingComponent.log(
-                    msg.author.username + " started looping the current song"
+                    message.author.username +
+                        " started looping the current song"
                 );
                 if (
                     this.currentSong != null &&
@@ -294,25 +443,30 @@ class MusicQueue {
         }
     }
 
-    loopMusicQueue(msg) {
-        if (this.playingMusic) {
-            if (this.loopQueue) {
-                this.loopQueue = false;
+    /**
+     * Start's or stop's looping the current queue in the queue
+     *
+     * @param {Message} message the Discord message which requested to loop the queue
+     */
+    loopMusicQueue(message) {
+        if (this.isPlayingMusic) {
+            if (this.isLoopingQueue) {
+                this.isLoopingQueue = false;
                 this.elia.messageComponent.reply(
-                    msg,
+                    message,
                     "You stopped looping the queue!"
                 );
                 this.elia.loggingComponent.log(
-                    msg.author.username + " stopped looping the queue"
+                    message.author.username + " stopped looping the queue"
                 );
             } else {
-                this.loopQueue = true;
+                this.isLoopingQueue = true;
                 this.elia.messageComponent.reply(
-                    msg,
+                    message,
                     "You started looping the queue!"
                 );
                 this.elia.loggingComponent.log(
-                    msg.author.username + " started looping the queue"
+                    message.author.username + " started looping the queue"
                 );
                 if (this.currentSong != null && !this.loopSong) {
                     this.musicQueueArray.push(this.currentSong);
@@ -321,9 +475,16 @@ class MusicQueue {
         }
     }
 
-    // --- Youtube functions ---
+    // --- YouTube functions ---
 
-    async playYoutubePlaylist(msg, voiceChannel, id) {
+    /**
+     * Imports and plays a YouTube playlist
+     *
+     * @param {Message} message the Discord message which requested to play a playlist
+     * @param {VoiceChannel} voiceChannel the Discord channel where to play the music
+     * @param {string} id the YouTube id of the playlist
+     */
+    async playYouTubePlaylist(message, voiceChannel, id) {
         let playlist = await ytpl(id, {});
         if (playlist.items.length > 1) {
             for (let i = 1; i < playlist.items.length; i++) {
@@ -331,17 +492,22 @@ class MusicQueue {
             }
         }
         this.elia.messageComponent.reply(
-            msg,
-            "You stared playing a Youtube Playlist!"
+            message,
+            "You stared playing a YouTube Playlist!"
         );
 
         this.elia.loggingComponent.log(
-            msg.author.username + " imported a youtube playlist"
+            message.author.username + " imported a YouTube playlist"
         );
-        this.playMusic(msg, voiceChannel, playlist.items[0].url);
+        this.playMusic(message, voiceChannel, playlist.items[0].url);
     }
 
-    async cacheYoutubeTitle(url) {
+    /**
+     * Caches a YouTube video's title
+     *
+     * @param {string} url the YouTube URL to the music
+     */
+    async cacheYouTubeTitle(url) {
         ytdl.getInfo(url).then((info) => {
             if (!this.titleMap.has(url)) {
                 this.titleMap.set(url, info.videoDetails.title);
@@ -349,13 +515,24 @@ class MusicQueue {
         });
     }
 
-    getYoutubeTitleFromCache(url) {
+    /**
+     * Get's the video's title from the cache, if avaliable
+     *
+     * @param {string} url the YouTube URL
+     * @returns  "Title not cached yet." or the title i found in the cache
+     */
+    getYouTubeTitleFromCache(url) {
         let title = this.titleMap.get(url);
         if (typeof title === "undefined") return "Title not cached yet.";
         else return title;
     }
 
-    removeYoutubeTitleFromCache(url) {
+    /**
+     * Removes a video's title from the cache
+     *
+     * @param {string} url the YouTube URL
+     */
+    removeYouTubeTitleFromCache(url) {
         if (this.titleMap.has(url)) {
             this.titleMap.delete(url);
         }
@@ -363,45 +540,60 @@ class MusicQueue {
 
     // --- Queue state getter functions ---
 
-    //TODO better format
-    async getQueuedMusic(msg) {
+    /**
+     * Get's the current music queue, and send's it to the user
+     *
+     * @param {Message} message the Discord message which requested to get the queue
+     */
+    async getQueuedMusic(message) {
         if (this.currentSong != null) {
-            let currenTitle = this.getYoutubeTitleFromCache(this.currentSong);
-            let replyMsg = "\n***The current song: ***\n" + currenTitle;
+            let currenTitle = this.getYouTubeTitleFromCache(this.currentSong);
+            let reply = "\n***The current song: ***\n" + currenTitle;
             if (this.musicQueueArray.length > 0) {
-                replyMsg += "\n\n***The current queue:***\n";
+                reply += "\n\n***The current queue:***\n";
                 for (let i = 0; i < this.musicQueueArray.length; i++) {
-                    let title = await this.getYoutubeTitleFromCache(
+                    let title = await this.getYouTubeTitleFromCache(
                         this.musicQueueArray[i]
                     );
-                    replyMsg += i + 1 + ". " + title + "\n";
+                    reply += i + 1 + ". " + title + "\n";
                 }
             }
-            msg.reply(replyMsg).then((msg) =>
-                this.elia.messageComponent.deleteMsgTimeout(msg)
-            );
-            this.elia.messageComponent.deleteMsgNow(msg);
+            message
+                .reply(reply)
+                .then((msg) =>
+                    this.elia.messageComponent.deleteMsgTimeout(msg)
+                );
+            this.elia.messageComponent.deleteMsgNow(message);
         } else {
             this.elia.messageComponent.reply(
-                msg,
+                message,
                 "It seems there are no music in the queue."
             );
         }
     }
 
-    async getCurrentSong(msg) {
+    /**
+     * Get's the current song, and send's it to the user
+     *
+     * @param {Message} message the Discord message which requested to get the current song
+     */
+    async getCurrentSong(message) {
         if (this.currentSong != null) {
-            let currenTitle = this.getYoutubeTitleFromCache(this.currentSong);
-            msg.reply(
-                "***The current song is:***\n\n" +
-                    currenTitle +
-                    "at " +
-                    this.currentSong
-            ).then((msg) => this.elia.messageComponent.deleteMsgTimeout(msg));
-            this.elia.messageComponent.deleteMsgNow(msg);
+            let currenTitle = this.getYouTubeTitleFromCache(this.currentSong);
+            message
+                .reply(
+                    "***The current song is:***\n\n" +
+                        currenTitle +
+                        "at " +
+                        this.currentSong
+                )
+                .then((msg) =>
+                    this.elia.messageComponent.deleteMsgTimeout(msg)
+                );
+            this.elia.messageComponent.deleteMsgNow(message);
         } else {
             this.elia.messageComponent.reply(
-                msg,
+                message,
                 "It seems there is no music playing."
             );
         }
@@ -409,6 +601,11 @@ class MusicQueue {
 
     // --- Discord state checker functions ---
 
+    /**
+     * Check's if the bot is playing songs to itself.
+     *
+     * @returns {boolean} true if the bot is alone in the VoiceChannel, else false
+     */
     hasMembersInVoice() {
         if (
             this.voiceChannel != null &&

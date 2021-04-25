@@ -5,6 +5,7 @@ const MemeCommand = require("../commands/text/MemeCommand");
 const PinCommand = require("../commands/text/PinCommand");
 const PingCommand = require("../commands/text/PingCommand");
 const PollCommand = require("../commands/text/PollCommand");
+const Elia = require("../Elia");
 
 /**
  * Component for ELIA which adds basic commands
@@ -13,7 +14,7 @@ class CommandComponent {
     /**
      * Adds the basic commands to the object in the parameter.
      *
-     * @param {*} elia an ELIA object
+     * @param {Elia} elia an ELIA object
      */
     init(elia) {
         // import generic commands

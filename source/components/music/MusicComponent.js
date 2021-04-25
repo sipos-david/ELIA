@@ -1,4 +1,6 @@
 const MusicQueue = require("./MusicQueue");
+const Elia = require("../../Elia");
+const { Message } = require("discord.js");
 //song command imports
 const CurrentSongCommand = require("../../commands/voice/music/CurrentSongCommand");
 const GetQueueCommand = require("../../commands/voice/music/GetQueueCommand");
@@ -21,11 +23,15 @@ class MusicComponent {
     /**
      * Set's up the MusicComponent object for the ussage of music commands.
      *
-     * @param {*} elia an Elia object
+     * @param {Elia} elia an Elia object
      */
     init(elia) {
         this.elia = elia;
         this.elia.musicComponent = this;
+        /**
+         * The music queue for the component
+         * @type {MusicQueue}
+         */
         this.musicQueue = new MusicQueue(elia);
 
         let commands = [
@@ -49,6 +55,12 @@ class MusicComponent {
         elia.loggingComponent.log("Music commands added to Elia.");
     }
 
+    /**
+     * Check's if the user who sent the massage has permissions to connect and speak in the channelh he/she currently in.
+     *
+     * @param {Message} message
+     * @returns true if the user has the right permissions, else false
+     */
     messageSenderHasRightPermissions(message) {
         const permissions = message.member.voice.channel.permissionsFor(
             message.client.user
@@ -62,6 +74,12 @@ class MusicComponent {
         } else return true;
     }
 
+    /**
+     * Check's if the sender of the message is in a voice channel.
+     *
+     * @param {Message} message
+     * @returns true if the user is a voice channel
+     */
     messageSenderInVoiceChannel(message) {
         if (!message.member.voice.channel) {
             this.elia.messageComponent.reply(
