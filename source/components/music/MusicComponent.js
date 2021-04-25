@@ -14,15 +14,19 @@ const ResumeSongCommand = require("../../commands/voice/music/ResumeSongCommand"
 const ShuffleQueueCommand = require("../../commands/voice/music/ShuffleQueueCommand");
 const SkipSongCommand = require("../../commands/voice/music/SkipSongCommand");
 
+/**
+ * Component for ELIA which add the music commands
+ */
 class MusicComponent {
     /**
      * Set's up the MusicComponent object for the ussage of music commands.
      *
      * @param {*} elia an Elia object
      */
-    constructor(elia) {
-        this.musicQueue = new MusicQueue(elia);
+    init(elia) {
         this.elia = elia;
+        this.elia.musicComponent = this;
+        this.musicQueue = new MusicQueue(elia);
 
         let commands = [
             new CurrentSongCommand(),

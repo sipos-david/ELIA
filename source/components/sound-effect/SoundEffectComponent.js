@@ -1,16 +1,18 @@
 const SoundEffectCommand = require("../../commands/voice/soundeffects/SoundEffectCommand");
 const fs = require("fs");
 
+/**
+ * Component for ELIA which adds sound effect commands
+ */
 class SoundEffectComponent {
     /**
-     * Adds the sound effect commands to the object in the parameter.
+     * Adds the sound effect commands to the ELIA object in the parameter.
      *
-     * @param {*} commandMap a JS Map object
-     * @param {*} loggingComponent a loggingComponent object
+     * @param {*} elia an ELIA object
      */
-    constructor(commandMap, loggingComponent) {
+    init(elia) {
         //import sound effects
-        loggingComponent.log("Generating soundeffect commands:");
+        elia.loggingComponent.log("Generating soundeffect commands:");
 
         const soundEffects = fs
             .readdirSync("./resources/soundeffects")
@@ -20,12 +22,15 @@ class SoundEffectComponent {
             const newSoundEffectCommand = new SoundEffectCommand(
                 soundEffect.replace(".mp3", "").toLowerCase()
             );
-            commandMap.set(newSoundEffectCommand.name, newSoundEffectCommand);
-            loggingComponent.log(
-                "\t" + soundEffect + " -> " + newSoundEffectCommand.name
+            elia.commandMap.set(
+                newSoundEffectCommand.name,
+                newSoundEffectCommand
+            );
+            elia.loggingComponent.log(
+                soundEffect + " -> " + newSoundEffectCommand.name
             );
         }
-        loggingComponent.log("Sound effect commands added to Elia.");
+        elia.loggingComponent.log("Sound effect commands added to Elia.");
     }
 }
 

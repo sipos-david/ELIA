@@ -2,69 +2,38 @@ const DataComponent = require("./components/data/DataComponent");
 const ActivityDisplayComponent = require("./components/activity-display/ActivityDisplayComponent");
 const LoggingComponent = require("./components/logging/LoggingComponent");
 const MessageComponent = require("./components/message/MessageComponent");
-const CommandComponent = require("./components/command/CommandComponent");
-const MusicComponent = require("./components/music/MusicComponent");
-const SoundEffectComponent = require("./components/sound-effect/SoundEffectComponent");
 
 class Elia {
     /**
      * Setup's Elia with all the components.
      *
      * @param {*} bot The Discord bot client
+     * @param {DataComponent} dataComponent The data used by ELIA
+     * @param {LoggingComponent} loggingComponent The component used for logging
+     * @param {ActivityDisplayComponent} activityDisplayComponent The component used for displaying the current activity of ELIA
+     * @param {MessageComponent} messageComponent The component for sending messages used by ELIA
      */
-    constructor(bot) {
+    constructor(
+        bot,
+        dataComponent,
+        loggingComponent,
+        activityDisplayComponent,
+        messageComponent
+    ) {
         /**
          * The Discord bot client
          */
         this.bot = bot;
         /**
-         * The DataComponent for ELIA
-         */
-        this.dataComponent = new DataComponent();
-        /**
-         * The LoggingComponent for ELIA
-         */
-        this.loggingComponent = new LoggingComponent();
-        this.loggingComponent.log(
-            "------------------------\nElia is starting!\n------------------------"
-        );
-        /**
-         * The ActivityDisplayComponent for ELIA
-         */
-        this.activityDisplayComponent = new ActivityDisplayComponent(
-            this.bot,
-            this.dataComponent
-        );
-        /**
-         * The MessageComponent for ELIA
-         */
-        this.messageComponent = new MessageComponent(this);
-        /**
          * The Map of the usable commands.
          */
         this.commandMap = new Map();
-        /**
-         * The CommandComponent for ELIA witch adds basic commands
-         */
-        this.commandComponent = new CommandComponent(
-            this.commandMap,
-            this.loggingComponent
-        );
-        /**
-         * The MusicComponent for ELIA witch add the music commands
-         */
-        this.musicComponent = new MusicComponent(this);
-        /**
-         * The SoundEffectComponent for ELIA witch adds sound effect commands
-         */
-        this.soundEffectComponent = new SoundEffectComponent(
-            this.commandMap,
-            this.loggingComponent
-        );
-        this.loggingComponent.log(
-            "------------\nAvaliable commands:\n------------"
-        );
-        this.commandMap.forEach((e) => this.loggingComponent.log(e.name));
+
+        // Core components
+        this.dataComponent = dataComponent;
+        this.loggingComponent = loggingComponent;
+        this.activityDisplayComponent = activityDisplayComponent;
+        this.messageComponent = messageComponent;
     }
 
     /**
@@ -72,9 +41,7 @@ class Elia {
      */
     onReady() {
         this.activityDisplayComponent.setDefault();
-        this.loggingComponent.log(
-            "------------------------\nE.L.I.A. is online!\n------------------------"
-        );
+        this.loggingComponent.log("E.L.I.A. is online!");
     }
 
     /**
@@ -136,6 +103,25 @@ class Elia {
      */
     getToken() {
         return this.dataComponent.getToken();
+    }
+
+    /**
+     * Log's all the currently avaliable commands via the loggingComponent
+     */
+    getAvaliableCommands() {
+        let commands = "Avaliable commands: ";
+        this.commandMap.forEach((e) => (commands += " " + e.name + ","));
+        commands = commands.substring(0, str.length - 1);
+        this.loggingComponent.log(commands);
+    }
+
+    /**
+     * Add's a component to ELIA
+     *
+     * @param {*} component the new component
+     */
+    addComponent(component) {
+        component.init(this);
     }
 }
 

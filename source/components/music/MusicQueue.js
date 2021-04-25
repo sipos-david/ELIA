@@ -17,7 +17,7 @@ class MusicQueue {
     /**
      * The cache for youtube titles
      *
-     * Key is youtube ID
+     * Key is youtube ID,
      * Value is the title
      */
     titleMap = new Map();

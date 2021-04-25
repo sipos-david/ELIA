@@ -6,14 +6,16 @@ const PinCommand = require("../../commands/text/PinCommand");
 const PingCommand = require("../../commands/text/PingCommand");
 const PollCommand = require("../../commands/text/PollCommand");
 
+/**
+ * Component for ELIA which adds basic commands
+ */
 class CommandComponent {
     /**
      * Adds the basic commands to the object in the parameter.
      *
-     * @param {*} commandMap a JS Map object
-     * @param {*} loggingComponent the loggingComponent for ELIA
+     * @param {*} elia an ELIA object
      */
-    constructor(commandMap, loggingComponent) {
+    init(elia) {
         // import generic commands
         let commands = [
             new DeleteMessagesCommand(),
@@ -24,9 +26,8 @@ class CommandComponent {
             new PollCommand(),
         ];
 
-        commands.forEach((cmd) => commandMap.set(cmd.name, cmd));
-
-        loggingComponent.log("Basic commands added to Elia.");
+        commands.forEach((cmd) => elia.commandMap.set(cmd.name, cmd));
+        elia.loggingComponent.log("Basic commands added to Elia.");
     }
 }
 
