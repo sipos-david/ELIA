@@ -2,7 +2,7 @@ const Command = require("../../Command");
 const CommandTypeEnum = require("../../CommandTypeEnum");
 const ytSearch = require("yt-search");
 const validURL = require("../../../components/music/UrlChecker.js");
-const getYoutubePlaylistId = require("../../../components/music/UrlPlaylist.js");
+const getYouTubePlaylistId = require("../../../components/music/UrlPlaylist.js");
 
 class PlayCommand extends Command {
     name = "play";
@@ -18,9 +18,9 @@ class PlayCommand extends Command {
         ) {
             const voiceChannel = message.member.voice.channel;
             if (validURL(args[0])) {
-                let id = getYoutubePlaylistId(args[0]);
+                let id = getYouTubePlaylistId(args[0]);
                 if (id != null)
-                    elia.musicComponent.musicQueue.playYoutubePlaylist(
+                    elia.musicComponent.musicQueue.playYouTubePlaylist(
                         message,
                         voiceChannel,
                         id
