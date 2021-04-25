@@ -1,10 +1,10 @@
 //basic command imports
-const DeleteMessagesCommand = require("../../commands/text/DeleteMessagesCommand");
-const HelpCommand = require("../../commands/text/HelpCommand");
-const MemeCommand = require("../../commands/text/MemeCommand");
-const PinCommand = require("../../commands/text/PinCommand");
-const PingCommand = require("../../commands/text/PingCommand");
-const PollCommand = require("../../commands/text/PollCommand");
+const DeleteMessagesCommand = require("../commands/text/DeleteMessagesCommand");
+const HelpCommand = require("../commands/text/HelpCommand");
+const MemeCommand = require("../commands/text/MemeCommand");
+const PinCommand = require("../commands/text/PinCommand");
+const PingCommand = require("../commands/text/PingCommand");
+const PollCommand = require("../commands/text/PollCommand");
 
 /**
  * Component for ELIA which adds basic commands

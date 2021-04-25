@@ -1,4 +1,4 @@
-const SoundEffectCommand = require("../../commands/voice/soundeffects/SoundEffectCommand");
+const SoundEffectCommand = require("../commands/voice/soundeffects/SoundEffectCommand");
 const fs = require("fs");
 
 /**

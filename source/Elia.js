@@ -1,7 +1,7 @@
-const DataComponent = require("./components/data/DataComponent");
-const ActivityDisplayComponent = require("./components/activity-display/ActivityDisplayComponent");
-const LoggingComponent = require("./components/logging/LoggingComponent");
-const MessageComponent = require("./components/message/MessageComponent");
+const DataComponent = require("./components/core/DataComponent");
+const ActivityDisplayComponent = require("./components/core/ActivityDisplayComponent");
+const LoggingComponent = require("./components/core/LoggingComponent");
+const MessageComponent = require("./components/core/MessageComponent");
 
 class Elia {
     /**

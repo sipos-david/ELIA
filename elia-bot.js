@@ -1,12 +1,12 @@
 const Discord = require("discord.js");
 const Elia = require("./source/Elia");
-const DataComponent = require("./source/components/data/DataComponent");
-const ActivityDisplayComponent = require("./source/components/activity-display/ActivityDisplayComponent");
-const LoggingComponent = require("./source/components/logging/LoggingComponent");
-const MessageComponent = require("./source/components/message/MessageComponent");
-const CommandComponent = require("./source/components/command/CommandComponent");
+const DataComponent = require("./source/components/core/DataComponent");
+const ActivityDisplayComponent = require("./source/components/core/ActivityDisplayComponent");
+const LoggingComponent = require("./source/components/core/LoggingComponent");
+const MessageComponent = require("./source/components/core/MessageComponent");
+const CommandComponent = require("./source/components/CommandComponent");
 const MusicComponent = require("./source/components/music/MusicComponent");
-const SoundEffectComponent = require("./source/components/sound-effect/SoundEffectComponent");
+const SoundEffectComponent = require("./source/components/SoundEffectComponent");
 
 let bot = new Discord.Client();
 
