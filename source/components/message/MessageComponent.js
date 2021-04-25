@@ -2,8 +2,10 @@ const Discord = require("discord.js");
 const ms = require("ms");
 const CommandTypeEnum = require("../../commands/CommandTypeEnum");
 class MessageComponent {
-    constructor(elia) {
-        this.elia = elia;
+    constructor(bot, dataComponent, loggingComponent) {
+        this.bot = bot;
+        this.dataComponent = dataComponent;
+        this.loggingComponent = loggingComponent;
     }
 
     /**
@@ -25,7 +27,7 @@ class MessageComponent {
     deleteMsgTimeout(msg) {
         if (msg && !msg.deleted && msg.deletable && msg.channel.type !== "dm")
             msg.delete({
-                timeout: this.elia.dataComponent.getMessageDisplayTime(),
+                timeout: this.dataComponent.getMessageDisplayTime(),
             }).catch((error) => {
                 console.log(error);
             });
@@ -54,7 +56,7 @@ class MessageComponent {
         if (command.usage) {
             embedMessage.addField(
                 "The proper usage would be:",
-                `\`\`\`${this.elia.dataComponent.getPrefix()}${command.name} ${
+                `\`\`\`${this.dataComponent.getPrefix()}${command.name} ${
                     command.usage
                 }\`\`\``,
                 true
@@ -84,18 +86,18 @@ class MessageComponent {
             );
     }
 
-    helpSendAllCommands(message) {
+    helpSendAllCommands(message, elia) {
         let embedMessage = this.buildBaseEmbed();
         this.addFooterToEmbed(message, embedMessage);
         embedMessage.setTitle("Here's a list of all my commands:");
-        embedMessage.setThumbnail(this.elia.bot.user.displayAvatarURL());
+        embedMessage.setThumbnail(this.bot.user.displayAvatarURL());
 
         let musicCommandsList = [];
         let soundEffectCommandsList = [];
         let utilityCommandsList = [];
         let otherCommandsList = [];
 
-        this.elia.commandMap.forEach((element) => {
+        elia.commandMap.forEach((element) => {
             switch (element.type) {
                 case CommandTypeEnum.MUSIC:
                     musicCommandsList.push(element.name);
@@ -133,7 +135,7 @@ class MessageComponent {
             {
                 name:
                     "Use the command below to get info on a specific command!",
-                value: `\`\`\`${this.elia.dataComponent.getPrefix()}help [command name]\`\`\``,
+                value: `\`\`\`${this.dataComponent.getPrefix()}help [command name]\`\`\``,
             }
         );
 
@@ -145,7 +147,7 @@ class MessageComponent {
                 this.deleteMsgTimeout(embedMessage);
             })
             .catch((error) => {
-                this.elia.loggingComponent.error(
+                this.loggingComponent.error(
                     `Could not send help DM to ${message.author.tag}.\n`,
                     error
                 );
@@ -161,7 +163,7 @@ class MessageComponent {
 
         embedMessage.setTitle("Here's the help for: " + command.name);
 
-        embedMessage.setThumbnail(this.elia.bot.user.displayAvatarURL());
+        embedMessage.setThumbnail(this.bot.user.displayAvatarURL());
 
         embedMessage.addFields(
             {
@@ -170,7 +172,7 @@ class MessageComponent {
             },
             {
                 name: "Usage:",
-                value: `\`\`\`${this.elia.dataComponent.getPrefix()}${
+                value: `\`\`\`${this.dataComponent.getPrefix()}${
                     command.name
                 } ${command.usage}\`\`\``,
             }

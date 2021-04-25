@@ -17,7 +17,11 @@ let loggingComponent = new LoggingComponent();
 // The ActivityDisplayComponent for ELIA
 let activityDisplayComponent = new ActivityDisplayComponent(bot, dataComponent);
 // The MessageComponent for ELIA
-let messageComponent = new MessageComponent(this);
+let messageComponent = new MessageComponent(
+    bot,
+    dataComponent,
+    loggingComponent
+);
 
 let EliaBot = new Elia(
     bot,
