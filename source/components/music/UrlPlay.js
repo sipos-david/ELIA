@@ -29,7 +29,7 @@ module.exports = async function playFromURL(
             elia.musicComponent.musicQueue.continuePlayingMusic();
         });
 
-    elia.musicComponent.musicQueue.cacheYoutubeTitle(url);
+    elia.musicComponent.musicQueue.cacheYouTubeTitle(url);
 
     if (message != null) {
         if (title == null)

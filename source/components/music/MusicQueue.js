@@ -110,7 +110,7 @@ class MusicQueue {
 
         this.musicQueueArray.unshift(url);
         this.cacheYouTubeTitle(url);
-        this.playingMusic = true;
+        this.isPlayingMusic = true;
 
         if (
             this.voiceChannel == null ||
@@ -244,8 +244,9 @@ class MusicQueue {
             this.lastSong = this.currentSong;
             this.currentSong = this.musicQueueArray.shift();
             if (this.lastSong == null) this.lastSong = this.currentSong;
-            if (this.loopSong) this.musicQueueArray.unshift(this.currentSong);
-            if (this.loopQueue && !this.loopSong)
+            if (this.isLoopingSong)
+                this.musicQueueArray.unshift(this.currentSong);
+            if (this.isLoopingQueue && !this.isLoopingSong)
                 this.musicQueueArray.push(this.currentSong);
             this.elia.activityDisplayComponent.setMusicPlaying();
             playFromURL(
@@ -265,14 +266,17 @@ class MusicQueue {
      * @param {string} url YouTube link to the music
      */
     async queueMusic(message, url) {
-        await this.elia.messageComponent.reply(
+        this.elia.messageComponent.reply(
             message,
             ":musical_note: Queued: ***" + url + "***"
         );
         this.elia.loggingComponent.log(
             message.author.username + " queued: " + url
         );
-        if (this.musicQueueArray.push(url) == 1 && this.playingMusic == false) {
+        if (
+            this.musicQueueArray.push(url) == 1 &&
+            this.isPlayingMusic == false
+        ) {
             this.playMusic(message, message.member.voice.channel, url);
         }
     }
@@ -468,7 +472,7 @@ class MusicQueue {
                 this.elia.loggingComponent.log(
                     message.author.username + " started looping the queue"
                 );
-                if (this.currentSong != null && !this.loopSong) {
+                if (this.currentSong != null && !this.isLoopingSong) {
                     this.musicQueueArray.push(this.currentSong);
                 }
             }
@@ -552,7 +556,7 @@ class MusicQueue {
             if (this.musicQueueArray.length > 0) {
                 reply += "\n\n***The current queue:***\n";
                 for (let i = 0; i < this.musicQueueArray.length; i++) {
-                    let title = await this.getYouTubeTitleFromCache(
+                    let title = this.getYouTubeTitleFromCache(
                         this.musicQueueArray[i]
                     );
                     reply += i + 1 + ". " + title + "\n";
