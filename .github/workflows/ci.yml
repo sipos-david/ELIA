@@ -33,17 +33,19 @@ jobs:
                   eslint: true
 
             - name: Run tests
-            - run: npm test
-            - run: npm run nyc
+              run: npm test
 
-            - name: NYC Coverage Report
+            - name: Run code coverage
+              run: npm run nyc
+
+            - name: Run NYC Coverage Report
               uses: Tintef/nyc-reporter-action@0.1.0
               with:
                   GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
                   REPORTER: "text" # defaults to 'text-summary'
                   COVERAGE_FOLDER: ".nyc_output"
 
-            - name: SonarCloud Scan
+            - name: Run SonarCloud scan
               uses: sonarsource/sonarcloud-github-action@master
               env:
                   GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
