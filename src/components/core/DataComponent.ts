@@ -107,4 +107,13 @@ export default class DataComponent {
     getPinChannelId(serverId: string): string | undefined {
         return DataSource.servers.find((e) => e.id == serverId)?.pinTextChannelID;
     }
+
+    /**
+     * Gets the current version of ELIA
+     *
+     * @returns {string} the current version of ELIA
+     */
+    getVersion(): string {
+        return DataSource.version;
+    }
 }
