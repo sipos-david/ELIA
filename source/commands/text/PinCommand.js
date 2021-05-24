@@ -16,7 +16,7 @@ class PinCommand extends Command {
             channel.send(`${message.author.toString()} ` + messageText);
             message.delete();
 
-            elia.loggingComponent.log.log(
+            elia.loggingComponent.log(
                 message.author.username + " pinned a message"
             );
         }

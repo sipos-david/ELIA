@@ -22,6 +22,34 @@ class DataComponent {
     }
 
     /**
+     * Get's the bot's mode
+     *
+     * @returns {boolean} true if the bot is in development mode, else false
+     */
+    getDevMode() {
+        return DataSource.devMode;
+    }
+
+    /**
+     * Get's the bot's radio mode
+     *
+     * @returns {boolean} true if the bot is in radio mode, else false
+     */
+    getRadioMode() {
+        return DataSource.radioMode;
+    }
+
+    /**
+     * Get's the radio channel for a specific server
+     *
+     * @param {number} serverId the server's id
+     * @returns {?string} the radio channel's id if exist's else null
+     */
+    getRadioChannel(serverId) {
+        return DataSource.servers.find((e) => e.id == serverId).radioChannelID;
+    }
+
+    /**
      * Get's the bot's preifx
      *
      * @returns {string} the prefix

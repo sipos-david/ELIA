@@ -8,8 +8,9 @@ class GetQueueCommand extends Command {
     type = CommandTypeEnum.MUSIC;
     async execute(message, _args, elia) {
         if (
-            elia.musicComponent.messageSenderHasRightPermissions(message) &&
-            elia.musicComponent.messageSenderInVoiceChannel(message)
+            elia.dataComponent.getRadioMode() ||
+            (elia.musicComponent.messageSenderInVoiceChannel(message) &&
+                elia.musicComponent.messageSenderHasRightPermissions(message))
         )
             elia.musicComponent.musicQueue.getQueuedMusic(message);
     }

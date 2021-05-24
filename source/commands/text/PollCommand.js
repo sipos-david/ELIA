@@ -5,7 +5,7 @@ const CommandTypeEnum = require("../CommandTypeEnum");
 class PollCommand extends Command {
     name = "poll";
     description = "Creates a poll, up to 10 choices";
-    usage = '  "option1" "option2" "option3" ... "option10" ';
+    usage = "  'option1' 'option2' 'option3' ... 'option10' ";
     usage = " ";
     hasArguments = true;
     type = CommandTypeEnum.OTHER;
@@ -18,6 +18,7 @@ class PollCommand extends Command {
             );
 
         let command = args.join(" ");
+        // eslint-disable-next-line quotes
         let rawPollArgs = command.split('" "');
 
         let pollArgs = new Array();

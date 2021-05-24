@@ -27,11 +27,13 @@ class Elia {
     ) {
         /**
          * The Discord bot client
+         *
          * @type {Client}
          */
         this.bot = bot;
         /**
          * The Map of the usable commands.
+         *
          * @type {Map<string,Command>}
          */
         this.commandMap = new Map();
@@ -40,21 +42,25 @@ class Elia {
 
         /**
          * The data used by ELIA
+         *
          * @type {DataComponent}
          */
         this.dataComponent = dataComponent;
         /**
          * The component used for logging
+         *
          * @type {LoggingComponent}
          */
         this.loggingComponent = loggingComponent;
         /**
          * The component used for displaying the current activity of ELIA
+         *
          * @type {ActivityDisplayComponent}
          */
         this.activityDisplayComponent = activityDisplayComponent;
         /**
          * The component used by ELIA for sending messages
+         *
          * @type {MessageComponent}
          */
         this.messageComponent = messageComponent;
@@ -72,6 +78,7 @@ class Elia {
      * Handle the received messages.
      *
      * @param {Message} message the Discord message the bot received
+     * @returns {void}
      */
     onMessage(message) {
         try {
@@ -79,7 +86,7 @@ class Elia {
             // we shouldn't process the message.
             if (
                 !message.content.startsWith(this.dataComponent.getPrefix()) ||
-                message.author.bot
+                (message.author.bot && !this.dataComponent.getDevMode())
             )
                 return;
 
@@ -124,6 +131,8 @@ class Elia {
 
     /**
      * Returns the bot's configured token.
+     *
+     * @returns {string} the bot's token
      */
     getToken() {
         return this.dataComponent.getToken();

@@ -12,16 +12,19 @@ class MessageComponent {
     constructor(bot, dataComponent, loggingComponent) {
         /**
          * The Discord Client
+         *
          * @type {Client}
          */
         this.bot = bot;
         /**
          * The component for data
+         *
          * @type {DataComponent}
          */
         this.dataComponent = dataComponent;
         /**
          * The component for logging
+         *
          * @type {LoggingComponent}
          */
         this.loggingComponent = loggingComponent;
@@ -92,7 +95,7 @@ class MessageComponent {
         let embedMessage = this.buildBaseEmbed();
         this.addFooterToEmbed(message, embedMessage);
 
-        embedMessage.setTitle(`You didn't provide any arguments!`);
+        embedMessage.setTitle("You didn't provide any arguments!");
 
         if (command.usage) {
             embedMessage.addField(
@@ -191,8 +194,7 @@ class MessageComponent {
                 value: otherCommandsList.join(", "),
             },
             {
-                name:
-                    "Use the command below to get info on a specific command!",
+                name: "Use the command below to get info on a specific command!",
                 value: `\`\`\`${this.dataComponent.getPrefix()}help [command name]\`\`\``,
             }
         );
@@ -219,7 +221,7 @@ class MessageComponent {
      * Reply's a command use to the user
      *
      * @param {Message} message the Discord message which requested help for a command
-     * @param {Elia} elia the Elia object which got the request
+     * @param {Command} command the command to display the usage
      */
     helpCommandUsage(message, command) {
         let embedMessage = this.buildBaseEmbed();

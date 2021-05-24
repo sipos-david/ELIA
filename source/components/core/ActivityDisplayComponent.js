@@ -14,11 +14,13 @@ class ActivityDisplayComponent {
     constructor(bot, dataComponent) {
         /**
          * The Discord Client
+         *
          * @type {Client}
          */
         this.bot = bot;
         /**
          * The component for data
+         *
          * @type {DataComponent}
          */
         this.dataComponent = dataComponent;

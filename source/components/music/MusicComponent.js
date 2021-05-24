@@ -30,6 +30,7 @@ class MusicComponent {
         this.elia.musicComponent = this;
         /**
          * The music queue for the component
+         *
          * @type {MusicQueue}
          */
         this.musicQueue = new MusicQueue(elia);
@@ -58,8 +59,8 @@ class MusicComponent {
     /**
      * Check's if the user who sent the massage has permissions to connect and speak in the channelh he/she currently in.
      *
-     * @param {Message} message
-     * @returns true if the user has the right permissions, else false
+     * @param {Message} message the message which the user sent with valid music command
+     * @returns {boolean} true if the user has the right permissions, else false
      */
     messageSenderHasRightPermissions(message) {
         const permissions = message.member.voice.channel.permissionsFor(
@@ -77,8 +78,8 @@ class MusicComponent {
     /**
      * Check's if the sender of the message is in a voice channel.
      *
-     * @param {Message} message
-     * @returns true if the user is a voice channel
+     * @param {Message} message the message which the user sent with valid music command
+     * @returns {boolean} true if the user is a voice channel
      */
     messageSenderInVoiceChannel(message) {
         if (!message.member.voice.channel) {

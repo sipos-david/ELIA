@@ -1,6 +1,8 @@
 {
     "token": "",
     "prefix": "!",
+    "devMode": true,
+    "radioMode": true,
     "defaultMusicVolume": "0.4",
     "messageDisplayTime": "10000",
     "servers": [
@@ -10,12 +12,22 @@
             "memeTextChannelID": "703131306476699648",
             "musicVolume": "0.4",
             "musicControlTextChannelID": "811618747948990535",
-            "botSpamChannelID": "702983707363115018"
+            "botSpamChannelID": "702983707363115018",
+            "radioChannelID": "469948745426010123"
         },
         {
             "id": "566310480000581660",
             "musicVolume": "0.4",
             "botSpamChannelID": "700393089524564040"
+        },
+        {
+            "id": "840973674362437632",
+            "pinTextChannelID": "840973674362437639",
+            "memeTextChannelID": "840973674362437639",
+            "musicVolume": "0.4",
+            "musicControlTextChannelID": "840973674362437639",
+            "botSpamChannelID": "840973674362437639",
+            "radioChannelID": "840973674823024641"
         }
     ]
 }

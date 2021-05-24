@@ -21,6 +21,7 @@ class SoundEffectCommand extends Command {
     type = CommandTypeEnum.SOUNDEFFECT;
     /**
      * the volume of the played sound
+     *
      * @type {number}
      */
     soundEffectVolume = 0.8;

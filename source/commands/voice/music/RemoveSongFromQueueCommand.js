@@ -9,8 +9,9 @@ class RemoveSongFromQueueCommand extends Command {
     type = CommandTypeEnum.MUSIC;
     async execute(message, args, elia) {
         if (
-            elia.musicComponent.messageSenderHasRightPermissions(message) &&
-            elia.musicComponent.messageSenderInVoiceChannel(message)
+            elia.dataComponent.getRadioMode() ||
+            (elia.musicComponent.messageSenderInVoiceChannel(message) &&
+                elia.musicComponent.messageSenderHasRightPermissions(message))
         )
             elia.musicComponent.musicQueue.removeFromQueue(args[0], message);
     }

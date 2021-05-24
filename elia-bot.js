@@ -49,4 +49,4 @@ bot.on("message", (message) => {
 });
 
 // bot login
-bot.login(EliaBot.getToken()).then((_r) => null);
+bot.login(EliaBot.getToken()).then(() => null);
