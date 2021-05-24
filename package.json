@@ -1,12 +1,12 @@
 {
     "name": "elia",
-    "version": "1.1.0",
+    "version": "2.0.0",
     "description": "Experimental Listening Information Android",
     "main": "elia-bot.js",
     "scripts": {
-        "start": "node elia-bot.js",
-        "nyc": "nyc --reporter lcov --reporter text --report-dir coverage mocha --recursive test/",
-        "test": "mocha --recursive test/unit/"
+        "build": "tsc -b",
+        "start": "npm run-script build && node build/index.js",
+        "deploy": "npm run-script build && pm2 start pm2.config.js"
     },
     "author": "xShipi <sipisipos@gmail.com>",
     "repository": {
@@ -16,6 +16,8 @@
     "license": "ISC",
     "dependencies": {
         "@discordjs/opus": "^0.3.3",
+        "@types/node": "^15.6.0",
+        "@types/yt-search": "^2.3.0",
         "bufferutil": "^4.0.3",
         "discord.js": "^12.5.3",
         "erlpack": "github:discord/erlpack",
@@ -28,11 +30,10 @@
         "ytpl": "2.1.1"
     },
     "devDependencies": {
-        "babel-eslint": "^10.1.0",
+        "@typescript-eslint/eslint-plugin": "^4.25.0",
+        "@typescript-eslint/parser": "^4.25.0",
         "eslint": "^7.27.0",
         "eslint-plugin-jsdoc": "^34.8.2",
-        "mocha": "^8.4.0",
-        "nyc": "^15.1.0",
-        "sinon": "^10.0.0"
+        "typescript": "^4.2.4"
     }
 }
