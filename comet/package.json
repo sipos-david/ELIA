@@ -1,8 +1,8 @@
 {
-    "name": "elia",
+    "name": "elia-discord",
     "version": "2.0.0",
-    "description": "Experimental Listening Information Android",
-    "main": "elia-bot.js",
+    "description": "E.L.I.A.-s Discord component",
+    "main": "index.js",
     "scripts": {
         "build": "tsc -b",
         "start": "npm run-script build && node build/index.js",
