@@ -29,11 +29,6 @@ export default class MusicComponent extends LateInitComponent {
     init(elia: Elia): void {
         this.elia = elia;
         this.elia.musicComponent = this;
-        /**
-         * The music queue for the component
-         *
-         * @type {MusicQueue}
-         */
         this.musicQueue = new MusicQueue(elia);
 
         const commands = [
