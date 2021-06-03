@@ -39,7 +39,7 @@ elia.addComponent(new CommandComponent());
 elia.addComponent(new MusicComponent());
 elia.addComponent(new SoundEffectComponent());
 
-elia.getAvailableCommands();
+    elia.getAvailableCommands();
 
 // on start
 bot.on("ready", () => {
