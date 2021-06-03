@@ -120,54 +120,126 @@ export default class MusicComponent extends LateInitComponent {
         }
     }
 
+    /**
+     * Get's the current song, and sends it to the user
+     *
+     * @param {Message} message the Discord message which requested to get the current song
+     */
     getCurrentSong(message: Message): void {
         this.musicQueue?.getCurrentSong(message);
     }
 
+    /**
+     * Get's the current music queue, and sends it to the user
+     *
+     * @param {Message} message the Discord message which requested to get the queue
+     */
     getQueuedMusic(message: Message): void {
         this.musicQueue?.getQueuedMusic(message);
     }
 
+    /**
+     * Stop's playing music
+     *
+     * @param {Message} message the message that requested to stop the music
+     */
     stopMusic(message: Message): void {
         this.musicQueue?.stopMusic(message);
     }
 
+    /**
+     * Start's or stop's looping the current queue in the queue
+     *
+     * @param {Message} message the Discord message which requested to loop the queue
+     */
     loopMusicQueue(message: Message): void {
         this.musicQueue?.loopMusicQueue(message);
     }
 
+    /**
+     * Start's or stop's looping the current song in the queue
+     *
+     * @param {Message} message the Discord message which requested to loop the current song
+     */
     loopCurrentSong(message: Message): void {
         this.musicQueue?.loopCurrentSong(message);
     }
 
+    /**
+     * Pauses the music
+     *
+     * @param {Message} message the Discord message which requested the pause
+     */
     pauseMusic(message: Message): void {
         this.musicQueue?.pauseMusic(message);
     }
 
-    getVoiceChannel(channel: VoiceChannel, message: Message): void {
-        this.musicQueue?.getVoiceChannel(channel, message);
+    /**
+     * Get the voice channel from message
+     *
+     * @param {VoiceChannel} channel the voice channel the user is in
+     * @param {Message} message the message that has the music command
+     * @returns {?VoiceChannel} the new music voice channel
+     */
+    getVoiceChannel(
+        channel: VoiceChannel,
+        message: Message
+    ): Promise<VoiceChannel> | undefined {
+        return this.musicQueue?.getVoiceChannel(channel, message);
     }
 
+    /**
+     * Queues a music from YouTube
+     *
+     * @param {Message} message the Discord message which requested to queue a song,
+     * @param {string} url YouTube link to the music
+     */
     queueMusic(message: Message, url: string): void {
         this.musicQueue?.queueMusic(message, url);
     }
 
+    /**
+     * Removes music from the queue
+     *
+     * @param {string} number the index or range in the queue
+     * @param {Message} message the Discord message which requested to remove the music from the queue
+     */
     removeFromQueue(number: string, message: Message): void {
         this.musicQueue?.removeFromQueue(number, message);
     }
 
+    /**
+     * Replays the current song
+     *
+     * @param {Message} message the Discord message which requested the replay
+     */
     replayMusic(message: Message): void {
         this.musicQueue?.replayMusic(message);
     }
 
+    /**
+     * Resumes playing music
+     *
+     * @param {Message} message the Discord message which requested the resume
+     */
     resumeMusic(message: Message): void {
         this.musicQueue?.resumeMusic(message);
     }
 
+    /**
+     * Shuffle's the queue
+     *
+     * @param {Message} message the Discord message which requested to shuffle the queue
+     */
     shuffleMusic(message: Message): void {
         this.musicQueue?.shuffleMusic(message);
     }
 
+    /**
+     * Skip's a song
+     *
+     * @param {Message} message the Discord message which requested to skip a song
+     */
     skipSong(message: Message): void {
         this.musicQueue?.skipSong(message);
     }
