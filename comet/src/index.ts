@@ -26,7 +26,7 @@ const messageComponent = new MessageComponent(
     loggingComponent
 );
 
-const Index = new Elia(
+const elia = new Elia(
     bot,
     dataComponent,
     loggingComponent,
@@ -35,21 +35,21 @@ const Index = new Elia(
 );
 
 // Add function component's
-Index.addComponent(new CommandComponent());
-Index.addComponent(new MusicComponent());
-Index.addComponent(new SoundEffectComponent());
+elia.addComponent(new CommandComponent());
+elia.addComponent(new MusicComponent());
+elia.addComponent(new SoundEffectComponent());
 
-Index.getAvailableCommands();
+elia.getAvailableCommands();
 
 // on start
 bot.on("ready", () => {
-    Index.onReady();
+    elia.onReady();
 });
 
 // setup message handling
 bot.on("message", (message: Discord.Message) => {
-    Index.onMessage(message);
+    elia.onMessage(message);
 });
 
 // bot login
-bot.login(Index.getToken()).then(() => null);
+bot.login(elia.getToken()).then(() => null);
