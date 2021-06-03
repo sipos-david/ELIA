@@ -36,7 +36,7 @@ const elia = new Elia(
 
 // Add function component's
 elia.addComponent(new CommandComponent());
-    elia.addComponent(new MusicComponent());
+elia.addComponent(new MusicComponent());
 elia.addComponent(new SoundEffectComponent());
 
 elia.getAvailableCommands();
