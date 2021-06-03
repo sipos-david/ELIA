@@ -7,11 +7,11 @@ on:
     push:
         branches: [master]
         paths:
-            - "comet"
+            - "comet/**"
     pull_request:
         branches: [master]
         paths:
-            - "comet"
+            - "comet/**"
 
 defaults:
     run:

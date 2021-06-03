@@ -3,7 +3,7 @@ name: Discord Client - Lint
 on:
     push:
         paths:
-            - "comet"
+            - "comet/**"
 
 defaults:
     run:
