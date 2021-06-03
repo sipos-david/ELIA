@@ -4,6 +4,7 @@ module.exports = {
         es2021: true,
         node: true,
     },
+    ignorePatterns: ["**/*.mp3", "**/*.md", "**/*.json"],
     extends: [
         "eslint:recommended",
         "plugin:@typescript-eslint/eslint-recommended",
