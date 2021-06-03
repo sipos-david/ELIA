@@ -14,6 +14,6 @@ export default class ShuffleQueueCommand extends Command {
             (elia.musicComponent?.messageSenderInVoiceChannel(message) &&
                 elia.musicComponent.messageSenderHasRightPermissions(message))
         )
-            elia.musicComponent?.musicQueue?.shuffleMusic(message);
+            elia.musicComponent?.shuffleMusic(message);
     }
 }

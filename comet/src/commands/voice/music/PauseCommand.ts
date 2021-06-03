@@ -14,6 +14,6 @@ export default class PauseCommand extends Command {
             (elia.musicComponent?.messageSenderInVoiceChannel(message) &&
                 elia.musicComponent.messageSenderHasRightPermissions(message))
         )
-            elia.musicComponent?.musicQueue?.pauseMusic(message);
+            elia.musicComponent?.pauseMusic(message);
     }
 }

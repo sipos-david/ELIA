@@ -14,6 +14,6 @@ export default class GetQueueCommand extends Command {
             (elia.musicComponent?.messageSenderInVoiceChannel(message) &&
                 elia.musicComponent.messageSenderHasRightPermissions(message))
         )
-            elia.musicComponent?.musicQueue?.getQueuedMusic(message);
+            elia.musicComponent?.getQueuedMusic(message);
     }
 }

@@ -17,7 +17,7 @@ export default class RemoveSongFromQueueCommand extends Command {
         ) {
             const arg = args[0];
             if (arg) {
-                elia.musicComponent?.musicQueue?.removeFromQueue(arg, message);
+                elia.musicComponent?.removeFromQueue(arg, message);
             }
         }
     }

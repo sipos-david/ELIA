@@ -13,7 +13,7 @@ export default class LeaveCommand extends Command {
             elia.dataComponent.getRadioMode() ||
             elia.musicComponent?.messageSenderInVoiceChannel(message)
         ) {
-            elia.musicComponent?.musicQueue?.stopMusic(message);
+            elia.musicComponent?.stopMusic(message);
         }
     }
 }

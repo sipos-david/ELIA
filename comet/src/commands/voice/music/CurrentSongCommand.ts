@@ -14,6 +14,6 @@ export default class CurrentSongCommand extends Command {
             (elia.musicComponent?.messageSenderInVoiceChannel(message) &&
                 elia.musicComponent.messageSenderHasRightPermissions(message))
         )
-            elia.musicComponent?.musicQueue?.getCurrentSong(message);
+            elia.musicComponent?.getCurrentSong(message);
     }
 }

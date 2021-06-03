@@ -14,6 +14,6 @@ export default class LoopSongCommand extends Command {
             (elia.musicComponent?.messageSenderInVoiceChannel(message) &&
                 elia.musicComponent.messageSenderHasRightPermissions(message))
         )
-            elia.musicComponent?.musicQueue?.loopCurrentSong(message);
+            elia.musicComponent?.loopCurrentSong(message);
     }
 }

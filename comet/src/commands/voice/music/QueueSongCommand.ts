@@ -21,7 +21,7 @@ export default class QueueSongCommand extends Command {
         ) {
             const arg = args[0];
             if (arg && validURL(arg)) {
-                elia.musicComponent?.musicQueue?.queueMusic(message, arg);
+                elia.musicComponent?.queueMusic(message, arg);
             } else {
                 const videoFinder = async (query: string) => {
                     const videoResult = await ytSearch(query);
@@ -33,10 +33,7 @@ export default class QueueSongCommand extends Command {
                 const video = await videoFinder(args.join(" "));
 
                 if (video) {
-                    elia.musicComponent?.musicQueue?.queueMusic(
-                        message,
-                        video.url
-                    );
+                    elia.musicComponent?.queueMusic(message, video.url);
                 } else {
                     elia.messageComponent.reply(
                         message,

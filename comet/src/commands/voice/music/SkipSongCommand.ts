@@ -14,6 +14,6 @@ export default class SkipSongCommand extends Command {
             (elia.musicComponent?.messageSenderInVoiceChannel(message) &&
                 elia.musicComponent.messageSenderHasRightPermissions(message))
         )
-            elia.musicComponent?.musicQueue?.skipSong(message);
+            elia.musicComponent?.skipSong(message);
     }
 }

@@ -14,6 +14,6 @@ export default class ResumeSongCommand extends Command {
             (elia.musicComponent?.messageSenderInVoiceChannel(message) &&
                 elia.musicComponent.messageSenderHasRightPermissions(message))
         )
-            elia.musicComponent?.musicQueue?.resumeMusic(message);
+            elia.musicComponent?.resumeMusic(message);
     }
 }

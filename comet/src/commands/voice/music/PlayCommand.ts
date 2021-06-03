@@ -1,9 +1,9 @@
 import Command from "../../Command";
-import {CommandTypeEnum} from "../../CommandTypeEnum";
+import { CommandTypeEnum } from "../../CommandTypeEnum";
 import ytSearch from "yt-search";
 import validURL from "../../../components/music/UrlChecker";
 import getYouTubePlaylistId from "../../../components/music/UrlPlaylist";
-import {VoiceChannel, Message} from "discord.js";
+import { VoiceChannel, Message } from "discord.js";
 import Elia from "../../../Elia";
 
 export default class PlayCommand extends Command {
@@ -21,11 +21,10 @@ export default class PlayCommand extends Command {
                 elia.musicComponent.messageSenderHasRightPermissions(message))
         ) {
             if (message.member && message.member.voice.channel) {
-                const voiceChannel =
-                    await elia.musicComponent?.musicQueue?.getVoiceChannel(
-                        message.member.voice.channel,
-                        message
-                    );
+                const voiceChannel = await elia.musicComponent?.getVoiceChannel(
+                    message.member.voice.channel,
+                    message
+                );
                 if (voiceChannel) {
                     const arg = args[0];
                     if (arg && validURL(arg)) {
@@ -105,8 +104,12 @@ export default class PlayCommand extends Command {
      * @param {string} query the string to search on YouTube
      * @returns {?string} the first result of the query or null if no results
      */
-    async videoFinder(query: string): Promise<ytSearch.VideoSearchResult | undefined> {
+    async videoFinder(
+        query: string
+    ): Promise<ytSearch.VideoSearchResult | undefined> {
         const videoResult = await ytSearch(query);
-        return videoResult.videos.length > 1 ? videoResult.videos[0] : undefined;
+        return videoResult.videos.length > 1
+            ? videoResult.videos[0]
+            : undefined;
     }
 }

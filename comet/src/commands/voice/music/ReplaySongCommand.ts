@@ -14,6 +14,6 @@ export default class ReplaySongCommand extends Command {
             (elia.musicComponent?.messageSenderInVoiceChannel(message) &&
                 elia.musicComponent.messageSenderHasRightPermissions(message))
         )
-            elia.musicComponent?.musicQueue?.replayMusic(message);
+            elia.musicComponent?.replayMusic(message);
     }
 }

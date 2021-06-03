@@ -1,6 +1,6 @@
 import MusicQueue from "./MusicQueue";
 import Elia from "../../Elia";
-import { Message } from "discord.js";
+import { Message, VoiceChannel } from "discord.js";
 //song command imports
 import CurrentSongCommand from "../../commands/voice/music/CurrentSongCommand";
 import GetQueueCommand from "../../commands/voice/music/GetQueueCommand";
@@ -20,7 +20,7 @@ import LateInitComponent from "../LateInitComponent";
 /**
  * Component for ELIA which add the music commands
  */
-export default class MusicComponent extends LateInitComponent{
+export default class MusicComponent extends LateInitComponent {
     /**
      * Set's up the MusicComponent object for the usage of music commands.
      *
@@ -118,5 +118,57 @@ export default class MusicComponent extends LateInitComponent{
             }
             return false;
         }
+    }
+
+    getCurrentSong(message: Message): void {
+        this.musicQueue?.getCurrentSong(message);
+    }
+
+    getQueuedMusic(message: Message): void {
+        this.musicQueue?.getQueuedMusic(message);
+    }
+
+    stopMusic(message: Message): void {
+        this.musicQueue?.stopMusic(message);
+    }
+
+    loopMusicQueue(message: Message): void {
+        this.musicQueue?.loopMusicQueue(message);
+    }
+
+    loopCurrentSong(message: Message): void {
+        this.musicQueue?.loopCurrentSong(message);
+    }
+
+    pauseMusic(message: Message): void {
+        this.musicQueue?.pauseMusic(message);
+    }
+
+    getVoiceChannel(channel: VoiceChannel, message: Message): void {
+        this.musicQueue?.getVoiceChannel(channel, message);
+    }
+
+    queueMusic(message: Message, url: string): void {
+        this.musicQueue?.queueMusic(message, url);
+    }
+
+    removeFromQueue(number: string, message: Message): void {
+        this.musicQueue?.removeFromQueue(number, message);
+    }
+
+    replayMusic(message: Message): void {
+        this.musicQueue?.replayMusic(message);
+    }
+
+    resumeMusic(message: Message): void {
+        this.musicQueue?.resumeMusic(message);
+    }
+
+    shuffleMusic(message: Message): void {
+        this.musicQueue?.shuffleMusic(message);
+    }
+
+    skipSong(message: Message): void {
+        this.musicQueue?.skipSong(message);
     }
 }
