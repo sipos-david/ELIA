@@ -6,8 +6,12 @@ name: Discord Client - Build
 on:
     push:
         branches: [master]
+        paths:
+            - "comet"
     pull_request:
         branches: [master]
+        paths:
+            - "comet"
 
 defaults:
     run:
