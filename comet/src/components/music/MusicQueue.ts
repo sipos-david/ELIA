@@ -640,7 +640,9 @@ export default class MusicQueue {
      */
     getQueuedMusic(message: Message): void {
         if (this.currentSong != null) {
-            const currentTitle = this.getYouTubeTitleFromCache(this.currentSong);
+            const currentTitle = this.getYouTubeTitleFromCache(
+                this.currentSong
+            );
             let reply = "\n***The current song: ***\n" + currentTitle;
             if (this.musicQueueArray.length > 0) {
                 reply += "\n\n***The current queue:***\n";
@@ -672,7 +674,9 @@ export default class MusicQueue {
      */
     getCurrentSong(message: Message): void {
         if (this.currentSong != null) {
-            const currentTitle = this.getYouTubeTitleFromCache(this.currentSong);
+            const currentTitle = this.getYouTubeTitleFromCache(
+                this.currentSong
+            );
             message
                 .reply(
                     "***The current song is:***\n\n" +
