@@ -31,3 +31,4 @@ jobs:
               with:
                   eslint: true
                   eslint_dir: "comet/"
+                  eslint_args: "--env-info=true --debug=true"
