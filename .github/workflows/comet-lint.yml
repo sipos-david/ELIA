@@ -30,5 +30,4 @@ jobs:
               uses: wearerequired/lint-action@v1
               with:
                   eslint: true
-                  eslint_dir: "comet/"
-                  eslint_args: "--env-info=true --debug=true"
+                  eslint_dir: "comet/**"
