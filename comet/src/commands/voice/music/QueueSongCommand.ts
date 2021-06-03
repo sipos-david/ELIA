@@ -3,7 +3,7 @@ import Elia from "../../../Elia";
 import Command from "../../Command";
 import { CommandTypeEnum } from "../../CommandTypeEnum";
 import ytSearch from "yt-search";
-import validURL from "../../../components/music/UrlChecker.js";
+import isValidURL from "../../../lib/UrlChecker.js";
 
 export default class QueueSongCommand extends Command {
     name = "queue";
@@ -20,7 +20,7 @@ export default class QueueSongCommand extends Command {
                 elia.musicComponent.messageSenderHasRightPermissions(message))
         ) {
             const arg = args[0];
-            if (arg && validURL(arg)) {
+            if (arg && isValidURL(arg)) {
                 elia.musicComponent?.queueMusic(message, arg);
             } else {
                 const videoFinder = async (query: string) => {

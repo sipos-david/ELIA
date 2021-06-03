@@ -4,7 +4,7 @@
  * @param {string} str the string containing an URL
  * @returns {boolean} true if the string is a valid URL, else false
  */
-export default function validURL(str: string): boolean {
+export default function UrlChecker(str: string): boolean {
     const pattern = new RegExp(
         "^(https?:\\/\\/)?" + // protocol
             "((([a-z\\d]([a-z\\d-]*[a-z\\d])*)\\.)+[a-z]{2,}|" + // domain name

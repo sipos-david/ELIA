@@ -1,7 +1,7 @@
 import Command from "../../Command";
 import { CommandTypeEnum } from "../../CommandTypeEnum";
 import ytSearch from "yt-search";
-import validURL from "../../../components/music/UrlChecker";
+import isValidURL from "../../../lib/UrlChecker";
 import getYouTubePlaylistId from "../../../components/music/UrlPlaylist";
 import { VoiceChannel, Message } from "discord.js";
 import Elia from "../../../Elia";
@@ -27,7 +27,7 @@ export default class PlayCommand extends Command {
                 );
                 if (voiceChannel) {
                     const arg = args[0];
-                    if (arg && validURL(arg)) {
+                    if (arg && isValidURL(arg)) {
                         this.playFromYouTube(voiceChannel, message, elia, arg);
                     } else {
                         this.searchAndPlayFromYouTube(
