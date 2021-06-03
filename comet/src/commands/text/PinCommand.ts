@@ -1,7 +1,7 @@
-import {Message, TextChannel} from "discord.js";
+import { Message, TextChannel } from "discord.js";
 import Elia from "../../Elia";
 import Command from "../Command";
-import {CommandTypeEnum} from "../CommandTypeEnum";
+import { CommandTypeEnum } from "../CommandTypeEnum";
 
 export default class PinCommand extends Command {
     name = "pin";
@@ -17,8 +17,8 @@ export default class PinCommand extends Command {
                 message.guild.id
             );
             if (channelID) {
-                const channel = await message.client.channels.fetch(channelID) as TextChannel;
-                if (channel) {
+                const channel = await message.client.channels.fetch(channelID);
+                if (channel && channel instanceof TextChannel) {
                     const messageText = args.join(" ");
                     channel.send(`${message.author.toString()} ` + messageText);
                     message.delete();
