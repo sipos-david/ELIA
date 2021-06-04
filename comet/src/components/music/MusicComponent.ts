@@ -283,4 +283,18 @@ export default class MusicComponent {
             music.title
         );
     }
+
+    /**
+     * Continues playing music if the queue is not empty
+     */
+    continuePlayingMusic(): void {
+        if (
+            this.musicQueue.hasSongs() > 0 &&
+            this.musicPlayer.hasMembersInVoice()
+        ) {
+            this.playMusicFromQueue();
+        } else {
+            this.stopMusic(undefined);
+        }
+    }
 }

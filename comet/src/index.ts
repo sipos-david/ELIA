@@ -39,7 +39,13 @@ const messageComponent = new MessageComponent(
 const musicComponent = new MusicComponent(
     messageComponent,
     new MusicQueue(),
-    new MusicPlayer(dataComponent, bot, messageComponent)
+    new MusicPlayer(
+        dataComponent,
+        loggingComponent,
+        messageComponent,
+        youtubeService,
+        bot
+    )
 );
 
 // create ELIA

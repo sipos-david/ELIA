@@ -1,5 +1,4 @@
 import { VoiceConnection, VoiceChannel, Message, Client } from "discord.js";
-import playFromURL from "./UrlPlay.js";
 import ytpl from "ytpl";
 import ytdl from "ytdl-core";
 import MusicComponent from "./MusicComponent.js";
@@ -323,17 +322,6 @@ export default class MusicQueue {
                     this.playMusic(message, voiceChannel, url);
                 }
             }
-        }
-    }
-
-    /**
-     * Continues playing music if the queue is not empty
-     */
-    continuePlayingMusic(): void {
-        if (this.musicQueueArray.length > 0 && this.hasMembersInVoice()) {
-            this.playMusicFromQueue();
-        } else {
-            this.stopMusic(undefined);
         }
     }
 
@@ -665,22 +653,4 @@ export default class MusicQueue {
     }
 
     // --- Discord state checker functions ---
-
-    /**
-     * Check's if the bot is playing songs to itself.
-     *
-     * @returns {boolean} true if the bot is alone in the VoiceChannel, else false
-     */
-    hasMembersInVoice(): boolean {
-        if (
-            this.voiceChannel != null &&
-            this.bot.user &&
-            this.voiceChannel.members.has(this.bot.user.id) &&
-            this.voiceChannel.members.size == 1 &&
-            !this.dataComponent.getRadioMode()
-        ) {
-            this.loggingComponent.log("Elia was left alone...");
-            return false;
-        } else return true;
-    }
 }
