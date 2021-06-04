@@ -16,6 +16,7 @@ import ResumeSongCommand from "../../commands/voice/music/ResumeSongCommand";
 import ShuffleQueueCommand from "../../commands/voice/music/ShuffleQueueCommand";
 import SkipSongCommand from "../../commands/voice/music/SkipSongCommand";
 import LateInitComponent from "../LateInitComponent";
+import MusicData from "./MusicData";
 
 /**
  * Component for ELIA which add the music commands
@@ -59,7 +60,7 @@ export default class MusicComponent extends LateInitComponent {
      *
      * @type {MusicQueue}
      */
-    musicQueue: MusicQueue | undefined;
+    private musicQueue: MusicQueue | undefined;
 
     /**
      * Check's if the user who sent the massage has permissions to connect and speak in the channel he/she currently in.
@@ -170,17 +171,38 @@ export default class MusicComponent extends LateInitComponent {
     }
 
     /**
-     * Get the voice channel from message
+     * Get the voice channel from message, if config not available, falls back to function parameter
      *
-     * @param {VoiceChannel} channel the voice channel the user is in
+     * @param {VoiceChannel} voiceChannel the voice channel the user is in
      * @param {Message} message the message that has the music command
      * @returns {?VoiceChannel} the new music voice channel
      */
-    getVoiceChannel(
-        channel: VoiceChannel,
+    async getVoiceChannel(
+        voiceChannel: VoiceChannel,
         message: Message
-    ): Promise<VoiceChannel> | undefined {
-        return this.musicQueue?.getVoiceChannel(channel, message);
+    ): Promise<VoiceChannel> {
+        if (this.elia?.dataComponent.getRadioMode() && message.guild) {
+            const radioChannel = this.elia.dataComponent.getRadioChannel(
+                message.guild.id
+            );
+            if (radioChannel) {
+                const radioVoiceChannel =
+                    this.elia.bot.channels.cache.get(radioChannel);
+                if (radioVoiceChannel) {
+                    if (radioVoiceChannel instanceof VoiceChannel) {
+                        return radioVoiceChannel;
+                    }
+                } else {
+                    this.elia.messageComponent.reply(
+                        message,
+                        "Radio channel not available for current server!"
+                    );
+                }
+            }
+            return voiceChannel;
+        } else {
+            return voiceChannel;
+        }
     }
 
     /**
@@ -237,5 +259,40 @@ export default class MusicComponent extends LateInitComponent {
      */
     skipSong(message: Message): void {
         this.musicQueue?.skipSong(message);
+    }
+
+    /**
+     * Imports and plays a YouTube playlist
+     *
+     * @param {Message} message the Discord message which requested to play a playlist
+     * @param {VoiceChannel} voiceChannel the Discord channel where to play the music
+     * @param {string} id the YouTube id of the playlist
+     */
+    playYouTubePlaylist(
+        message: Message,
+        voiceChannel: VoiceChannel,
+        id: string
+    ): void {
+        this.musicQueue?.playYouTubePlaylist(message, voiceChannel, id);
+    }
+
+    /**
+     * Play's music. If currently playing music, overrides it, if not, start playing music.
+     *
+     * @param {Message} message the Discord message containing the URL
+     * @param {VoiceChannel} voiceChannel the message sender's voice channel
+     * @param {MusicData} music the msuic to be played
+     */
+    playMusic(
+        message: Message,
+        voiceChannel: VoiceChannel,
+        music: MusicData
+    ): void {
+        this.musicQueue?.playMusic(
+            message,
+            voiceChannel,
+            music.url,
+            music.title
+        );
     }
 }

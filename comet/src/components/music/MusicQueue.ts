@@ -137,41 +137,6 @@ export default class MusicQueue {
     }
 
     /**
-     * Get the voice channel from message
-     *
-     * @param {VoiceChannel} voiceChannel the voice channel the user is in
-     * @param {Message} message the message that has the music command
-     * @returns {?VoiceChannel} the new music voice channel
-     */
-    async getVoiceChannel(
-        voiceChannel: VoiceChannel,
-        message: Message
-    ): Promise<VoiceChannel> {
-        if (this.elia.dataComponent.getRadioMode() && message.guild) {
-            const radioChannel = this.elia.dataComponent.getRadioChannel(
-                message.guild.id
-            );
-            if (radioChannel) {
-                const radioVoiceChannel =
-                    this.elia.bot.channels.cache.get(radioChannel);
-                if (radioVoiceChannel) {
-                    if (radioVoiceChannel instanceof VoiceChannel) {
-                        return radioVoiceChannel;
-                    }
-                } else {
-                    this.elia.messageComponent.reply(
-                        message,
-                        "Radio channel not available for current server!"
-                    );
-                }
-            }
-            return voiceChannel;
-        } else {
-            return voiceChannel;
-        }
-    }
-
-    /**
      * Replay's the current song
      *
      * @param {Message} message the Discord message which requested the replay
@@ -180,12 +145,11 @@ export default class MusicQueue {
         if (
             this.lastSong != null &&
             this.elia.musicComponent &&
-            this.elia.musicComponent.musicQueue &&
             message.member &&
             message.member.voice &&
             message.member.voice.channel
         ) {
-            this.elia.musicComponent.musicQueue.playMusic(
+            this.playMusic(
                 message,
                 message.member.voice.channel,
                 this.lastSong
@@ -335,11 +299,14 @@ export default class MusicQueue {
         );
         if (this.musicQueueArray.push(url) == 1 && !this.isPlayingMusic) {
             if (message.member && message.member.voice.channel) {
-                const voiceChannel = await this.getVoiceChannel(
-                    message.member.voice.channel,
-                    message
-                );
-                this.playMusic(message, voiceChannel, url);
+                const voiceChannel =
+                    await this.elia.musicComponent?.getVoiceChannel(
+                        message.member.voice.channel,
+                        message
+                    );
+                if (voiceChannel) {
+                    this.playMusic(message, voiceChannel, url);
+                }
             }
         }
     }
