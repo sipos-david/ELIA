@@ -1,12 +1,17 @@
 import Command from "../../Command";
 import { CommandTypeEnum } from "../../CommandTypeEnum";
-import ytSearch from "yt-search";
 import isValidURL from "../../../lib/UrlChecker";
-import getYouTubePlaylistId from "../../../components/music/UrlPlaylist";
 import { VoiceChannel, Message } from "discord.js";
 import Elia from "../../../Elia";
+import YoutubeService from "../../../components/music/YoutubeService";
 
 export default class PlayCommand extends Command {
+    constructor(youtubeService: YoutubeService) {
+        super();
+        this.youtubeService = youtubeService;
+    }
+    youtubeService: YoutubeService;
+
     name = "play";
     description = "Joins and plays a video from youtube";
     usage =
@@ -50,25 +55,21 @@ export default class PlayCommand extends Command {
      * @param {Elia} elia the elia bot
      * @param {string} url a youtube video url
      */
-    playFromYouTube(
+    async playFromYouTube(
         voiceChannel: VoiceChannel,
         message: Message,
         elia: Elia,
         url: string
-    ): void {
-        const id = getYouTubePlaylistId(url);
+    ): Promise<void> {
+        const id = this.youtubeService.getPlaylistIdFromUrl(url);
         if (id != null)
-            elia.musicComponent?.musicQueue?.playYouTubePlaylist(
-                message,
-                voiceChannel,
-                id
-            );
-        else
-            elia?.musicComponent?.musicQueue?.playMusic(
-                message,
-                voiceChannel,
-                url
-            );
+            elia.musicComponent?.playYouTubePlaylist(message, voiceChannel, id);
+        else {
+            const video = await this.youtubeService.getMusicFromUrl(url);
+            if (video) {
+                elia?.musicComponent?.playMusic(message, voiceChannel, video);
+            }
+        }
     }
 
     /**
@@ -85,31 +86,11 @@ export default class PlayCommand extends Command {
         query: string,
         elia: Elia
     ): Promise<void> {
-        const video = await this.videoFinder(query);
+        const video = await this.youtubeService.getMusicFromQuery(query);
         if (video) {
-            elia.musicComponent?.musicQueue?.playMusic(
-                message,
-                voiceChannel,
-                video.url,
-                video.title
-            );
+            elia.musicComponent?.playMusic(message, voiceChannel, video);
         } else {
             elia.messageComponent.reply(message, "No video results found.");
         }
-    }
-
-    /**
-     * Searches a string on YouTube and get the fist result.
-     *
-     * @param {string} query the string to search on YouTube
-     * @returns {?string} the first result of the query or null if no results
-     */
-    async videoFinder(
-        query: string
-    ): Promise<ytSearch.VideoSearchResult | undefined> {
-        const videoResult = await ytSearch(query);
-        return videoResult.videos.length > 1
-            ? videoResult.videos[0]
-            : undefined;
     }
 }

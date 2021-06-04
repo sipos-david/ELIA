@@ -48,4 +48,13 @@ export default class YoutubeService {
             return undefined;
         }
     }
+
+    async getMusicFromUrl(url: string): Promise<MusicData | undefined> {
+        const result = await ytdl.getBasicInfo(url);
+        if (result) {
+            return new MusicData(url, result.videoDetails.title);
+        } else {
+            return undefined;
+        }
+    }
 }
