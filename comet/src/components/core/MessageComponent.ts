@@ -1,7 +1,6 @@
 import { Client, Message, MessageEmbed } from "discord.js";
 import Command from "../../commands/Command";
 import { CommandTypeEnum } from "../../commands/CommandTypeEnum";
-import Elia from "../../Elia";
 import CommandComponent from "../CommandComponent";
 import DataComponent from "./DataComponent";
 import LoggingComponent from "./LoggingComponent";

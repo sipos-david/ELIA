@@ -1,7 +1,7 @@
-import {Message} from "discord.js";
+import { Message } from "discord.js";
 import Elia from "../../Elia";
 import Command from "../Command";
-import {CommandTypeEnum} from "../CommandTypeEnum";
+import { CommandTypeEnum } from "../CommandTypeEnum";
 
 /**
  * Command for playing sound effects
