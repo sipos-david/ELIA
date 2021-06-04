@@ -6,38 +6,71 @@ import LoggingComponent from "./components/core/LoggingComponent";
 import MessageComponent from "./components/core/MessageComponent";
 import CommandComponent from "./components/CommandComponent";
 import MusicComponent from "./components/music/MusicComponent";
-import SoundEffectComponent from "./components/SoundEffectComponent";
+import MusicQueue from "./components/music/MusicQueue";
+import MusicPlayer from "./components/music/MusicPlayer";
+import SoundEffectCommand from "./commands/voice/SoundEffectCommand";
+import DeleteMessagesCommand from "./commands/text/DeleteMessagesCommand";
+import HelpCommand from "./commands/text/HelpCommand";
+import MemeCommand from "./commands/text/MemeCommand";
+import PinCommand from "./commands/text/PinCommand";
+import PingCommand from "./commands/text/PingCommand";
+import PollCommand from "./commands/text/PollCommand";
+import YoutubeService from "./components/music/YoutubeService";
 
 const bot = new Discord.Client();
 
-// The DataComponent for ELIA
+// create services
+const youtubeService = new YoutubeService();
+
+// create components
 const dataComponent = new DataComponent();
-// The LoggingComponent for ELIA
 const loggingComponent = new LoggingComponent();
-// The ActivityDisplayComponent for ELIA
 const activityDisplayComponent = new ActivityDisplayComponent(
     bot,
     dataComponent
 );
-// The MessageComponent for ELIA
+const commandComponent = new CommandComponent();
 const messageComponent = new MessageComponent(
     bot,
     dataComponent,
-    loggingComponent
+    loggingComponent,
+    commandComponent
+);
+const musicComponent = new MusicComponent(
+    messageComponent,
+    new MusicQueue(),
+    new MusicPlayer(dataComponent, bot, messageComponent)
 );
 
+// create ELIA
 const elia = new Elia(
     bot,
     dataComponent,
     loggingComponent,
     activityDisplayComponent,
-    messageComponent
+    messageComponent,
+    commandComponent,
+    musicComponent
 );
 
-// Add function component's
-elia.addComponent(new CommandComponent());
-elia.addComponent(new MusicComponent());
-elia.addComponent(new SoundEffectComponent());
+// Add the base commands
+commandComponent.addCommands([
+    new DeleteMessagesCommand(),
+    new HelpCommand(),
+    new MemeCommand(),
+    new PinCommand(),
+    new PingCommand(),
+    new PollCommand(),
+]);
+loggingComponent.log("Basic commands added to Elia.");
+
+// Add the sound effect commands
+commandComponent.addCommands(SoundEffectCommand.getSoundEffectCommands());
+loggingComponent.log("Sound effect commands added to Elia.");
+
+// Add the music commands
+commandComponent.addCommands(MusicComponent.getMusicCommands(youtubeService));
+loggingComponent.log("Music commands added to Elia.");
 
 elia.getAvailableCommands();
 

@@ -2,6 +2,7 @@ import { Client, Message, MessageEmbed } from "discord.js";
 import Command from "../../commands/Command";
 import { CommandTypeEnum } from "../../commands/CommandTypeEnum";
 import Elia from "../../Elia";
+import CommandComponent from "../CommandComponent";
 import DataComponent from "./DataComponent";
 import LoggingComponent from "./LoggingComponent";
 
@@ -12,11 +13,13 @@ export default class MessageComponent {
     constructor(
         bot: Client,
         dataComponent: DataComponent,
-        loggingComponent: LoggingComponent
+        loggingComponent: LoggingComponent,
+        commandComponent: CommandComponent
     ) {
         this.bot = bot;
         this.dataComponent = dataComponent;
         this.loggingComponent = loggingComponent;
+        this.commandComponent = commandComponent;
     }
 
     /**
@@ -39,6 +42,13 @@ export default class MessageComponent {
      * @type {LoggingComponent}
      */
     loggingComponent: LoggingComponent;
+
+    /**
+     * The component for commands
+     *
+     * @type {CommandComponent}
+     */
+    commandComponent: CommandComponent;
 
     /**
      * Replies to the message.
@@ -155,9 +165,8 @@ export default class MessageComponent {
      * Reply's all commands to the user
      *
      * @param {Message} message the Discord message which requested all commands
-     * @param {Elia} elia the Elia object which got the request
      */
-    helpSendAllCommands(message: Message, elia: Elia): void {
+    helpSendAllCommands(message: Message): void {
         const embedMessage = this.buildBaseEmbed();
         this.addFooterToEmbed(message, embedMessage);
         embedMessage.setTitle("Here's a list of all my commands:");
@@ -169,22 +178,24 @@ export default class MessageComponent {
         const utilityCommandsList: string[] = [];
         const otherCommandsList: string[] = [];
 
-        elia.commandMap.forEach((command: { type: CommandTypeEnum; name: string }) => {
-            switch (command.type) {
-                case CommandTypeEnum.MUSIC:
-                    musicCommandsList.push(command.name);
-                    break;
-                case CommandTypeEnum.SOUNDEFFECT:
-                    soundEffectCommandsList.push(command.name);
-                    break;
-                case CommandTypeEnum.UTILITY:
-                    utilityCommandsList.push(command.name);
-                    break;
-                case CommandTypeEnum.OTHER:
-                    otherCommandsList.push(command.name);
-                    break;
+        this.commandComponent.commands.forEach(
+            (command: { type: CommandTypeEnum; name: string }) => {
+                switch (command.type) {
+                    case CommandTypeEnum.MUSIC:
+                        musicCommandsList.push(command.name);
+                        break;
+                    case CommandTypeEnum.SOUNDEFFECT:
+                        soundEffectCommandsList.push(command.name);
+                        break;
+                    case CommandTypeEnum.UTILITY:
+                        utilityCommandsList.push(command.name);
+                        break;
+                    case CommandTypeEnum.OTHER:
+                        otherCommandsList.push(command.name);
+                        break;
+                }
             }
-        });
+        );
 
         embedMessage.addFields(
             {

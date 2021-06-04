@@ -2,10 +2,9 @@ import DataComponent from "./components/core/DataComponent";
 import ActivityDisplayComponent from "./components/core/ActivityDisplayComponent";
 import LoggingComponent from "./components/core/LoggingComponent";
 import MessageComponent from "./components/core/MessageComponent";
-import {Client, Message} from "discord.js";
-import Command from "./commands/Command";
+import { Client, Message } from "discord.js";
 import MusicComponent from "./components/music/MusicComponent";
-import LateInitComponent from "./components/LateInitComponent";
+import CommandComponent from "./components/CommandComponent";
 
 /**
  *  Main class for the Discord bot
@@ -18,23 +17,28 @@ export default class Elia {
      * @param {DataComponent} dataComponent The data used by ELIA
      * @param {LoggingComponent} loggingComponent The component used for logging
      * @param {ActivityDisplayComponent} activityDisplayComponent The component used for displaying the current activity of ELIA
-     * @param {MessageComponent} messageComponent The component used by ELIA for sending messages
+     * @param {MessageComponent} messageComponent The component used by ELIA for sending message
+     * @param {CommandComponent} commandComponent The component used by ELIA for commands
+     * @param {?MessageComponent} musicComponent The component used by ELIA for playing music
      */
     constructor(
         bot: Client,
         dataComponent: DataComponent,
         loggingComponent: LoggingComponent,
         activityDisplayComponent: ActivityDisplayComponent,
-        messageComponent: MessageComponent
+        messageComponent: MessageComponent,
+        commandComponent: CommandComponent,
+        musicComponent: MusicComponent | undefined
     ) {
         this.bot = bot;
-        this.commandMap = new Map();
-
         // Add core components
+        this.commandComponent = commandComponent;
         this.dataComponent = dataComponent;
         this.loggingComponent = loggingComponent;
         this.activityDisplayComponent = activityDisplayComponent;
         this.messageComponent = messageComponent;
+        // Add optional components
+        this.musicComponent = musicComponent;
     }
 
     /**
@@ -45,11 +49,11 @@ export default class Elia {
     bot: Client;
 
     /**
-     * The Map of the usable commands.
+     * The component used for commands
      *
-     * @type {Map<string, Command>}
+     * @type {CommandComponent}
      */
-    commandMap: Map<string, Command> = new Map();
+    commandComponent: CommandComponent;
 
     /**
      * The data used by ELIA
@@ -71,6 +75,7 @@ export default class Elia {
      * @type {ActivityDisplayComponent}
      */
     activityDisplayComponent: ActivityDisplayComponent;
+
     /**
      * The component used by ELIA for sending messages
      *
@@ -78,6 +83,11 @@ export default class Elia {
      */
     messageComponent: MessageComponent;
 
+    /**
+     * The component used by ELIA for playing music
+     *
+     * @type {MessageComponent}
+     */
     musicComponent: MusicComponent | undefined;
 
     /**
@@ -109,7 +119,7 @@ export default class Elia {
             const commandRawString = args.shift();
             if (commandRawString) {
                 const commandName = commandRawString.toLowerCase();
-                const command = this.commandMap.get(commandName);
+                const command = this.commandComponent.commands.get(commandName);
 
                 // If the command doesn't exists return
                 if (command === undefined)
@@ -160,17 +170,10 @@ export default class Elia {
      */
     getAvailableCommands(): void {
         let commands = "Available commands: ";
-        this.commandMap.forEach((e) => (commands += " " + e.name + ","));
+        this.commandComponent.commands.forEach(
+            (e) => (commands += " " + e.name + ",")
+        );
         commands = commands.substring(0, commands.length - 1);
         this.loggingComponent.log(commands);
-    }
-
-    /**
-     * Adds a component to ELIA
-     *
-     * @param {LateInitComponent} component new component
-     */
-    addComponent(component: LateInitComponent): void {
-        component.init(this);
     }
 }

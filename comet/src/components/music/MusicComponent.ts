@@ -1,7 +1,11 @@
 import MusicQueue from "./MusicQueue";
-import Elia from "../../Elia";
 import { Message, VoiceChannel } from "discord.js";
+import MusicData from "./MusicData";
+import MessageComponent from "../core/MessageComponent";
+import MusicPlayer from "./MusicPlayer";
+import YoutubeService from "./YoutubeService";
 //song command imports
+import Command from "../../commands/Command";
 import CurrentSongCommand from "../../commands/voice/music/CurrentSongCommand";
 import GetQueueCommand from "../../commands/voice/music/GetQueueCommand";
 import LeaveCommand from "../../commands/voice/music/LeaveCommand";
@@ -15,31 +19,20 @@ import ReplaySongCommand from "../../commands/voice/music/ReplaySongCommand";
 import ResumeSongCommand from "../../commands/voice/music/ResumeSongCommand";
 import ShuffleQueueCommand from "../../commands/voice/music/ShuffleQueueCommand";
 import SkipSongCommand from "../../commands/voice/music/SkipSongCommand";
-import LateInitComponent from "../LateInitComponent";
-import MusicData from "./MusicData";
 
 /**
  * Component for ELIA which add the music commands
  */
-export default class MusicComponent extends LateInitComponent {
-    /**
-     * Set's up the MusicComponent object for the usage of music commands.
-     *
-     * @param {Elia} elia an Elia object
-     */
-    init(elia: Elia): void {
-        this.elia = elia;
-        this.elia.musicComponent = this;
-        this.musicQueue = new MusicQueue(elia);
-
-        const commands = [
+export default class MusicComponent {
+    static getMusicCommands(youtubeService: YoutubeService): Command[] {
+        return [
             new CurrentSongCommand(),
             new GetQueueCommand(),
             new LeaveCommand(),
             new LoopQueueCommand(),
             new LoopSongCommand(),
             new PauseCommand(),
-            new PlayCommand(),
+            new PlayCommand(youtubeService),
             new QueueSongCommand(),
             new RemoveSongFromQueueCommand(),
             new ReplaySongCommand(),
@@ -47,20 +40,37 @@ export default class MusicComponent extends LateInitComponent {
             new ShuffleQueueCommand(),
             new SkipSongCommand(),
         ];
-
-        commands.forEach((cmd) => elia.commandMap.set(cmd.name, cmd));
-
-        elia.loggingComponent.log("Music commands added to Elia.");
+    }
+    constructor(
+        messageComponent: MessageComponent,
+        musicQueue: MusicQueue,
+        musicPlayer: MusicPlayer
+    ) {
+        this.messageComponent = messageComponent;
+        this.musicQueue = musicQueue;
+        this.musicPlayer = musicPlayer;
     }
 
-    elia: Elia | undefined;
+    /**
+     * The message component for ELIA
+     *
+     * @type {MessageComponent}
+     */
+    private messageComponent: MessageComponent;
 
     /**
      * The music queue for the component
      *
      * @type {MusicQueue}
      */
-    private musicQueue: MusicQueue | undefined;
+    private musicQueue: MusicQueue;
+
+    /**
+     * The music player for the component
+     *
+     * @type {MusicPlayer}
+     */
+    private musicPlayer: MusicPlayer;
 
     /**
      * Check's if the user who sent the massage has permissions to connect and speak in the channel he/she currently in.
@@ -73,8 +83,7 @@ export default class MusicComponent extends LateInitComponent {
             message.member &&
             message.member.voice &&
             message.member.voice.channel &&
-            message.client.user &&
-            this.elia
+            message.client.user
         ) {
             const permissions = message.member.voice.channel.permissionsFor(
                 message.client.user
@@ -83,7 +92,7 @@ export default class MusicComponent extends LateInitComponent {
                 permissions &&
                 (!permissions.has("CONNECT") || !permissions.has("SPEAK"))
             ) {
-                this.elia.messageComponent.reply(
+                this.messageComponent.reply(
                     message,
                     "You don't have the correct permissions"
                 );
@@ -106,8 +115,8 @@ export default class MusicComponent extends LateInitComponent {
         ) {
             return true;
         } else {
-            if (this.elia) {
-                this.elia.messageComponent.reply(
+            if (this.messageComponent) {
+                this.messageComponent.reply(
                     message,
                     "You need to be in a channel to execute this command!"
                 );
@@ -122,7 +131,7 @@ export default class MusicComponent extends LateInitComponent {
      * @param {Message} message the Discord message which requested to get the current song
      */
     getCurrentSong(message: Message): void {
-        this.musicQueue?.getCurrentSong(message);
+        this.musicQueue.getCurrentSong(message);
     }
 
     /**
@@ -131,7 +140,7 @@ export default class MusicComponent extends LateInitComponent {
      * @param {Message} message the Discord message which requested to get the queue
      */
     getQueuedMusic(message: Message): void {
-        this.musicQueue?.getQueuedMusic(message);
+        this.musicQueue.getQueuedMusic(message);
     }
 
     /**
@@ -140,7 +149,7 @@ export default class MusicComponent extends LateInitComponent {
      * @param {Message} message the message that requested to stop the music
      */
     stopMusic(message: Message): void {
-        this.musicQueue?.stopMusic(message);
+        this.musicQueue.stopMusic(message);
     }
 
     /**
@@ -149,7 +158,7 @@ export default class MusicComponent extends LateInitComponent {
      * @param {Message} message the Discord message which requested to loop the queue
      */
     loopMusicQueue(message: Message): void {
-        this.musicQueue?.loopMusicQueue(message);
+        this.musicQueue.loopMusicQueue(message);
     }
 
     /**
@@ -158,7 +167,7 @@ export default class MusicComponent extends LateInitComponent {
      * @param {Message} message the Discord message which requested to loop the current song
      */
     loopCurrentSong(message: Message): void {
-        this.musicQueue?.loopCurrentSong(message);
+        this.musicQueue.loopCurrentSong(message);
     }
 
     /**
@@ -167,7 +176,7 @@ export default class MusicComponent extends LateInitComponent {
      * @param {Message} message the Discord message which requested the pause
      */
     pauseMusic(message: Message): void {
-        this.musicQueue?.pauseMusic(message);
+        this.musicQueue.pauseMusic(message);
     }
 
     /**
@@ -181,28 +190,7 @@ export default class MusicComponent extends LateInitComponent {
         voiceChannel: VoiceChannel,
         message: Message
     ): Promise<VoiceChannel> {
-        if (this.elia?.dataComponent.getRadioMode() && message.guild) {
-            const radioChannel = this.elia.dataComponent.getRadioChannel(
-                message.guild.id
-            );
-            if (radioChannel) {
-                const radioVoiceChannel =
-                    this.elia.bot.channels.cache.get(radioChannel);
-                if (radioVoiceChannel) {
-                    if (radioVoiceChannel instanceof VoiceChannel) {
-                        return radioVoiceChannel;
-                    }
-                } else {
-                    this.elia.messageComponent.reply(
-                        message,
-                        "Radio channel not available for current server!"
-                    );
-                }
-            }
-            return voiceChannel;
-        } else {
-            return voiceChannel;
-        }
+        return this.musicPlayer.getVoiceChannel(voiceChannel, message);
     }
 
     /**
@@ -212,7 +200,7 @@ export default class MusicComponent extends LateInitComponent {
      * @param {string} url YouTube link to the music
      */
     queueMusic(message: Message, url: string): void {
-        this.musicQueue?.queueMusic(message, url);
+        this.musicQueue.queueMusic(message, url);
     }
 
     /**
@@ -222,7 +210,7 @@ export default class MusicComponent extends LateInitComponent {
      * @param {Message} message the Discord message which requested to remove the music from the queue
      */
     removeFromQueue(number: string, message: Message): void {
-        this.musicQueue?.removeFromQueue(number, message);
+        this.musicQueue.removeFromQueue(number, message);
     }
 
     /**
@@ -231,7 +219,7 @@ export default class MusicComponent extends LateInitComponent {
      * @param {Message} message the Discord message which requested the replay
      */
     replayMusic(message: Message): void {
-        this.musicQueue?.replayMusic(message);
+        this.musicQueue.replayMusic(message);
     }
 
     /**
@@ -240,7 +228,7 @@ export default class MusicComponent extends LateInitComponent {
      * @param {Message} message the Discord message which requested the resume
      */
     resumeMusic(message: Message): void {
-        this.musicQueue?.resumeMusic(message);
+        this.musicQueue.resumeMusic(message);
     }
 
     /**
@@ -249,7 +237,7 @@ export default class MusicComponent extends LateInitComponent {
      * @param {Message} message the Discord message which requested to shuffle the queue
      */
     shuffleMusic(message: Message): void {
-        this.musicQueue?.shuffleMusic(message);
+        this.musicQueue.shuffleMusic(message);
     }
 
     /**
@@ -258,7 +246,7 @@ export default class MusicComponent extends LateInitComponent {
      * @param {Message} message the Discord message which requested to skip a song
      */
     skipSong(message: Message): void {
-        this.musicQueue?.skipSong(message);
+        this.musicQueue.skipSong(message);
     }
 
     /**
@@ -273,7 +261,7 @@ export default class MusicComponent extends LateInitComponent {
         voiceChannel: VoiceChannel,
         id: string
     ): void {
-        this.musicQueue?.playYouTubePlaylist(message, voiceChannel, id);
+        this.musicQueue.playYouTubePlaylist(message, voiceChannel, id);
     }
 
     /**
@@ -288,7 +276,7 @@ export default class MusicComponent extends LateInitComponent {
         voiceChannel: VoiceChannel,
         music: MusicData
     ): void {
-        this.musicQueue?.playMusic(
+        this.musicQueue.playMusic(
             message,
             voiceChannel,
             music.url,

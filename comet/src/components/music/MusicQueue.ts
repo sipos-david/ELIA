@@ -1,26 +1,39 @@
-import Elia from "../../Elia.js";
-import { VoiceConnection, VoiceChannel, Message } from "discord.js";
+import { VoiceConnection, VoiceChannel, Message, Client } from "discord.js";
 import playFromURL from "./UrlPlay.js";
 import ytpl from "ytpl";
 import ytdl from "ytdl-core";
+import MusicComponent from "./MusicComponent.js";
+import MessageComponent from "../core/MessageComponent.js";
+import LoggingComponent from "../core/LoggingComponent.js";
+import ActivityDisplayComponent from "../core/ActivityDisplayComponent.js";
+import DataComponent from "../core/DataComponent.js";
 
 /**
  * A music queue that play's music.
  */
 export default class MusicQueue {
-    /**
-     * @param {Elia} elia the Elia object the music queue uses
-     */
-    constructor(elia: Elia) {
-        this.elia = elia;
+    constructor(
+        musicComponent: MusicComponent,
+        messageComponent: MessageComponent,
+        loggingComponent: LoggingComponent,
+        activityDisplayComponent: ActivityDisplayComponent,
+        dataComponent: DataComponent,
+        bot: Client
+    ) {
+        this.musicComponent = musicComponent;
+        this.messageComponent = messageComponent;
+        this.loggingComponent = loggingComponent;
+        this.activityDisplayComponent = activityDisplayComponent;
+        this.dataComponent = dataComponent;
+        this.bot = bot;
     }
 
-    /**
-     * The ELIA object
-     *
-     * @type {Elia}
-     */
-    elia: Elia;
+    musicComponent: MusicComponent;
+    messageComponent: MessageComponent;
+    loggingComponent: LoggingComponent;
+    activityDisplayComponent: ActivityDisplayComponent;
+    dataComponent: DataComponent;
+    bot: Client;
 
     // --- Music ---
 
@@ -30,6 +43,7 @@ export default class MusicQueue {
      * @type {Array<string>}
      */
     musicQueueArray: string[] = [];
+
     /**
      * The cache for YouTube titles
      *
@@ -39,18 +53,21 @@ export default class MusicQueue {
      * @type {Map<string,string>}
      */
     titleMap: Map<string, string> = new Map();
+
     /**
      * YouTube link to the last song
      *
      * @type {?string}
      */
     lastSong: string | undefined = undefined;
+
     /**
      * YouTube link to the current song
      *
      * @type {?string}
      */
     currentSong: string | undefined = undefined;
+
     /**
      * The current song's name
      *
@@ -66,6 +83,7 @@ export default class MusicQueue {
      * @type {?VoiceChannel}
      */
     voiceChannel: VoiceChannel | null = null;
+
     /**
      * The joined voice channel, null if not joined any
      *
@@ -81,18 +99,21 @@ export default class MusicQueue {
      * @type {boolean}
      */
     isPaused = false;
+
     /**
      * Determines if music is being played
      *
      * @type {boolean}
      */
     isPlayingMusic = false;
+
     /**
      * Determines if the current song is being looped or not
      *
      * @type {boolean}
      */
     isLoopingSong = false;
+
     /**
      * Determines if the current queue is being looped or not
      *
@@ -144,7 +165,7 @@ export default class MusicQueue {
     replayMusic(message: Message): void {
         if (
             this.lastSong != null &&
-            this.elia.musicComponent &&
+            this.musicComponent &&
             message.member &&
             message.member.voice &&
             message.member.voice.channel
@@ -154,12 +175,12 @@ export default class MusicQueue {
                 message.member.voice.channel,
                 this.lastSong
             );
-            this.elia.messageComponent.reply(message, "You replayed a song!");
-            this.elia.loggingComponent.log(
+            this.messageComponent.reply(message, "You replayed a song!");
+            this.loggingComponent.log(
                 message.author.username + " replayed a song"
             );
         } else {
-            this.elia.messageComponent.reply(
+            this.messageComponent.reply(
                 message,
                 "It seems there are no song to replay."
             );
@@ -179,7 +200,7 @@ export default class MusicQueue {
         if (this.voiceChannel != null) {
             this.voiceChannel.leave();
             if (message != null)
-                this.elia.messageComponent.reply(
+                this.messageComponent.reply(
                     message,
                     "Bye Bye :smiling_face_with_tear:"
                 );
@@ -189,7 +210,7 @@ export default class MusicQueue {
         this.currentSong = undefined;
         this.isLoopingSong = false;
         this.isLoopingQueue = false;
-        this.elia.activityDisplayComponent.setDefault();
+        this.activityDisplayComponent.setDefault();
     }
 
     /**
@@ -206,16 +227,13 @@ export default class MusicQueue {
             this.isPaused = true;
             if (this.connection.dispatcher != null) {
                 this.connection.dispatcher.pause();
-                this.elia.messageComponent.reply(
-                    message,
-                    "You paused the music."
-                );
-                this.elia.loggingComponent.log(
+                this.messageComponent.reply(message, "You paused the music.");
+                this.loggingComponent.log(
                     message.author.username + " paused the music"
                 );
             }
         } else {
-            this.elia.messageComponent.reply(
+            this.messageComponent.reply(
                 message,
                 "You can't pause the music right now."
             );
@@ -235,17 +253,17 @@ export default class MusicQueue {
         ) {
             this.isPaused = false;
             if (this.connection.dispatcher != null) {
-                this.elia.messageComponent.reply(
+                this.messageComponent.reply(
                     message,
                     "You resumed playing the music."
                 );
-                this.elia.loggingComponent.log(
+                this.loggingComponent.log(
                     message.author.username + " resumed playing the music"
                 );
             }
             this.connection.dispatcher.resume();
         } else {
-            this.elia.messageComponent.reply(
+            this.messageComponent.reply(
                 message,
                 "You can't resume the music right now."
             );
@@ -271,9 +289,9 @@ export default class MusicQueue {
                     this.musicQueueArray.unshift(this.currentSong);
                 if (this.isLoopingQueue && !this.isLoopingSong)
                     this.musicQueueArray.push(this.currentSong);
-                this.elia.activityDisplayComponent.setMusicPlaying();
+                this.activityDisplayComponent.setMusicPlaying();
                 playFromURL(
-                    this.elia,
+                    elia,
                     message,
                     this.connection,
                     this.currentSong,
@@ -290,20 +308,17 @@ export default class MusicQueue {
      * @param {string} url YouTube link to the music
      */
     async queueMusic(message: Message, url: string): Promise<void> {
-        this.elia.messageComponent.reply(
+        this.messageComponent.reply(
             message,
             ":musical_note: Queued: ***" + url + "***"
         );
-        this.elia.loggingComponent.log(
-            message.author.username + " queued: " + url
-        );
+        this.loggingComponent.log(message.author.username + " queued: " + url);
         if (this.musicQueueArray.push(url) == 1 && !this.isPlayingMusic) {
             if (message.member && message.member.voice.channel) {
-                const voiceChannel =
-                    await this.elia.musicComponent?.getVoiceChannel(
-                        message.member.voice.channel,
-                        message
-                    );
+                const voiceChannel = await this.musicComponent?.getVoiceChannel(
+                    message.member.voice.channel,
+                    message
+                );
                 if (voiceChannel) {
                     this.playMusic(message, voiceChannel, url);
                 }
@@ -330,10 +345,8 @@ export default class MusicQueue {
      * @param {Message} message the Discord message which requested to skip a song
      */
     skipSong(message: Message): void {
-        this.elia.messageComponent.reply(message, "You skipped a song!");
-        this.elia.loggingComponent.log(
-            message.author.username + " skipped a song"
-        );
+        this.messageComponent.reply(message, "You skipped a song!");
+        this.loggingComponent.log(message.author.username + " skipped a song");
         this.continuePlayingMusic();
     }
 
@@ -353,11 +366,8 @@ export default class MusicQueue {
                     this.musicQueueArray[j] = temp1;
                 }
             }
-            this.elia.messageComponent.reply(
-                message,
-                "You shuffled the music."
-            );
-            this.elia.loggingComponent.log(
+            this.messageComponent.reply(message, "You shuffled the music.");
+            this.loggingComponent.log(
                 message.author.username + " shuffled the music"
             );
         }
@@ -403,13 +413,8 @@ export default class MusicQueue {
         if (index == 0 && this.musicQueueArray.length == 1)
             this.musicQueueArray = [];
         else this.musicQueueArray.splice(index, 1);
-        this.elia.loggingComponent.log(
-            message.author.username + " removed a song"
-        );
-        this.elia.messageComponent.reply(
-            message,
-            "Removed song: " + removedSong
-        );
+        this.loggingComponent.log(message.author.username + " removed a song");
+        this.messageComponent.reply(message, "Removed song: " + removedSong);
     }
 
     /**
@@ -443,7 +448,7 @@ export default class MusicQueue {
             this.removeYouTubeTitleFromCache(song);
             reply += removedSong + "\n";
         }
-        this.elia.loggingComponent.log(
+        this.loggingComponent.log(
             message.author.username +
                 " removed " +
                 removedSongs.length +
@@ -462,21 +467,21 @@ export default class MusicQueue {
         if (this.isPlayingMusic) {
             if (this.isLoopingSong) {
                 this.isLoopingSong = false;
-                this.elia.messageComponent.reply(
+                this.messageComponent.reply(
                     message,
                     "You stopped looping the current song!"
                 );
-                this.elia.loggingComponent.log(
+                this.loggingComponent.log(
                     message.author.username +
                         " stopped looping the current song"
                 );
             } else {
                 this.isLoopingSong = true;
-                this.elia.messageComponent.reply(
+                this.messageComponent.reply(
                     message,
                     "You started looping the current song!"
                 );
-                this.elia.loggingComponent.log(
+                this.loggingComponent.log(
                     message.author.username +
                         " started looping the current song"
                 );
@@ -499,20 +504,20 @@ export default class MusicQueue {
         if (this.isPlayingMusic) {
             if (this.isLoopingQueue) {
                 this.isLoopingQueue = false;
-                this.elia.messageComponent.reply(
+                this.messageComponent.reply(
                     message,
                     "You stopped looping the queue!"
                 );
-                this.elia.loggingComponent.log(
+                this.loggingComponent.log(
                     message.author.username + " stopped looping the queue"
                 );
             } else {
                 this.isLoopingQueue = true;
-                this.elia.messageComponent.reply(
+                this.messageComponent.reply(
                     message,
                     "You started looping the queue!"
                 );
-                this.elia.loggingComponent.log(
+                this.loggingComponent.log(
                     message.author.username + " started looping the queue"
                 );
                 if (this.currentSong != null && !this.isLoopingSong) {
@@ -547,12 +552,12 @@ export default class MusicQueue {
         }
         const first = playlist.items[0];
         if (first) {
-            this.elia.messageComponent.reply(
+            this.messageComponent.reply(
                 message,
                 "You stared playing a YouTube Playlist!"
             );
 
-            this.elia.loggingComponent.log(
+            this.loggingComponent.log(
                 message.author.username + " imported a YouTube playlist"
             );
             this.playMusic(message, voiceChannel, first.url);
@@ -622,12 +627,10 @@ export default class MusicQueue {
             }
             message
                 .reply(reply)
-                .then((msg) =>
-                    this.elia.messageComponent.deleteMsgTimeout(msg)
-                );
-            this.elia.messageComponent.deleteMsgNow(message);
+                .then((msg) => this.messageComponent.deleteMsgTimeout(msg));
+            this.messageComponent.deleteMsgNow(message);
         } else {
-            this.elia.messageComponent.reply(
+            this.messageComponent.reply(
                 message,
                 "It seems there are no music in the queue."
             );
@@ -651,12 +654,10 @@ export default class MusicQueue {
                         "at " +
                         this.currentSong
                 )
-                .then((msg) =>
-                    this.elia.messageComponent.deleteMsgTimeout(msg)
-                );
-            this.elia.messageComponent.deleteMsgNow(message);
+                .then((msg) => this.messageComponent.deleteMsgTimeout(msg));
+            this.messageComponent.deleteMsgNow(message);
         } else {
-            this.elia.messageComponent.reply(
+            this.messageComponent.reply(
                 message,
                 "It seems there is no music playing."
             );
@@ -673,12 +674,12 @@ export default class MusicQueue {
     hasMembersInVoice(): boolean {
         if (
             this.voiceChannel != null &&
-            this.elia.bot.user &&
-            this.voiceChannel.members.has(this.elia.bot.user.id) &&
+            this.bot.user &&
+            this.voiceChannel.members.has(this.bot.user.id) &&
             this.voiceChannel.members.size == 1 &&
-            !this.elia.dataComponent.getRadioMode()
+            !this.dataComponent.getRadioMode()
         ) {
-            this.elia.loggingComponent.log("Elia was left alone...");
+            this.loggingComponent.log("Elia was left alone...");
             return false;
         } else return true;
     }
