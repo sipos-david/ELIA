@@ -34,6 +34,7 @@ export default class SoundEffectCommand extends Command {
         _args: string[],
         elia: Elia
     ): Promise<void> {
+        elia.messageComponent.deleteMsgNow(message);
         if (elia.musicComponent?.messageSenderInVoiceChannel(message)) {
             // Only try to join the sender's voice channel if they are in one themselves
             const voiceChannel = message.member?.voice.channel;
