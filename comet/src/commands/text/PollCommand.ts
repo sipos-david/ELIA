@@ -1,5 +1,5 @@
 import Command from "../Command";
-import Discord, {EmojiIdentifierResolvable, Message} from "discord.js";
+import Discord, { EmojiIdentifierResolvable, Message } from "discord.js";
 import { CommandTypeEnum } from "../CommandTypeEnum";
 import Elia from "../../Elia";
 
@@ -62,7 +62,9 @@ export default class PollCommand extends Command {
             pollMessage.addField("Available options:", options, false);
             message.channel.send(pollMessage).then((messageReaction) => {
                 for (let i = 0; i < pollArgs.length; i++) {
-                    messageReaction.react(this.emojis[i + 1] as EmojiIdentifierResolvable);
+                    messageReaction.react(
+                        this.emojis[i + 1] as EmojiIdentifierResolvable
+                    );
                 }
             });
         }
