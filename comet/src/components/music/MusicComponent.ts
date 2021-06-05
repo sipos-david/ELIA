@@ -158,8 +158,17 @@ export default class MusicComponent {
      * @param {Message} message the Discord message which requested to get the current song
      */
     getCurrentSong(message: Message): void {
-        // TODO current song in nice format
-        this.musicQueue.getCurrentSong();
+        const current = this.musicQueue.getCurrentSong();
+        if (current) {
+            this.messageComponent.reply(
+                message,
+                "Current song: ***" +
+                    current.title +
+                    "*** at ***" +
+                    current.url +
+                    "***"
+            );
+        }
     }
 
     /**
@@ -169,7 +178,19 @@ export default class MusicComponent {
      */
     getQueuedMusic(message: Message): void {
         // TODO current queue in nice format
-        this.musicQueue.getQueuedMusic();
+        const current = this.musicQueue.getCurrentSong();
+        const queue = this.musicQueue.getQueuedMusic();
+        let reply = "";
+        if (current) {
+            reply += "***Current song: *** " + current?.title + "\n";
+        }
+        if (queue.length > 0) {
+            reply += "***The queue has " + queue.length + " songs:***\n";
+            for (const song of queue) {
+                reply += song.title + " at " + song.url + "\n";
+            }
+        }
+        message.reply(reply);
     }
 
     /**
