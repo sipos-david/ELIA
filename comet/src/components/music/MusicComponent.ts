@@ -205,6 +205,7 @@ export default class MusicComponent {
             }
         }
         message.reply(reply);
+        this.messageComponent.deleteMsgNow(message);
     }
 
     /**
