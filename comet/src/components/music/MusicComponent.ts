@@ -204,7 +204,9 @@ export default class MusicComponent {
                 reply += song.title + " at " + song.url + "\n";
             }
         }
-        message.reply(reply);
+        message
+            .reply(reply)
+            .then((msg) => this.messageComponent.deleteMsgTimeout(msg));
         this.messageComponent.deleteMsgNow(message);
     }
 
@@ -374,7 +376,10 @@ export default class MusicComponent {
                 removedSongs.length +
                 " songs"
         );
-        message.reply(reply);
+        message
+            .reply(reply)
+            .then((msg) => this.messageComponent.deleteMsgTimeout(msg));
+        this.messageComponent.deleteMsgNow(message);
     }
 
     /**
