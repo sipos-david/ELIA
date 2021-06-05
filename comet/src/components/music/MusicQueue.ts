@@ -44,6 +44,19 @@ export default class MusicQueue {
     private isLoopingQueue = false;
 
     /**
+     * Gets the state on playing music
+     *
+     * @returns {boolean} true or false, depending on if playing music
+     */
+    get isPlayingMusic(): boolean {
+        if (this.current) {
+            return true;
+        } else {
+            return false;
+        }
+    }
+
+    /**
      * Plays a music
      *
      * @param {MusicData} music the music to be played

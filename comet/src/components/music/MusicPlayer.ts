@@ -175,7 +175,7 @@ export default class MusicPlayer {
         channel: VoiceChannel,
         song: MusicData
     ): Promise<void> {
-        if (this.voiceChannel && channel.id !== this.voiceChannel.id) {
+        if (this.voiceChannel === null || channel.id !== this.voiceChannel.id) {
             await this.joinChannel(channel);
         }
         this.volume = this.getMusicVolume(message);
