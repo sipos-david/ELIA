@@ -323,11 +323,10 @@ export default class MusicComponent {
                 false
             );
         }
-        const songNum = this.musicQueue.add([music]);
-        if (songNum === 1 && !this.musicQueue.isPlayingMusic) {
-            this.musicQueue.getNext();
+        if (!this.musicQueue.isPlayingMusic) {
             this.startPlayingMusic(message, voiceChannel, music);
         } else {
+            this.musicQueue.add([music]);
             this.messageComponent.deleteMsgNow(message);
         }
     }
