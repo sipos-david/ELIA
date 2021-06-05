@@ -54,15 +54,18 @@ export default class MessageComponent {
      *
      * @param {Message} message the Discord message to reply to
      * @param {string} answer the answer in string
+     * @param {?boolean} shouldDelete optional, determines to delete the message after the reply, default is true
      */
-    reply(message: Message, answer: string): void {
+    reply(message: Message, answer: string, shouldDelete = true): void {
         const replyMsg = this.buildBaseEmbed().setTitle(answer);
         this.addFooterToEmbed(message, replyMsg);
 
         message.reply(replyMsg).then((msg: Message) => {
             this.deleteMsgTimeout(msg);
         });
-        this.deleteMsgNow(message);
+        if (shouldDelete) {
+            this.deleteMsgNow(message);
+        }
     }
 
     /**

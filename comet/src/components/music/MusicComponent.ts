@@ -310,17 +310,21 @@ export default class MusicComponent {
                     music.title +
                     "*** at ***" +
                     music.url +
-                    "***"
+                    "***",
+                false
             );
         } else {
             this.messageComponent.reply(
                 message,
-                ":musical_note: Queued: ***" + music.url + "***"
+                ":musical_note: Queued: ***" + music.url + "***",
+                false
             );
         }
         const songNum = this.musicQueue.add([music]);
-        if (songNum === 1) {
+        if (songNum === 1 && !this.musicQueue.isPlayingMusic) {
             this.startPlayingMusic(message, voiceChannel, music);
+        } else {
+            this.messageComponent.deleteMsgNow(message);
         }
     }
 
@@ -453,7 +457,8 @@ export default class MusicComponent {
         if (current) {
             this.messageComponent.reply(
                 message,
-                "You started playing a YouTube Playlist!"
+                "You started playing a YouTube Playlist!",
+                false
             );
 
             this.loggingComponent.log(
