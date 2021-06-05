@@ -46,14 +46,6 @@ export default abstract class Command {
     hasArguments = false;
 
     /**
-     * Determines if the the message.delete() function should be called after the execute function.
-     * Default is yes.
-     *
-     * @type {boolean}
-     */
-    shouldDelete = true;
-
-    /**
      * Execute the command
      *
      * @param {Message} message the Discord message object
