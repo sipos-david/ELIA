@@ -322,6 +322,7 @@ export default class MusicComponent {
         }
         const songNum = this.musicQueue.add([music]);
         if (songNum === 1 && !this.musicQueue.isPlayingMusic) {
+            this.musicQueue.getNext();
             this.startPlayingMusic(message, voiceChannel, music);
         } else {
             this.messageComponent.deleteMsgNow(message);
