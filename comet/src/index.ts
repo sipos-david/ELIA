@@ -16,6 +16,8 @@ import PingCommand from "./commands/text/PingCommand";
 import PollCommand from "./commands/text/PollCommand";
 import YoutubeService from "./components/music/YoutubeService";
 import SoundEffectComponent from "./components/SoundEffectComponent";
+import PlayCommand from "./commands/voice/music/PlayCommand";
+import QueueSongCommand from "./commands/voice/music/QueueSongCommand";
 
 const bot = new Discord.Client();
 
@@ -80,7 +82,12 @@ commandComponent.addCommands(
 loggingComponent.log("Sound effect commands added to Elia.");
 
 // Add the music commands
-commandComponent.addCommands(MusicComponent.getMusicCommands(youtubeService));
+commandComponent.addCommands(
+    MusicComponent.getMusicCommands(
+        new PlayCommand(youtubeService),
+        new QueueSongCommand(youtubeService)
+    )
+);
 loggingComponent.log("Music commands added to Elia.");
 
 elia.getAvailableCommands();
