@@ -1,11 +1,30 @@
 import MusicData from "./MusicData.js";
 
 /**
- * A music queue that play's music.
+ * A class that handles a queue of music
  */
 export default class MusicQueue {
+    // --- Properties ---
+
+    /**
+     * The array of songs which the queue has
+     *
+     * @type {MusicData[]}
+     */
     private queue: MusicData[] = [];
+
+    /**
+     * The current song that is playing, if undefined no song is playing
+     *
+     * @type {?MusicData}
+     */
     private current: MusicData | undefined = undefined;
+
+    /**
+     * The last song played
+     *
+     * @type {?MusicData}
+     */
     private last: MusicData | undefined = undefined;
 
     // --- Flags ---
@@ -24,10 +43,20 @@ export default class MusicQueue {
      */
     isLoopingQueue = false;
 
+    /**
+     * Plays a music
+     *
+     * @param {MusicData} music the music to be played
+     */
     play(music: MusicData): void {
         this.current = music;
     }
 
+    /**
+     * Replays the last song if avaliable
+     *
+     * @returns {?MusicData} the last song that need to be replayed
+     */
     replay(): MusicData | undefined {
         if (this.last) {
             this.queue.unshift(this.last);
@@ -36,6 +65,11 @@ export default class MusicQueue {
         return undefined;
     }
 
+    /**
+     * Get the next item from the queue
+     *
+     * @returns {?MusicData} the next item, if available
+     */
     getNext(): MusicData | undefined {
         this.last = this.current;
 
@@ -50,14 +84,27 @@ export default class MusicQueue {
         return this.current;
     }
 
+    /**
+     * Gets the current song
+     *
+     * @returns {?MusicData} the current song, if available
+     */
     getCurrentSong(): MusicData | undefined {
         return this.current;
     }
 
+    /**
+     * Gets the current song
+     *
+     * @returns {MusicData[]} the current song, if available
+     */
     getQueuedMusic(): MusicData[] {
         return this.queue;
     }
 
+    /**
+     * Steps and resets the state of the queue
+     */
     stop(): void {
         this.queue = [];
         this.current = undefined;
@@ -86,6 +133,12 @@ export default class MusicQueue {
         return false;
     }
 
+    /**
+     *  Removes a song from the queue and returns it, if the action wasn't succesfull returns undefined
+     *
+     * @param {number} index the index that needs to be removed
+     * @returns {?MusicData} the element which was removed
+     */
     remove(index: number): MusicData | undefined {
         if (index < 0 || index > this.queue.length) {
             return undefined;
@@ -100,6 +153,13 @@ export default class MusicQueue {
         }
     }
 
+    /**
+     *  Removes songs from the queue and returns them
+     *
+     * @param {number} from the index to start from
+     * @param {number} to the index to end
+     * @returns {MusicData[]} the array of the removed elements
+     */
     removeRange(from: number, to: number): MusicData[] {
         const removedSongs: MusicData[] = [];
 
@@ -119,16 +179,32 @@ export default class MusicQueue {
         return removedSongs;
     }
 
+    /**
+     * Starts or stops looping the current song
+     *
+     * @returns {boolean} the state of looping
+     */
     toogleSongLooping(): boolean {
         this.isLoopingSong = !this.isLoopingSong;
         return this.isLoopingSong;
     }
 
+    /**
+     * Starts or stops looping the queue
+     *
+     * @returns {boolean} the state of looping
+     */
     toogleQueueLooping(): boolean {
         this.isLoopingQueue = !this.isLoopingQueue;
         return this.isLoopingQueue;
     }
 
+    /**
+     * Adds songs to the queue
+     *
+     * @param {MusicData[]} songs the array of songs to add to the queue in order
+     * @returns {number} the new size of the queue
+     */
     add(songs: MusicData[]): number {
         this.queue = this.queue.concat(songs);
         return this.queue.length;
