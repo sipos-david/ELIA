@@ -1,7 +1,7 @@
-import {Message} from "discord.js";
+import { Message } from "discord.js";
 import Elia from "../../Elia";
 import Command from "../Command";
-import {CommandTypeEnum} from "../CommandTypeEnum";
+import { CommandTypeEnum } from "../CommandTypeEnum";
 
 export default class DeleteMessagesCommand extends Command {
     name = "delete";
@@ -45,9 +45,9 @@ export default class DeleteMessagesCommand extends Command {
             });
             elia.loggingComponent.log(
                 message.author.username +
-                " deleted " +
-                deleteCount +
-                " messages"
+                    " deleted " +
+                    deleteCount +
+                    " messages"
             );
         }
     }
