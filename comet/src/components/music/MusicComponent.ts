@@ -404,7 +404,14 @@ export default class MusicComponent {
      * @param {Message} message the Discord message which requested the resume
      */
     resumeMusic(message: Message): void {
-        this.musicPlayer.resumeMusic(message);
+        if (this.musicQueue.isPlayingMusic) {
+            this.musicPlayer.resumeMusic(message);
+        } else {
+            this.messageComponent.reply(
+                message,
+                "Not playing a song currently!"
+            );
+        }
     }
 
     /**
@@ -413,7 +420,14 @@ export default class MusicComponent {
      * @param {Message} message the Discord message which requested the pause
      */
     pauseMusic(message: Message): void {
-        this.musicPlayer.pauseMusic(message);
+        if (this.musicQueue.isPlayingMusic) {
+            this.musicPlayer.pauseMusic(message);
+        } else {
+            this.messageComponent.reply(
+                message,
+                "Not playing a song currently!"
+            );
+        }
     }
 
     /**
@@ -422,10 +436,17 @@ export default class MusicComponent {
      * @param {Message} message the Discord message which requested to shuffle the queue
      */
     shuffleMusic(message: Message): void {
-        if (this.musicQueue.shuffle()) {
-            this.messageComponent.reply(message, "You shuffled the music.");
-            this.loggingComponent.log(
-                message.author.username + " shuffled the music"
+        if (this.musicQueue.isPlayingMusic) {
+            if (this.musicQueue.shuffle()) {
+                this.messageComponent.reply(message, "You shuffled the music.");
+                this.loggingComponent.log(
+                    message.author.username + " shuffled the music"
+                );
+            }
+        } else {
+            this.messageComponent.reply(
+                message,
+                "Not playing a song currently!"
             );
         }
     }
@@ -436,9 +457,18 @@ export default class MusicComponent {
      * @param {Message} message the Discord message which requested to skip a song
      */
     skipSong(message: Message): void {
-        this.messageComponent.reply(message, "You skipped a song!");
-        this.loggingComponent.log(message.author.username + " skipped a song");
-        this.continuePlayingMusic();
+        if (this.musicQueue.isPlayingMusic) {
+            this.messageComponent.reply(message, "You skipped a song!");
+            this.loggingComponent.log(
+                message.author.username + " skipped a song"
+            );
+            this.continuePlayingMusic();
+        } else {
+            this.messageComponent.reply(
+                message,
+                "Not playing a song currently!"
+            );
+        }
     }
 
     /**
