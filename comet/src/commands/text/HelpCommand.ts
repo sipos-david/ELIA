@@ -1,7 +1,7 @@
-import {Message} from "discord.js";
+import { Message } from "discord.js";
 import Elia from "../../Elia";
 import Command from "../Command";
-import {CommandTypeEnum} from "../CommandTypeEnum";
+import { CommandTypeEnum } from "../CommandTypeEnum";
 
 export default class HelpCommand extends Command {
     name = "help";
@@ -11,16 +11,16 @@ export default class HelpCommand extends Command {
     guildOnly = false;
 
     execute(message: Message, args: string[], elia: Elia): void {
-        elia.loggingComponent.log(
-            message.author.username + " requested help"
-        );
+        elia.loggingComponent.log(message.author.username + " requested help");
 
         if (!args.length) {
-            elia.messageComponent.helpSendAllCommands(message, elia);
+            elia.messageComponent.helpSendAllCommands(message);
         } else {
             const arg = args[0];
             if (arg) {
-                const command = elia.commandMap.get(arg.toLowerCase());
+                const command = elia.commandComponent.commands.get(
+                    arg.toLowerCase()
+                );
                 if (!command) {
                     return elia.messageComponent.reply(
                         message,
