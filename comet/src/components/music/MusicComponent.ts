@@ -26,7 +26,10 @@ import ActivityDisplayComponent from "../core/ActivityDisplayComponent";
  * Component for ELIA which add the music commands
  */
 export default class MusicComponent {
-    static getMusicCommands(youtubeService: YoutubeService): Command[] {
+    static getMusicCommands(
+        playCommand: PlayCommand,
+        ueueSongCommand: QueueSongCommand
+    ): Command[] {
         return [
             new CurrentSongCommand(),
             new GetQueueCommand(),
@@ -34,8 +37,8 @@ export default class MusicComponent {
             new LoopQueueCommand(),
             new LoopSongCommand(),
             new PauseCommand(),
-            new PlayCommand(youtubeService),
-            new QueueSongCommand(),
+            playCommand,
+            ueueSongCommand,
             new RemoveSongFromQueueCommand(),
             new ReplaySongCommand(),
             new ResumeSongCommand(),
