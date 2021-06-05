@@ -7,7 +7,9 @@ import Command from "../commands/Command";
  * Component for ELIA which adds sound effect commands
  */
 export default class SoundEffectComponent {
-    getSoundEffectCommands(loggingComponent: LoggingComponent): Command[] {
+    static getSoundEffectCommands(
+        loggingComponent: LoggingComponent
+    ): Command[] {
         const commands: Command[] = [];
         //import sound effects
         loggingComponent.log("Generating soundeffect commands:");

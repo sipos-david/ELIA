@@ -19,6 +19,8 @@ import ReplaySongCommand from "../../commands/voice/music/ReplaySongCommand";
 import ResumeSongCommand from "../../commands/voice/music/ResumeSongCommand";
 import ShuffleQueueCommand from "../../commands/voice/music/ShuffleQueueCommand";
 import SkipSongCommand from "../../commands/voice/music/SkipSongCommand";
+import LoggingComponent from "../core/LoggingComponent";
+import ActivityDisplayComponent from "../core/ActivityDisplayComponent";
 
 /**
  * Component for ELIA which add the music commands
@@ -42,14 +44,29 @@ export default class MusicComponent {
         ];
     }
     constructor(
+        youtubeService: YoutubeService,
+        activityDisplayComponent: ActivityDisplayComponent,
         messageComponent: MessageComponent,
+        loggingComponent: LoggingComponent,
         musicQueue: MusicQueue,
         musicPlayer: MusicPlayer
     ) {
+        this.youtubeService = youtubeService;
+        this.activityDisplayComponent = activityDisplayComponent;
         this.messageComponent = messageComponent;
+        this.loggingComponent = loggingComponent;
         this.musicQueue = musicQueue;
         this.musicPlayer = musicPlayer;
     }
+
+    youtubeService: YoutubeService;
+
+    /**
+     * The activity component for ELIA
+     *
+     * @type {ActivityDisplayComponent}
+     */
+    private activityDisplayComponent: ActivityDisplayComponent;
 
     /**
      * The message component for ELIA
@@ -71,6 +88,13 @@ export default class MusicComponent {
      * @type {MusicPlayer}
      */
     private musicPlayer: MusicPlayer;
+
+    /**
+     * The logging component for the component
+     *
+     * @type {LoggingComponent}
+     */
+    private loggingComponent: LoggingComponent;
 
     /**
      * Check's if the user who sent the massage has permissions to connect and speak in the channel he/she currently in.
@@ -131,7 +155,8 @@ export default class MusicComponent {
      * @param {Message} message the Discord message which requested to get the current song
      */
     getCurrentSong(message: Message): void {
-        this.musicQueue.getCurrentSong(message);
+        // TODO current song in nice format
+        this.musicQueue.getCurrentSong();
     }
 
     /**
@@ -140,16 +165,26 @@ export default class MusicComponent {
      * @param {Message} message the Discord message which requested to get the queue
      */
     getQueuedMusic(message: Message): void {
-        this.musicQueue.getQueuedMusic(message);
+        // TODO current queue in nice format
+        this.musicQueue.getQueuedMusic();
     }
 
     /**
      * Stop's playing music
      *
-     * @param {Message} message the message that requested to stop the music
+     * @param {?Message} message the message that requested to stop the music
      */
-    stopMusic(message: Message): void {
-        this.musicQueue.stopMusic(message);
+    stopMusic(message: Message | undefined = undefined): void {
+        if (this.musicPlayer.stop()) {
+            this.musicQueue.stop();
+            this.activityDisplayComponent.setDefault();
+            if (message) {
+                this.messageComponent.reply(
+                    message,
+                    "Bye Bye :smiling_face_with_tear:"
+                );
+            }
+        }
     }
 
     /**
@@ -158,7 +193,24 @@ export default class MusicComponent {
      * @param {Message} message the Discord message which requested to loop the queue
      */
     loopMusicQueue(message: Message): void {
-        this.musicQueue.loopMusicQueue(message);
+        const isQueueLooping = this.musicQueue.toogleQueueLooping();
+        if (isQueueLooping) {
+            this.messageComponent.reply(
+                message,
+                "You started looping the queue!"
+            );
+            this.loggingComponent.log(
+                message.author.username + " started looping the queue"
+            );
+        } else {
+            this.messageComponent.reply(
+                message,
+                "You stopped looping the queue!"
+            );
+            this.loggingComponent.log(
+                message.author.username + " stopped looping the queue"
+            );
+        }
     }
 
     /**
@@ -167,16 +219,24 @@ export default class MusicComponent {
      * @param {Message} message the Discord message which requested to loop the current song
      */
     loopCurrentSong(message: Message): void {
-        this.musicQueue.loopCurrentSong(message);
-    }
-
-    /**
-     * Pauses the music
-     *
-     * @param {Message} message the Discord message which requested the pause
-     */
-    pauseMusic(message: Message): void {
-        this.musicQueue.pauseMusic(message);
+        const isSongLooping = this.musicQueue.toogleSongLooping();
+        if (isSongLooping) {
+            this.messageComponent.reply(
+                message,
+                "You started looping the current song!"
+            );
+            this.loggingComponent.log(
+                message.author.username + " started looping the current song"
+            );
+        } else {
+            this.messageComponent.reply(
+                message,
+                "You stopped looping the current song!"
+            );
+            this.loggingComponent.log(
+                message.author.username + " stopped looping the current song"
+            );
+        }
     }
 
     /**
@@ -196,11 +256,34 @@ export default class MusicComponent {
     /**
      * Queues a music from YouTube
      *
-     * @param {Message} message the Discord message which requested to queue a song,
-     * @param {string} url YouTube link to the music
+     * @param {Message} message the Discord message containing the URL
+     * @param {VoiceChannel} voiceChannel the message sender's voice channel
+     * @param {MusicData} music the music to be played
      */
-    queueMusic(message: Message, url: string): void {
-        this.musicQueue.queueMusic(message, url);
+    queueMusic(
+        message: Message,
+        voiceChannel: VoiceChannel,
+        music: MusicData
+    ): void {
+        if (music.title) {
+            this.messageComponent.reply(
+                message,
+                ":musical_note: Queued: ***" +
+                    music.title +
+                    "*** at ***" +
+                    music.url +
+                    "***"
+            );
+        } else {
+            this.messageComponent.reply(
+                message,
+                ":musical_note: Queued: ***" + music.url + "***"
+            );
+        }
+        const songNum = this.musicQueue.add([music]);
+        if (songNum === 1) {
+            this.startPlayingMusic(message, voiceChannel, music);
+        }
     }
 
     /**
@@ -210,7 +293,44 @@ export default class MusicComponent {
      * @param {Message} message the Discord message which requested to remove the music from the queue
      */
     removeFromQueue(number: string, message: Message): void {
-        this.musicQueue.removeFromQueue(number, message);
+        let removedSongs: MusicData[] = [];
+        if (number.indexOf("-") === -1) {
+            const removed = this.musicQueue.remove(parseInt(number) - 1);
+            if (removed) {
+                removedSongs.push(removed);
+            }
+        } else {
+            const indexes = number.split("-");
+            if (indexes.length <= 1) return;
+            if (indexes[0] && indexes[1]) {
+                const indexFrom = parseInt(indexes[0]) - 1;
+                const indexTo = parseInt(indexes[1]) - 1;
+                if (indexFrom == indexTo) this.musicQueue.remove(indexFrom);
+                else if (indexFrom < indexTo) {
+                    removedSongs = this.musicQueue.removeRange(
+                        indexFrom,
+                        indexTo
+                    );
+                } else {
+                    removedSongs = this.musicQueue.removeRange(
+                        indexTo,
+                        indexFrom
+                    );
+                }
+            }
+        }
+        // TODO better removed songs message formatting
+        let reply = "***Removed " + removedSongs.length + " songs:***\n";
+        for (const song of removedSongs) {
+            reply += song.title + " at " + song.url + "\n";
+        }
+        this.loggingComponent.log(
+            message.author.username +
+                " removed " +
+                removedSongs.length +
+                " songs"
+        );
+        message.reply(reply);
     }
 
     /**
@@ -219,7 +339,19 @@ export default class MusicComponent {
      * @param {Message} message the Discord message which requested the replay
      */
     replayMusic(message: Message): void {
-        this.musicQueue.replayMusic(message);
+        const lastSong = this.musicQueue.replay();
+        if (lastSong) {
+            this.messageComponent.reply(message, "You replayed a song!");
+            this.loggingComponent.log(
+                message.author.username + " replayed a song"
+            );
+            this.musicPlayer.playNext(this, lastSong);
+        } else {
+            this.messageComponent.reply(
+                message,
+                "It seems there are no song to replay."
+            );
+        }
     }
 
     /**
@@ -228,7 +360,16 @@ export default class MusicComponent {
      * @param {Message} message the Discord message which requested the resume
      */
     resumeMusic(message: Message): void {
-        this.musicQueue.resumeMusic(message);
+        this.musicPlayer.resumeMusic(message);
+    }
+
+    /**
+     * Pauses the music
+     *
+     * @param {Message} message the Discord message which requested the pause
+     */
+    pauseMusic(message: Message): void {
+        this.musicPlayer.pauseMusic(message);
     }
 
     /**
@@ -237,7 +378,12 @@ export default class MusicComponent {
      * @param {Message} message the Discord message which requested to shuffle the queue
      */
     shuffleMusic(message: Message): void {
-        this.musicQueue.shuffleMusic(message);
+        if (this.musicQueue.shuffle()) {
+            this.messageComponent.reply(message, "You shuffled the music.");
+            this.loggingComponent.log(
+                message.author.username + " shuffled the music"
+            );
+        }
     }
 
     /**
@@ -246,7 +392,9 @@ export default class MusicComponent {
      * @param {Message} message the Discord message which requested to skip a song
      */
     skipSong(message: Message): void {
-        this.musicQueue.skipSong(message);
+        this.messageComponent.reply(message, "You skipped a song!");
+        this.loggingComponent.log(message.author.username + " skipped a song");
+        this.continuePlayingMusic();
     }
 
     /**
@@ -256,45 +404,57 @@ export default class MusicComponent {
      * @param {VoiceChannel} voiceChannel the Discord channel where to play the music
      * @param {string} id the YouTube id of the playlist
      */
-    playYouTubePlaylist(
+    async playYouTubePlaylist(
         message: Message,
         voiceChannel: VoiceChannel,
         id: string
-    ): void {
-        this.musicQueue.playYouTubePlaylist(message, voiceChannel, id);
+    ): Promise<void> {
+        const songs = await this.youtubeService.getPlaylistFromId(id);
+        this.musicQueue.add(songs);
+        const current = this.musicQueue.getNext();
+        if (current) {
+            this.messageComponent.reply(
+                message,
+                "You started playing a YouTube Playlist!"
+            );
+
+            this.loggingComponent.log(
+                message.author.username + " imported a YouTube playlist"
+            );
+            this.startPlayingMusic(message, voiceChannel, current);
+        }
     }
 
     /**
-     * Play's music. If currently playing music, overrides it, if not, start playing music.
+     * Play's music. If currently playing music, overrides it, if not, starts playing music.
      *
      * @param {Message} message the Discord message containing the URL
      * @param {VoiceChannel} voiceChannel the message sender's voice channel
-     * @param {MusicData} music the msuic to be played
+     * @param {MusicData} music the music to be played
      */
-    playMusic(
+    startPlayingMusic(
         message: Message,
         voiceChannel: VoiceChannel,
         music: MusicData
     ): void {
-        this.musicQueue.playMusic(
-            message,
-            voiceChannel,
-            music.url,
-            music.title
-        );
+        this.musicQueue.play(music);
+        this.musicPlayer.play(this, message, voiceChannel, music);
+        this.activityDisplayComponent.setMusicPlaying();
     }
 
     /**
      * Continues playing music if the queue is not empty
      */
     continuePlayingMusic(): void {
-        if (
-            this.musicQueue.hasSongs() > 0 &&
-            this.musicPlayer.hasMembersInVoice()
-        ) {
-            this.playMusicFromQueue();
+        if (this.musicPlayer.hasMembersInVoice()) {
+            const currentSong = this.musicQueue.getNext();
+            if (currentSong) {
+                this.musicPlayer.playNext(this, currentSong);
+            } else {
+                this.stopMusic();
+            }
         } else {
-            this.stopMusic(undefined);
+            this.stopMusic();
         }
     }
 }

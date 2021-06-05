@@ -67,7 +67,11 @@ export default class PlayCommand extends Command {
         else {
             const video = await this.youtubeService.getMusicFromUrl(url);
             if (video) {
-                elia?.musicComponent?.playMusic(message, voiceChannel, video);
+                elia?.musicComponent?.startPlayingMusic(
+                    message,
+                    voiceChannel,
+                    video
+                );
             }
         }
     }
@@ -88,7 +92,11 @@ export default class PlayCommand extends Command {
     ): Promise<void> {
         const video = await this.youtubeService.getMusicFromQuery(query);
         if (video) {
-            elia.musicComponent?.playMusic(message, voiceChannel, video);
+            elia.musicComponent?.startPlayingMusic(
+                message,
+                voiceChannel,
+                video
+            );
         } else {
             elia.messageComponent.reply(message, "No video results found.");
         }

@@ -1,6 +1,7 @@
 import { Readable } from "stream";
 import ytSearch from "yt-search";
 import ytdl from "ytdl-core";
+import ytpl from "ytpl";
 import MusicData from "./MusicData";
 
 /**
@@ -27,6 +28,20 @@ export default class YoutubeService {
         const id = /[&|?]list=([a-zA-Z0-9_-]+)/gi.exec(url);
         if (id && id[0]) return id[0].substring(6);
         return null;
+    }
+
+    async getPlaylistFromId(id: string): Promise<MusicData[]> {
+        const result: MusicData[] = [];
+        const playlist = await ytpl(id, {});
+        if (playlist.items.length > 1) {
+            for (let i = 1; i < playlist.items.length; i++) {
+                const item = playlist.items[i];
+                if (item) {
+                    result.push(new MusicData(item.url, item.title));
+                }
+            }
+        }
+        return result;
     }
 
     /**
