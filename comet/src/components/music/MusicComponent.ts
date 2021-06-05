@@ -4,6 +4,8 @@ import MusicData from "./MusicData";
 import MessageComponent from "../core/MessageComponent";
 import MusicPlayer from "./MusicPlayer";
 import YoutubeService from "./YoutubeService";
+import ActivityDisplayComponent from "../core/ActivityDisplayComponent";
+import LoggingComponent from "../core/LoggingComponent";
 //song command imports
 import Command from "../../commands/Command";
 import CurrentSongCommand from "../../commands/voice/music/CurrentSongCommand";
@@ -19,16 +21,21 @@ import ReplaySongCommand from "../../commands/voice/music/ReplaySongCommand";
 import ResumeSongCommand from "../../commands/voice/music/ResumeSongCommand";
 import ShuffleQueueCommand from "../../commands/voice/music/ShuffleQueueCommand";
 import SkipSongCommand from "../../commands/voice/music/SkipSongCommand";
-import LoggingComponent from "../core/LoggingComponent";
-import ActivityDisplayComponent from "../core/ActivityDisplayComponent";
 
 /**
- * Component for ELIA which add the music commands
+ * Component for ELIA handles the music commands
  */
 export default class MusicComponent {
+    /**
+     * Gets the music commands in an array
+     *
+     * @param {PlayCommand} playCommand the play command in the commands, needed for DI, since the play command has DI
+     * @param {QueueSongCommand} queueSongCommand  the queue command in the commands, needed for DI, since the play command has DI
+     * @returns {Command[]} the array of the command objects
+     */
     static getMusicCommands(
         playCommand: PlayCommand,
-        ueueSongCommand: QueueSongCommand
+        queueSongCommand: QueueSongCommand
     ): Command[] {
         return [
             new CurrentSongCommand(),
@@ -38,7 +45,7 @@ export default class MusicComponent {
             new LoopSongCommand(),
             new PauseCommand(),
             playCommand,
-            ueueSongCommand,
+            queueSongCommand,
             new RemoveSongFromQueueCommand(),
             new ReplaySongCommand(),
             new ResumeSongCommand(),
@@ -62,7 +69,14 @@ export default class MusicComponent {
         this.musicPlayer = musicPlayer;
     }
 
-    youtubeService: YoutubeService;
+    // --- Dependencies ---
+
+    /**
+     * The service for YouTube
+     *
+     * @type {YoutubeService}
+     */
+    private youtubeService: YoutubeService;
 
     /**
      * The activity component for ELIA

@@ -24,37 +24,72 @@ export default class MusicPlayer {
         this.bot = bot;
     }
 
+    // --- Dependencies ---
+
+    /**
+     * The service for YouTube
+     *
+     * @type {YoutubeService}
+     */
     private youtubeService: YoutubeService;
+
+    /**
+     * The logging component for the component
+     *
+     * @type {LoggingComponent}
+     */
     private loggingComponent: LoggingComponent;
+
+    /**
+     * The data component for ELIA
+     *
+     * @type {DataComponent}
+     */
     private dataComponent: DataComponent;
+
+    /**
+     * The message component for ELIA
+     *
+     * @type {MessageComponent}
+     */
     private messageComponent: MessageComponent;
+
+    /**
+     * The Discord client of the bot
+     *
+     * @type {Client}
+     */
     private bot: Client;
+
+    // --- Properties ---
 
     /**
      * The joined voice channel, null if not joined any
      *
      * @type {?VoiceChannel}
      */
-    voiceChannel: VoiceChannel | null = null;
+    private voiceChannel: VoiceChannel | null = null;
 
     /**
      * The joined voice channel, null if not joined any
      *
      * @type {?VoiceConnection}
      */
-    connection: VoiceConnection | null = null;
+    private connection: VoiceConnection | null = null;
+
+    /**
+     * The volume for the music, every play command refreshres it's value
+     */
+    private volume = 0.0;
+
+    // --- Flags ---
 
     /**
      * Determines if music is being played is paused or not
      *
      * @type {boolean}
      */
-    isPaused = false;
-
-    /**
-     * The volume for the music, every play command refreshres it's value
-     */
-    volume = 0.0;
+    private isPaused = false;
 
     /**
      * Get the voice channel from message, if config not available, falls back to function parameter
@@ -127,7 +162,7 @@ export default class MusicPlayer {
     }
 
     /**
-     * Plays a song
+     * Starts playing a song
      *
      * @param {MusicComponent} musicComponent the music component that requested to play a song
      * @param {?Message} message a Discord message
@@ -179,6 +214,12 @@ export default class MusicPlayer {
         }
     }
 
+    /**
+     * Plays a song
+     *
+     * @param {MusicComponent} musicComponent the msuic component which requested to play the next song
+     * @param {MusicData} song the next song to be played
+     */
     async playNext(
         musicComponent: MusicComponent,
         song: MusicData
@@ -197,6 +238,11 @@ export default class MusicPlayer {
         }
     }
 
+    /**
+     * Stops playing music
+     *
+     * @returns {boolean} true if stopped playing music, false if nothing happened
+     */
     stop(): boolean {
         if (this.voiceChannel) {
             this.voiceChannel?.leave();
@@ -209,6 +255,11 @@ export default class MusicPlayer {
         }
     }
 
+    /**
+     * Joins a voice channel
+     *
+     * @param {VoiceChannel} channel the voice channel to join
+     */
     private async joinChannel(channel: VoiceChannel) {
         this.voiceChannel = channel;
         this.connection = await channel.join();

@@ -34,14 +34,14 @@ export default class MusicQueue {
      *
      * @type {boolean}
      */
-    isLoopingSong = false;
+    private isLoopingSong = false;
 
     /**
      * Determines if the current queue is being looped or not
      *
      * @type {boolean}
      */
-    isLoopingQueue = false;
+    private isLoopingQueue = false;
 
     /**
      * Plays a music

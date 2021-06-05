@@ -30,6 +30,12 @@ export default class YoutubeService {
         return null;
     }
 
+    /**
+     * Gets the songs from the playlist id
+     *
+     * @param {string} id the id of the playlist
+     * @returns {MusicData[]} an array of the songs in the playlist
+     */
     async getPlaylistFromId(id: string): Promise<MusicData[]> {
         const result: MusicData[] = [];
         const playlist = await ytpl(id, {});
