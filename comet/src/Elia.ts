@@ -157,15 +157,6 @@ export default class Elia {
     }
 
     /**
-     * Returns the bots configured token.
-     *
-     * @returns {string} the bots token
-     */
-    getToken(): string {
-        return this.dataComponent.getToken();
-    }
-
-    /**
      * Log's all the currently available commands via the loggingComponent
      */
     getAvailableCommands(): void {

@@ -5,7 +5,7 @@
     "main": "index.js",
     "scripts": {
         "build": "tsc -b",
-        "start": "npm run-script build && node build/index.js",
+        "start": "npm run-script build && node -r dotenv/config build/index.js dotenv_config_path=.env",
         "deploy": "npm run-script build && pm2 start pm2.config.js",
         "lint": "eslint \".\""
     },
@@ -21,6 +21,7 @@
         "@types/yt-search": "^2.3.0",
         "bufferutil": "^4.0.3",
         "discord.js": "^12.5.3",
+        "dotenv": "^10.0.0",
         "erlpack": "github:discord/erlpack",
         "ffmpeg-static": "4.2.7",
         "libsodium-wrappers": "^0.7.9",

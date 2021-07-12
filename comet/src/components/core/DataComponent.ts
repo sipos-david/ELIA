@@ -4,14 +4,6 @@ import DataSource from "../../config.json";
  * Component for handling the data in the config.json file.
  */
 export default class DataComponent {
-    /**
-     * Get's the Discord token
-     *
-     * @returns {string} the token
-     */
-    getToken(): string {
-        return DataSource.token;
-    }
 
     /**
      * Get's the message display time

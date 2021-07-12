@@ -19,6 +19,8 @@ import SoundEffectComponent from "./components/SoundEffectComponent";
 import PlayCommand from "./commands/voice/music/PlayCommand";
 import QueueSongCommand from "./commands/voice/music/QueueSongCommand";
 
+const TOKEN = process.env["DISCORD_TOKEN"];
+console.log(TOKEN);
 const bot = new Discord.Client();
 
 // create services
@@ -103,4 +105,4 @@ bot.on("message", (message: Discord.Message) => {
 });
 
 // bot login
-bot.login(elia.getToken()).then(() => null);
+bot.login(TOKEN);
