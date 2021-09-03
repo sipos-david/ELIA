@@ -1,9 +1,8 @@
 {
     "prefix": "+",
-    "prefix": "!",
-    "version": "2.0.0",
-    "devMode": true,
-    "radioMode": true,
+    "version": "2.1.0",
+    "devMode": false,
+    "radioMode": false,
     "defaultMusicVolume": "0.4",
     "messageDisplayTime": "10000",
     "servers": [

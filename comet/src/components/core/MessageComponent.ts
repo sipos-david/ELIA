@@ -60,7 +60,7 @@ export default class MessageComponent {
         const replyMsg = this.buildBaseEmbed().setTitle(answer);
         this.addFooterToEmbed(message, replyMsg);
 
-        message.reply(replyMsg).then((msg: Message) => {
+        message.channel.send({ embeds: [replyMsg] }).then((msg: Message) => {
             this.deleteMsgTimeout(msg);
         });
         if (shouldDelete) {
@@ -78,15 +78,15 @@ export default class MessageComponent {
             message &&
             !message.deleted &&
             message.deletable &&
-            message.channel.type !== "dm"
+            message.channel.type !== "DM"
         )
-            message
-                .delete({
-                    timeout: this.dataComponent.getMessageDisplayTime(),
-                })
-                .catch((error: any) => {
-                    this.loggingComponent.error(error);
-                });
+            setTimeout(
+                () =>
+                    message.delete().catch((error: any) => {
+                        this.loggingComponent.error(error);
+                    }),
+                this.dataComponent.getMessageDisplayTime()
+            );
     }
 
     /**
@@ -99,7 +99,7 @@ export default class MessageComponent {
             message &&
             !message.deleted &&
             message.deletable &&
-            message.channel.type !== "dm"
+            message.channel.type !== "DM"
         )
             message.delete().catch((error: any) => {
                 this.loggingComponent.error(error);
@@ -130,7 +130,7 @@ export default class MessageComponent {
         }
 
         message.channel
-            .send(embedMessage)
+            .send({ embeds: [embedMessage] })
             .then((msg: Message) => this.deleteMsgTimeout(msg));
         this.deleteMsgNow(message);
     }
@@ -151,7 +151,7 @@ export default class MessageComponent {
      * @param {MessageEmbed} embedMessage the edited embed message
      */
     addFooterToEmbed(message: Message, embedMessage: MessageEmbed): void {
-        if (message.channel.type !== "dm" && message.member)
+        if (message.channel.type !== "DM" && message.member)
             embedMessage.setFooter(
                 `${message.member.displayName}`,
                 message.author.displayAvatarURL()
@@ -224,7 +224,7 @@ export default class MessageComponent {
         );
 
         message.author
-            .send(embedMessage)
+            .send({ embeds: [embedMessage] })
             .then((msg: Message) => {
                 this.reply(message, "I've sent you a DM with all my commands!");
                 this.deleteMsgTimeout(msg);
@@ -269,7 +269,7 @@ export default class MessageComponent {
         );
 
         message.channel
-            .send(embedMessage)
+            .send({ embeds: [embedMessage] })
             .then((msg: Message) => this.deleteMsgTimeout(msg));
         this.deleteMsgNow(message);
     }

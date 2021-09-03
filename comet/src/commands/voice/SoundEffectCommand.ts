@@ -1,3 +1,9 @@
+import {
+    AudioPlayerStatus,
+    createAudioPlayer,
+    createAudioResource,
+    joinVoiceChannel,
+} from "@discordjs/voice";
 import { Message } from "discord.js";
 import Elia from "../../Elia";
 import Command from "../Command";
@@ -38,19 +44,26 @@ export default class SoundEffectCommand extends Command {
         if (elia.musicComponent?.messageSenderInVoiceChannel(message)) {
             // Only try to join the sender's voice channel if they are in one themselves
             const voiceChannel = message.member?.voice.channel;
-            const connection = await voiceChannel?.join();
-            if (connection) {
-                connection
-                    .play("./resources/soundeffects/" + this.name + ".mp3", {
-                        seek: 0,
-                        volume: this.soundEffectVolume,
-                    })
-                    .on("finish", () => {
-                        elia.loggingComponent.log(
-                            message.author.username + " played: " + this.name
-                        );
-                        voiceChannel?.leave();
-                    });
+            if (voiceChannel) {
+                const connection = joinVoiceChannel({
+                    channelId: voiceChannel.id,
+                    guildId: voiceChannel.guild.id,
+                    adapterCreator: voiceChannel.guild.voiceAdapterCreator,
+                });
+                const audioPlayer = createAudioPlayer();
+                const resource = createAudioResource(
+                    `./resources/soundeffects/${this.name}.mp3`
+                );
+                resource.volume?.setVolume(this.soundEffectVolume);
+
+                audioPlayer.play(resource);
+                connection.subscribe(audioPlayer);
+                audioPlayer.on(AudioPlayerStatus.Idle, () => {
+                    elia.loggingComponent.log(
+                        message.author.username + " played: " + this.name
+                    );
+                    connection.destroy();
+                });
             }
         } else {
             elia.messageComponent.reply(

@@ -1,6 +1,6 @@
 {
     "name": "elia-discord",
-    "version": "2.0.0",
+    "version": "2.1.0",
     "description": "E.L.I.A.-s Discord component",
     "main": "index.js",
     "scripts": {
@@ -16,26 +16,24 @@
     },
     "license": "ISC",
     "dependencies": {
-        "@discordjs/opus": "^0.3.3",
-        "@types/node": "^15.14.2",
-        "@types/yt-search": "^2.3.1",
-        "bufferutil": "^4.0.3",
-        "discord.js": "^12.5.3",
-        "dotenv": "^10.0.0",
-        "erlpack": "github:discord/erlpack",
-        "ffmpeg-static": "4.2.7",
-        "libsodium-wrappers": "^0.7.9",
-        "ms": "^2.1.3",
-        "utf-8-validate": "^5.0.4",
-        "yt-search": "2.9.0",
-        "ytdl-core": "^4.8.3",
-        "ytpl": "2.1.1"
+        "@discordjs/opus": "0.5.3",
+        "@discordjs/voice": "^0.6.0",
+        "@types/node": "16.6.0",
+        "@types/yt-search": "2.3.2",
+        "discord.js": "13.0.1",
+        "dotenv": "10.0.0",
+        "ffmpeg-static": "4.4.0",
+        "libsodium-wrappers": "0.7.9",
+        "npm": "7.20.5",
+        "yt-search": "2.10.0",
+        "ytdl-core": "4.9.1",
+        "ytpl": "2.2.3"
     },
     "devDependencies": {
-        "@typescript-eslint/eslint-plugin": "^4.28.2",
-        "@typescript-eslint/parser": "^4.28.2",
-        "eslint": "^7.30.0",
-        "eslint-plugin-jsdoc": "^34.8.2",
-        "typescript": "^4.3.5"
+        "@typescript-eslint/eslint-plugin": "4.29.1",
+        "@typescript-eslint/parser": "4.29.1",
+        "eslint": "7.32.0",
+        "eslint-plugin-jsdoc": "36.0.7",
+        "typescript": "4.3.5"
     }
 }

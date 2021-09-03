@@ -1,5 +1,5 @@
 import MusicQueue from "./MusicQueue";
-import { Message, VoiceChannel } from "discord.js";
+import { Client, Message, StageChannel, VoiceChannel } from "discord.js";
 import MusicData from "./MusicData";
 import MessageComponent from "../core/MessageComponent";
 import MusicPlayer from "./MusicPlayer";
@@ -21,6 +21,7 @@ import ReplaySongCommand from "../../commands/voice/music/ReplaySongCommand";
 import ResumeSongCommand from "../../commands/voice/music/ResumeSongCommand";
 import ShuffleQueueCommand from "../../commands/voice/music/ShuffleQueueCommand";
 import SkipSongCommand from "../../commands/voice/music/SkipSongCommand";
+import DataComponent from "../core/DataComponent";
 
 /**
  * Component for ELIA handles the music commands
@@ -58,15 +59,23 @@ export default class MusicComponent {
         activityDisplayComponent: ActivityDisplayComponent,
         messageComponent: MessageComponent,
         loggingComponent: LoggingComponent,
+        dataComponent: DataComponent,
         musicQueue: MusicQueue,
-        musicPlayer: MusicPlayer
+        bot: Client
     ) {
         this.youtubeService = youtubeService;
         this.activityDisplayComponent = activityDisplayComponent;
         this.messageComponent = messageComponent;
         this.loggingComponent = loggingComponent;
         this.musicQueue = musicQueue;
-        this.musicPlayer = musicPlayer;
+        this.musicPlayer = new MusicPlayer(
+            dataComponent,
+            loggingComponent,
+            messageComponent,
+            youtubeService,
+            this,
+            bot
+        );
     }
 
     // --- Dependencies ---
@@ -288,10 +297,14 @@ export default class MusicComponent {
      * @returns {?VoiceChannel} the new music voice channel
      */
     async getVoiceChannel(
-        voiceChannel: VoiceChannel,
+        voiceChannel: VoiceChannel | StageChannel,
         message: Message
-    ): Promise<VoiceChannel> {
-        return this.musicPlayer.getVoiceChannel(voiceChannel, message);
+    ): Promise<VoiceChannel | undefined> {
+        if (voiceChannel instanceof StageChannel) {
+            return undefined;
+        } else {
+            return this.musicPlayer.getVoiceChannel(voiceChannel, message);
+        }
     }
 
     /**
@@ -393,7 +406,7 @@ export default class MusicComponent {
             this.loggingComponent.log(
                 message.author.username + " replayed a song"
             );
-            this.musicPlayer.playNext(this, lastSong);
+            this.musicPlayer.playSong(lastSong);
         } else {
             this.messageComponent.reply(
                 message,
@@ -517,7 +530,7 @@ export default class MusicComponent {
         music: MusicData
     ): void {
         this.musicQueue.play(music);
-        this.musicPlayer.play(this, message, voiceChannel, music);
+        this.musicPlayer.play(message, voiceChannel, music);
         this.activityDisplayComponent.setMusicPlaying();
     }
 
@@ -528,7 +541,7 @@ export default class MusicComponent {
         if (this.musicPlayer.hasMembersInVoice()) {
             const currentSong = this.musicQueue.getNext();
             if (currentSong) {
-                this.musicPlayer.playNext(this, currentSong);
+                this.musicPlayer.playSong(currentSong);
             } else {
                 this.stopMusic();
             }

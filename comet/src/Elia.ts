@@ -129,7 +129,7 @@ export default class Elia {
                     );
 
                 // Handle text origin(DM or guild)
-                if (command.guildOnly && message.channel.type !== "text") {
+                if (command.guildOnly && message.channel.type === "DM") {
                     return this.messageComponent.reply(
                         message,
                         "I can't execute that command inside DMs!"
@@ -166,5 +166,14 @@ export default class Elia {
         );
         commands = commands.substring(0, commands.length - 1);
         this.loggingComponent.log(commands);
+    }
+
+    /**
+     * Add music component to ELIA
+     *
+     * @param {MusicComponent} musicComponent The component used by ELIA for playing music
+     */
+    addMusicComponent(musicComponent: MusicComponent): void {
+        this.musicComponent = musicComponent;
     }
 }

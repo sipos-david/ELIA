@@ -47,12 +47,14 @@ export default class PollCommand extends Command {
             pollMessage = pollMessage.setFooter(message.guild.name);
         }
 
-        if (pollArgs.length == 1) {
+        if (pollArgs.length == 1 && pollArgs[0] !== undefined) {
             pollMessage.setTitle(pollArgs[0]);
-            message.channel.send(pollMessage).then((messageReaction) => {
-                messageReaction.react("👍");
-                messageReaction.react("👎");
-            });
+            message.channel
+                .send({ embeds: [pollMessage] })
+                .then((messageReaction: Message) => {
+                    messageReaction.react("👍");
+                    messageReaction.react("👎");
+                });
         } else {
             let options = "";
             for (let i = 0; i < pollArgs.length; i++) {
@@ -60,13 +62,15 @@ export default class PollCommand extends Command {
             }
             pollMessage.setTitle("Choose one!");
             pollMessage.addField("Available options:", options, false);
-            message.channel.send(pollMessage).then((messageReaction) => {
-                for (let i = 0; i < pollArgs.length; i++) {
-                    messageReaction.react(
-                        this.emojis[i + 1] as EmojiIdentifierResolvable
-                    );
-                }
-            });
+            message.channel
+                .send({ embeds: [pollMessage] })
+                .then((messageReaction: Message) => {
+                    for (let i = 0; i < pollArgs.length; i++) {
+                        messageReaction.react(
+                            this.emojis[i + 1] as EmojiIdentifierResolvable
+                        );
+                    }
+                });
         }
 
         elia.loggingComponent.log(message.author.username + " created a poll");

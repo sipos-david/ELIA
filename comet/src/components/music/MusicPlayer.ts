@@ -1,4 +1,15 @@
-import { Client, Message, VoiceChannel, VoiceConnection } from "discord.js";
+import {
+    AudioPlayer,
+    AudioPlayerStatus,
+    createAudioPlayer,
+    createAudioResource,
+    getVoiceConnection,
+    joinVoiceChannel,
+    NoSubscriberBehavior,
+    demuxProbe,
+} from "@discordjs/voice";
+import { Client, Message, VoiceChannel } from "discord.js";
+import internal from "stream";
 import DataComponent from "../core/DataComponent";
 import LoggingComponent from "../core/LoggingComponent";
 import MessageComponent from "../core/MessageComponent";
@@ -15,12 +26,14 @@ export default class MusicPlayer {
         loggingComponent: LoggingComponent,
         messageComponent: MessageComponent,
         youtubeService: YoutubeService,
+        musicComponent: MusicComponent,
         bot: Client
     ) {
         this.youtubeService = youtubeService;
         this.dataComponent = dataComponent;
         this.messageComponent = messageComponent;
         this.loggingComponent = loggingComponent;
+        this.musicComponent = musicComponent;
         this.bot = bot;
     }
 
@@ -55,6 +68,12 @@ export default class MusicPlayer {
     private messageComponent: MessageComponent;
 
     /**
+     * The music component for ELIA
+     *
+     * @type {MusicComponent}
+     */
+    private musicComponent: MusicComponent;
+    /**
      * The Discord client of the bot
      *
      * @type {Client}
@@ -71,11 +90,18 @@ export default class MusicPlayer {
     private voiceChannel: VoiceChannel | null = null;
 
     /**
-     * The joined voice channel, null if not joined any
+     * The AudioPlayer, null if not playing music
      *
-     * @type {?VoiceConnection}
+     * @type {?AudioPlayer}
      */
-    private connection: VoiceConnection | null = null;
+    private audioPlayer: AudioPlayer | null = null;
+
+    /**
+     * The last song's YouTube stream, null if not playing music
+     *
+     * @type {?Readable}
+     */
+    private stream: internal.Readable | null = null;
 
     /**
      * The volume for the music, every play command refreshres it's value
@@ -96,7 +122,7 @@ export default class MusicPlayer {
      *
      * @param {VoiceChannel} voiceChannel the voice channel the user is in
      * @param {Message} message the message that has the music command
-     * @returns {?VoiceChannel} the new music voice channel
+     * @returns {VoiceChannel} the new music voice channel
      */
     async getVoiceChannel(
         voiceChannel: VoiceChannel,
@@ -145,16 +171,16 @@ export default class MusicPlayer {
     }
 
     /**
-     * Get the volume number from message
+     * Get the volume number from guild id
      *
-     * @param {?Message} message a Discord message
+     * @param {?string} guildId the id of the guild
      * @returns {number} the volume number
      */
-    private getMusicVolume(message: Message | undefined): number {
+    private getMusicVolume(guildId: string | undefined): number {
         let vol: string;
 
-        if (message && message.guild) {
-            vol = this.dataComponent.getMusicVolume(message.guild.id);
+        if (guildId) {
+            vol = this.dataComponent.getMusicVolume(guildId);
         } else {
             vol = this.dataComponent.getMusicVolume(undefined);
         }
@@ -166,11 +192,10 @@ export default class MusicPlayer {
      *
      * @param {MusicComponent} musicComponent the music component that requested to play a song
      * @param {?Message} message a Discord message
-     * @param {VoiceConnection} channel a Discord channel
+     * @param {VoiceChannel} channel a Discord channel
      * @param {MusicData} song the song to be played
      */
     async play(
-        musicComponent: MusicComponent,
         message: Message | undefined,
         channel: VoiceChannel,
         song: MusicData
@@ -178,19 +203,8 @@ export default class MusicPlayer {
         if (this.voiceChannel === null || channel.id !== this.voiceChannel.id) {
             await this.joinChannel(channel);
         }
-        this.volume = this.getMusicVolume(message);
-        const stream = this.youtubeService.getStreamFromUrl(song.url);
-
-        if (this.connection) {
-            this.connection
-                .play(stream, {
-                    seek: 0,
-                    volume: this.volume,
-                })
-                .on("finish", () => {
-                    musicComponent.continuePlayingMusic();
-                });
-
+        if (this.voiceChannel != null && this.audioPlayer != null) {
+            this.playSong(song);
             if (message) {
                 if (song.title) {
                     this.messageComponent.reply(
@@ -217,24 +231,17 @@ export default class MusicPlayer {
     /**
      * Plays a song
      *
-     * @param {MusicComponent} musicComponent the msuic component which requested to play the next song
-     * @param {MusicData} song the next song to be played
+     * @param {MusicData} song the song to be played
      */
-    async playNext(
-        musicComponent: MusicComponent,
-        song: MusicData
-    ): Promise<void> {
-        if (this.connection) {
-            const stream = this.youtubeService.getStreamFromUrl(song.url);
-
-            this.connection
-                .play(stream, {
-                    seek: 0,
-                    volume: this.volume,
-                })
-                .on("finish", () => {
-                    musicComponent.continuePlayingMusic();
-                });
+    async playSong(song: MusicData): Promise<void> {
+        if (this.voiceChannel != null && this.audioPlayer != null) {
+            const { stream, type } = await demuxProbe(
+                this.youtubeService.getStreamFromUrl(song.url)
+            );
+            this.stream = stream;
+            const audio = createAudioResource(stream, { inputType: type });
+            audio.volume?.setVolume(this.volume);
+            this.audioPlayer.play(audio);
         }
     }
 
@@ -245,9 +252,11 @@ export default class MusicPlayer {
      */
     stop(): boolean {
         if (this.voiceChannel) {
-            this.voiceChannel?.leave();
+            const connection = getVoiceConnection(this.voiceChannel.guild.id);
+            connection?.destroy();
+            this.stream?.destroy();
+            this.stream = null;
             this.voiceChannel = null;
-            this.connection = null;
             this.isPaused = false;
             return true;
         } else {
@@ -262,7 +271,25 @@ export default class MusicPlayer {
      */
     private async joinChannel(channel: VoiceChannel) {
         this.voiceChannel = channel;
-        this.connection = await channel.join();
+        const connection = joinVoiceChannel({
+            channelId: channel.id,
+            guildId: channel.guild.id,
+            adapterCreator: channel.guild.voiceAdapterCreator,
+        });
+        this.volume = this.getMusicVolume(channel.guild.id);
+        this.audioPlayer = createAudioPlayer({
+            behaviors: {
+                noSubscriber: NoSubscriberBehavior.Pause,
+            },
+        });
+
+        this.audioPlayer.on(AudioPlayerStatus.Idle, () => {
+            this.stream?.destroy();
+            this.stream = null;
+            this.musicComponent.continuePlayingMusic();
+        });
+
+        connection.subscribe(this.audioPlayer);
     }
 
     /**
@@ -274,16 +301,14 @@ export default class MusicPlayer {
         if (
             !this.isPaused &&
             this.voiceChannel != null &&
-            this.connection != null
+            this.audioPlayer != null
         ) {
             this.isPaused = true;
-            if (this.connection.dispatcher != null) {
-                this.connection.dispatcher.pause();
-                this.messageComponent.reply(message, "You paused the music.");
-                this.loggingComponent.log(
-                    message.author.username + " paused the music"
-                );
-            }
+            this.messageComponent.reply(message, "You paused the music.");
+            this.loggingComponent.log(
+                message.author.username + " paused the music"
+            );
+            this.audioPlayer.pause();
         } else {
             this.messageComponent.reply(
                 message,
@@ -301,19 +326,18 @@ export default class MusicPlayer {
         if (
             this.isPaused &&
             this.voiceChannel != null &&
-            this.connection != null
+            this.audioPlayer != null
         ) {
             this.isPaused = false;
-            if (this.connection.dispatcher != null) {
-                this.messageComponent.reply(
-                    message,
-                    "You resumed playing the music."
-                );
-                this.loggingComponent.log(
-                    message.author.username + " resumed playing the music"
-                );
-            }
-            this.connection.dispatcher.resume();
+            this.messageComponent.reply(
+                message,
+                "You resumed playing the music."
+            );
+            this.loggingComponent.log(
+                message.author.username + " resumed playing the music"
+            );
+
+            this.audioPlayer.unpause();
         } else {
             this.messageComponent.reply(
                 message,
