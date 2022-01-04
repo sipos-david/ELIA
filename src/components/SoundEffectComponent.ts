@@ -14,8 +14,8 @@ export default class SoundEffectComponent {
         //import sound effects
         loggingComponent.log("Generating soundeffect commands:");
         const soundEffects = fs
-            .readdirSync("./resources/soundeffects")
-            .filter((file) => file.endsWith(".mp3"));
+            .readdirSync("./src/res/soundeffects")
+            .filter((file: string) => file.endsWith(".mp3"));
 
         for (const soundEffect of soundEffects) {
             const newSoundEffectCommand = new SoundEffectCommand(

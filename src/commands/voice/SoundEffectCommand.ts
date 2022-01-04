@@ -54,7 +54,7 @@ export default class SoundEffectCommand extends Command {
                 });
                 const audioPlayer = createAudioPlayer();
                 const resource = createAudioResource(
-                    `./resources/soundeffects/${this.name}.mp3`
+                    `./src/res/soundeffects/${this.name}.mp3`
                 );
                 resource.volume?.setVolume(this.soundEffectVolume);
 

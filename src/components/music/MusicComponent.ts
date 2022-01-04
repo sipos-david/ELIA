@@ -215,7 +215,9 @@ export default class MusicComponent {
         }
         message
             .reply(reply)
-            .then((msg) => this.messageComponent.deleteMsgTimeout(msg));
+            .then((msg: Message) =>
+                this.messageComponent.deleteMsgTimeout(msg)
+            );
         this.messageComponent.deleteMsgNow(message);
     }
 
@@ -390,7 +392,9 @@ export default class MusicComponent {
         );
         message
             .reply(reply)
-            .then((msg) => this.messageComponent.deleteMsgTimeout(msg));
+            .then((msg: Message) =>
+                this.messageComponent.deleteMsgTimeout(msg)
+            );
         this.messageComponent.deleteMsgNow(message);
     }
 
