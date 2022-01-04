@@ -152,15 +152,15 @@ export default class MessageComponent {
      */
     addFooterToEmbed(message: Message, embedMessage: MessageEmbed): void {
         if (message.channel.type !== "DM" && message.member)
-            embedMessage.setFooter(
-                `${message.member.displayName}`,
-                message.author.displayAvatarURL()
-            );
+            embedMessage.setFooter({
+                text: `${message.member?.displayName}`,
+                iconURL: message.author.displayAvatarURL(),
+            });
         else
-            embedMessage.setFooter(
-                `${message.author.username}`,
-                message.author.displayAvatarURL()
-            );
+            embedMessage.setFooter({
+                text: `${message.author.username}`,
+                iconURL: message.author.displayAvatarURL(),
+            });
     }
 
     /**

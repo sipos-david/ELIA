@@ -2,6 +2,7 @@ import {
     AudioPlayerStatus,
     createAudioPlayer,
     createAudioResource,
+    DiscordGatewayAdapterCreator,
     joinVoiceChannel,
 } from "@discordjs/voice";
 import { Message } from "discord.js";
@@ -48,7 +49,8 @@ export default class SoundEffectCommand extends Command {
                 const connection = joinVoiceChannel({
                     channelId: voiceChannel.id,
                     guildId: voiceChannel.guild.id,
-                    adapterCreator: voiceChannel.guild.voiceAdapterCreator,
+                    adapterCreator: voiceChannel.guild
+                        .voiceAdapterCreator as DiscordGatewayAdapterCreator,
                 });
                 const audioPlayer = createAudioPlayer();
                 const resource = createAudioResource(

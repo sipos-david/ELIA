@@ -7,6 +7,7 @@ import {
     joinVoiceChannel,
     NoSubscriberBehavior,
     demuxProbe,
+    DiscordGatewayAdapterCreator,
 } from "@discordjs/voice";
 import { Client, Message, VoiceChannel } from "discord.js";
 import internal from "stream";
@@ -190,7 +191,6 @@ export default class MusicPlayer {
     /**
      * Starts playing a song
      *
-     * @param {MusicComponent} musicComponent the music component that requested to play a song
      * @param {?Message} message a Discord message
      * @param {VoiceChannel} channel a Discord channel
      * @param {MusicData} song the song to be played
@@ -274,7 +274,8 @@ export default class MusicPlayer {
         const connection = joinVoiceChannel({
             channelId: channel.id,
             guildId: channel.guild.id,
-            adapterCreator: channel.guild.voiceAdapterCreator,
+            adapterCreator: channel.guild
+                .voiceAdapterCreator as DiscordGatewayAdapterCreator,
         });
         this.volume = this.getMusicVolume(channel.guild.id);
         this.audioPlayer = createAudioPlayer({

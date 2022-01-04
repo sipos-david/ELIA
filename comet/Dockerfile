@@ -1,4 +1,8 @@
-FROM node:15
+FROM node:16
+
+LABEL version="2.2.0"
+LABEL name="ELIA"
+
 
 # Create app directory
 WORKDIR /usr/src/app
