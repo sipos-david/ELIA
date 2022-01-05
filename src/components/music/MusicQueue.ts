@@ -1,11 +1,9 @@
-import MusicData from "./MusicData.js";
+import MusicData from "../../model/MusicData.js";
 
 /**
  * A class that handles a queue of music
  */
 export default class MusicQueue {
-    // --- Properties ---
-
     /**
      * The array of songs which the queue has
      *
@@ -53,6 +51,34 @@ export default class MusicQueue {
             return true;
         } else {
             return false;
+        }
+    }
+
+    /**
+     * Determines if the queue is paused  or not
+     *
+     * @type {boolean}
+     */
+    private _isPaused = false;
+
+    /**
+     * Gets if the queue is paused or not
+     *
+     * @returns {boolean} true or false, depending on paused state
+     */
+    get isPaused(): boolean {
+        return this._isPaused;
+    }
+
+    /**
+     * Sets if the queue is paused  or not
+     *
+     */
+    set isPaused(isPaused: boolean) {
+        if (this.isPlayingMusic && !this._isPaused && isPaused) {
+            this._isPaused = true;
+        } else {
+            this._isPaused = false;
         }
     }
 

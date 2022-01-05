@@ -1,8 +1,8 @@
-import { Readable } from "stream";
 import ytSearch from "yt-search";
 import ytdl from "ytdl-core";
 import ytpl from "ytpl";
-import MusicData from "./MusicData";
+import play, { YouTubeStream, SoundCloudStream } from "play-dl";
+import MusicData from "../model/MusicData";
 
 /**
  * Service for handling operations with YouTube
@@ -12,10 +12,12 @@ export default class YoutubeService {
      * Get audio stream from YouTube video url
      *
      * @param {string} url a YouTube video url
-     * @returns {Readable} the stream contaiing the audio
+     * @returns {any} the stream containing the audio
      */
-    getStreamFromUrl(url: string): Readable {
-        return ytdl(url, { filter: "audioonly" });
+    async getStreamFromUrl(
+        url: string
+    ): Promise<YouTubeStream | SoundCloudStream> {
+        return play.stream(url);
     }
 
     /**

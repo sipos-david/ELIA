@@ -1,7 +1,7 @@
 import Command from "../Command";
 import Discord, { EmojiIdentifierResolvable, Message } from "discord.js";
 import { CommandTypeEnum } from "../CommandTypeEnum";
-import Elia from "../../Elia";
+import EliaInstance from "../../EliaInstance";
 
 export default class PollCommand extends Command {
     name = "poll";
@@ -10,11 +10,12 @@ export default class PollCommand extends Command {
     hasArguments = true;
     type = CommandTypeEnum.OTHER;
     emojis = ["0️⃣", "1️⃣", "2️⃣", "3️⃣", "4️⃣", "5️⃣", "6️⃣", "7️⃣", "8️⃣", "9️⃣", "🔟"];
-    execute(message: Message, args: string[], elia: Elia): void {
+    execute(message: Message, args: string[], elia: EliaInstance): void {
         if (!args.length)
             return elia.messageComponent.reply(
                 message,
-                "You need to send the arguments!"
+                "You need to send the arguments!",
+                elia.properties
             );
 
         const command = args.join(" ");
@@ -28,7 +29,11 @@ export default class PollCommand extends Command {
         });
 
         if (pollArgs.length > 10)
-            return elia.messageComponent.reply(message, "Too many arguments!");
+            return elia.messageComponent.reply(
+                message,
+                "Too many arguments!",
+                elia.properties
+            );
 
         let pollMessage = new Discord.MessageEmbed().setColor(0x61b15a);
 

@@ -1,9 +1,9 @@
 import { Message, VoiceChannel } from "discord.js";
-import Elia from "../../../Elia";
 import Command from "../../Command";
 import { CommandTypeEnum } from "../../CommandTypeEnum";
 import isValidURL from "../../../lib/UrlChecker.js";
-import YoutubeService from "../../../components/music/YoutubeService";
+import YoutubeService from "../../../services/YoutubeService";
+import EliaInstance from "../../../EliaInstance";
 
 export default class QueueSongCommand extends Command {
     constructor(youtubeService: YoutubeService) {
@@ -19,9 +19,13 @@ export default class QueueSongCommand extends Command {
         " *required:* <Youtube link> *or search terms:* <term1> <term2> <term3> ...";
     hasArguments = true;
     type = CommandTypeEnum.MUSIC;
-    async execute(message: Message, args: string[], elia: Elia): Promise<void> {
+    async execute(
+        message: Message,
+        args: string[],
+        elia: EliaInstance
+    ): Promise<void> {
         if (
-            elia.dataComponent.getRadioMode() ||
+            elia.properties.modes.isRadio ||
             (elia.musicComponent?.messageSenderInVoiceChannel(message) &&
                 elia.musicComponent.messageSenderHasRightPermissions(message))
         ) {
@@ -52,13 +56,13 @@ export default class QueueSongCommand extends Command {
      *
      * @param {VoiceChannel} voiceChannel the VoiceChannel to join
      * @param {Message} message the message which requested the music
-     * @param {Elia} elia the elia bot
+     * @param {EliaInstance} elia the elia bot
      * @param {string} url a youtube video url
      */
     async queueFromYouTube(
         voiceChannel: VoiceChannel,
         message: Message,
-        elia: Elia,
+        elia: EliaInstance,
         url: string
     ): Promise<void> {
         const id = this.youtubeService.getPlaylistIdFromUrl(url);
@@ -78,19 +82,23 @@ export default class QueueSongCommand extends Command {
      * @param {VoiceChannel} voiceChannel the VoiceChannel to join
      * @param {Message} message the message which requested the music
      * @param {string} query the search terms in one string
-     * @param {Elia} elia the elia bot
+     * @param {EliaInstance} elia the elia bot
      */
     async searchAndQueueFromYouTube(
         voiceChannel: VoiceChannel,
         message: Message,
         query: string,
-        elia: Elia
+        elia: EliaInstance
     ): Promise<void> {
         const video = await this.youtubeService.getMusicFromQuery(query);
         if (video) {
             elia.musicComponent?.queueMusic(message, voiceChannel, video);
         } else {
-            elia.messageComponent.reply(message, "No video results found.");
+            elia.messageComponent.reply(
+                message,
+                "No video results found.",
+                elia.properties
+            );
         }
     }
 }

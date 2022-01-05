@@ -1,5 +1,5 @@
 import { Message } from "discord.js";
-import Elia from "../Elia";
+import EliaInstance from "../EliaInstance";
 import { CommandTypeEnum } from "./CommandTypeEnum";
 
 export default abstract class Command {
@@ -46,11 +46,23 @@ export default abstract class Command {
     hasArguments = false;
 
     /**
+     * Determines if the message that triggered the command should be deleteded,
+     * default is true.
+     *
+     * @type {boolean}
+     */
+    shouldDelete = true;
+
+    /**
      * Execute the command
      *
      * @param {Message} message the Discord message object
      * @param {string[]} args the arguments for the commands
-     * @param {Elia} elia the Elia object
+     * @param {EliaInstance} elia the EliaInstance object
      */
-    abstract execute(message: Message, args: string[], elia: Elia): void;
+    abstract execute(
+        message: Message,
+        args: string[],
+        eliaInstance: EliaInstance
+    ): void;
 }

@@ -1,14 +1,10 @@
-import {
-    AudioPlayerStatus,
-    createAudioPlayer,
-    createAudioResource,
-    DiscordGatewayAdapterCreator,
-    joinVoiceChannel,
-} from "@discordjs/voice";
+import { createAudioResource } from "@discordjs/voice";
 import { Message } from "discord.js";
-import Elia from "../../Elia";
 import Command from "../Command";
 import { CommandTypeEnum } from "../CommandTypeEnum";
+import fs from "fs";
+import LoggingComponent from "../../components/core/LoggingComponent";
+import EliaInstance from "../../EliaInstance";
 
 /**
  * Command for playing sound effects
@@ -16,62 +12,72 @@ import { CommandTypeEnum } from "../CommandTypeEnum";
 export default class SoundEffectCommand extends Command {
     /**
      * @param {string} name the command's name
-     * @param {?number} volume the volume of the played sound
      */
-    constructor(name: string, volume: number | undefined) {
+    constructor(name: string) {
         super();
         this.name = name;
-
         this.description = "plays " + this.name + "soundeffect";
-
-        if (volume !== undefined) this.soundEffectVolume = volume;
     }
-
     usage = " ";
     type = CommandTypeEnum.SOUNDEFFECT;
-    /**
-     * the volume of the played sound
-     *
-     * @type {number}
-     */
-    soundEffectVolume = 0.8;
 
     async execute(
         message: Message,
         _args: string[],
-        elia: Elia
+        elia: EliaInstance
     ): Promise<void> {
-        elia.messageComponent.deleteMsgNow(message);
         if (elia.musicComponent?.messageSenderInVoiceChannel(message)) {
             // Only try to join the sender's voice channel if they are in one themselves
-            const voiceChannel = message.member?.voice.channel;
-            if (voiceChannel) {
-                const connection = joinVoiceChannel({
-                    channelId: voiceChannel.id,
-                    guildId: voiceChannel.guild.id,
-                    adapterCreator: voiceChannel.guild
-                        .voiceAdapterCreator as DiscordGatewayAdapterCreator,
-                });
-                const audioPlayer = createAudioPlayer();
-                const resource = createAudioResource(
-                    `./src/res/soundeffects/${this.name}.mp3`
+            if (message.member && message.member.voice.channel) {
+                const voiceChannel = await elia.musicComponent?.getVoiceChannel(
+                    message.member?.voice?.channel,
+                    message
                 );
-                resource.volume?.setVolume(this.soundEffectVolume);
-
-                audioPlayer.play(resource);
-                connection.subscribe(audioPlayer);
-                audioPlayer.on(AudioPlayerStatus.Idle, () => {
-                    elia.loggingComponent.log(
-                        message.author.username + " played: " + this.name
+                if (voiceChannel) {
+                    const resource = createAudioResource(
+                        `./src/res/soundeffects/${this.name}.mp3`
                     );
-                    connection.destroy();
-                });
+
+                    elia.audioComponent.playSoundEffect(
+                        resource,
+                        voiceChannel,
+                        () => {
+                            elia.loggingComponent.log(
+                                message.author.username +
+                                    " played: " +
+                                    this.name
+                            );
+                        }
+                    );
+                }
             }
-        } else {
-            elia.messageComponent.reply(
-                message,
-                "You need to join a voice channel first!"
-            );
         }
     }
+}
+
+/**
+ * Generate sound effects commands from sound effect folder.
+ * The filename before .mp3 becomes the name of the command.
+ *
+ * @param {LoggingComponent} loggingComponent the logging componenet to log added sound effects.
+ * @returns {Command[]} the list of sound effect commands
+ */
+export function getSoundEffectCommands(
+    loggingComponent: LoggingComponent
+): Command[] {
+    const commands: Command[] = [];
+    //import sound effects
+    loggingComponent.log("Generating soundeffect commands:");
+    const soundEffects = fs
+        .readdirSync("./src/res/soundeffects")
+        .filter((file: string) => file.endsWith(".mp3"));
+
+    for (const soundEffect of soundEffects) {
+        const newSoundEffectCommand = new SoundEffectCommand(
+            soundEffect.replace(".mp3", "").toLowerCase()
+        );
+        commands.push(newSoundEffectCommand);
+        loggingComponent.log(soundEffect + " -> " + newSoundEffectCommand.name);
+    }
+    return commands;
 }

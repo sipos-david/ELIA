@@ -1,5 +1,5 @@
 import { Message, TextChannel } from "discord.js";
-import Elia from "../../Elia";
+import EliaInstance from "../../EliaInstance";
 import Command from "../Command";
 import { CommandTypeEnum } from "../CommandTypeEnum";
 
@@ -11,11 +11,13 @@ export default class PinCommand extends Command {
     type = CommandTypeEnum.OTHER;
     shouldDelete = false;
 
-    async execute(message: Message, args: string[], elia: Elia): Promise<void> {
+    async execute(
+        message: Message,
+        args: string[],
+        elia: EliaInstance
+    ): Promise<void> {
         if (message.guild) {
-            const channelID = elia.dataComponent.getPinChannelId(
-                message.guild.id
-            );
+            const channelID = elia.properties.channels.pinId;
             if (channelID) {
                 const channel = await message.client.channels.fetch(channelID);
                 if (channel && channel instanceof TextChannel) {

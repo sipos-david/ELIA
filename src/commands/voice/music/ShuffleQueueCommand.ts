@@ -1,5 +1,5 @@
 import { Message } from "discord.js";
-import Elia from "../../../Elia";
+import EliaInstance from "../../../EliaInstance";
 import Command from "../../Command";
 import { CommandTypeEnum } from "../../CommandTypeEnum";
 
@@ -8,9 +8,9 @@ export default class ShuffleQueueCommand extends Command {
     description = "Shuffles the music queue in a random way";
     usage = "";
     type = CommandTypeEnum.MUSIC;
-    execute(message: Message, _args_: string[], elia: Elia): void {
+    execute(message: Message, _args_: string[], elia: EliaInstance): void {
         if (
-            elia.dataComponent.getRadioMode() ||
+            elia.properties.modes.isRadio ||
             (elia.musicComponent?.messageSenderInVoiceChannel(message) &&
                 elia.musicComponent.messageSenderHasRightPermissions(message))
         )

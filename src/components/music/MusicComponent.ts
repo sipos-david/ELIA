@@ -1,11 +1,12 @@
 import MusicQueue from "./MusicQueue";
 import { Client, Message, StageChannel, VoiceChannel } from "discord.js";
-import MusicData from "./MusicData";
+import MusicData from "../../model/MusicData";
 import MessageComponent from "../core/MessageComponent";
-import MusicPlayer from "./MusicPlayer";
-import YoutubeService from "./YoutubeService";
+import YoutubeService from "../../services/YoutubeService";
 import ActivityDisplayComponent from "../core/ActivityDisplayComponent";
 import LoggingComponent from "../core/LoggingComponent";
+import AudioComponent from "../AudioComponent";
+import GuildProperties from "../../model/GuildProperties";
 //song command imports
 import Command from "../../commands/Command";
 import CurrentSongCommand from "../../commands/voice/music/CurrentSongCommand";
@@ -21,106 +22,22 @@ import ReplaySongCommand from "../../commands/voice/music/ReplaySongCommand";
 import ResumeSongCommand from "../../commands/voice/music/ResumeSongCommand";
 import ShuffleQueueCommand from "../../commands/voice/music/ShuffleQueueCommand";
 import SkipSongCommand from "../../commands/voice/music/SkipSongCommand";
-import DataComponent from "../core/DataComponent";
 
 /**
  * Component for ELIA handles the music commands
  */
 export default class MusicComponent {
-    /**
-     * Gets the music commands in an array
-     *
-     * @param {PlayCommand} playCommand the play command in the commands, needed for DI, since the play command has DI
-     * @param {QueueSongCommand} queueSongCommand  the queue command in the commands, needed for DI, since the play command has DI
-     * @returns {Command[]} the array of the command objects
-     */
-    static getMusicCommands(
-        playCommand: PlayCommand,
-        queueSongCommand: QueueSongCommand
-    ): Command[] {
-        return [
-            new CurrentSongCommand(),
-            new GetQueueCommand(),
-            new LeaveCommand(),
-            new LoopQueueCommand(),
-            new LoopSongCommand(),
-            new PauseCommand(),
-            playCommand,
-            queueSongCommand,
-            new RemoveSongFromQueueCommand(),
-            new ReplaySongCommand(),
-            new ResumeSongCommand(),
-            new ShuffleQueueCommand(),
-            new SkipSongCommand(),
-        ];
-    }
     constructor(
-        youtubeService: YoutubeService,
-        activityDisplayComponent: ActivityDisplayComponent,
-        messageComponent: MessageComponent,
-        loggingComponent: LoggingComponent,
-        dataComponent: DataComponent,
-        musicQueue: MusicQueue,
-        bot: Client
-    ) {
-        this.youtubeService = youtubeService;
-        this.activityDisplayComponent = activityDisplayComponent;
-        this.messageComponent = messageComponent;
-        this.loggingComponent = loggingComponent;
-        this.musicQueue = musicQueue;
-        this.musicPlayer = new MusicPlayer(
-            dataComponent,
-            loggingComponent,
-            messageComponent,
-            youtubeService,
-            this,
-            bot
-        );
-    }
+        private readonly guildProperties: GuildProperties,
+        private readonly bot: Client,
+        private readonly youtubeService: YoutubeService,
+        private readonly activityDisplayComponent: ActivityDisplayComponent,
+        private readonly messageComponent: MessageComponent,
+        private readonly loggingComponent: LoggingComponent,
+        private readonly audioComponent: AudioComponent
+    ) {}
 
-    // --- Dependencies ---
-
-    /**
-     * The service for YouTube
-     *
-     * @type {YoutubeService}
-     */
-    private youtubeService: YoutubeService;
-
-    /**
-     * The activity component for ELIA
-     *
-     * @type {ActivityDisplayComponent}
-     */
-    private activityDisplayComponent: ActivityDisplayComponent;
-
-    /**
-     * The message component for ELIA
-     *
-     * @type {MessageComponent}
-     */
-    private messageComponent: MessageComponent;
-
-    /**
-     * The music queue for the component
-     *
-     * @type {MusicQueue}
-     */
-    private musicQueue: MusicQueue;
-
-    /**
-     * The music player for the component
-     *
-     * @type {MusicPlayer}
-     */
-    private musicPlayer: MusicPlayer;
-
-    /**
-     * The logging component for the component
-     *
-     * @type {LoggingComponent}
-     */
-    private loggingComponent: LoggingComponent;
+    private readonly musicQueue: MusicQueue = new MusicQueue();
 
     /**
      * Check's if the user who sent the massage has permissions to connect and speak in the channel he/she currently in.
@@ -144,7 +61,8 @@ export default class MusicComponent {
             ) {
                 this.messageComponent.reply(
                     message,
-                    "You don't have the correct permissions"
+                    "You don't have the correct permissions",
+                    this.guildProperties
                 );
                 return false;
             } else return true;
@@ -168,7 +86,8 @@ export default class MusicComponent {
             if (this.messageComponent) {
                 this.messageComponent.reply(
                     message,
-                    "You need to be in a channel to execute this command!"
+                    "You need to be in a channel to execute this command!",
+                    this.guildProperties
                 );
             }
             return false;
@@ -189,7 +108,8 @@ export default class MusicComponent {
                     current.title +
                     "*** at ***" +
                     current.url +
-                    "***"
+                    "***",
+                this.guildProperties
             );
         }
     }
@@ -216,7 +136,10 @@ export default class MusicComponent {
         message
             .reply(reply)
             .then((msg: Message) =>
-                this.messageComponent.deleteMsgTimeout(msg)
+                this.messageComponent.deleteMsgTimeout(
+                    msg,
+                    this.guildProperties
+                )
             );
         this.messageComponent.deleteMsgNow(message);
     }
@@ -227,15 +150,15 @@ export default class MusicComponent {
      * @param {?Message} message the message that requested to stop the music
      */
     stopMusic(message: Message | undefined = undefined): void {
-        if (this.musicPlayer.stop()) {
-            this.musicQueue.stop();
-            this.activityDisplayComponent.setDefault();
-            if (message) {
-                this.messageComponent.reply(
-                    message,
-                    "Bye Bye :smiling_face_with_tear:"
-                );
-            }
+        this.audioComponent.stop();
+        this.musicQueue.stop();
+        this.activityDisplayComponent.setDefault();
+        if (message) {
+            this.messageComponent.reply(
+                message,
+                "Bye Bye :smiling_face_with_tear:",
+                this.guildProperties
+            );
         }
     }
 
@@ -249,7 +172,8 @@ export default class MusicComponent {
         if (isQueueLooping) {
             this.messageComponent.reply(
                 message,
-                "You started looping the queue!"
+                "You started looping the queue!",
+                this.guildProperties
             );
             this.loggingComponent.log(
                 message.author.username + " started looping the queue"
@@ -257,7 +181,8 @@ export default class MusicComponent {
         } else {
             this.messageComponent.reply(
                 message,
-                "You stopped looping the queue!"
+                "You stopped looping the queue!",
+                this.guildProperties
             );
             this.loggingComponent.log(
                 message.author.username + " stopped looping the queue"
@@ -275,7 +200,8 @@ export default class MusicComponent {
         if (isSongLooping) {
             this.messageComponent.reply(
                 message,
-                "You started looping the current song!"
+                "You started looping the current song!",
+                this.guildProperties
             );
             this.loggingComponent.log(
                 message.author.username + " started looping the current song"
@@ -283,7 +209,8 @@ export default class MusicComponent {
         } else {
             this.messageComponent.reply(
                 message,
-                "You stopped looping the current song!"
+                "You stopped looping the current song!",
+                this.guildProperties
             );
             this.loggingComponent.log(
                 message.author.username + " stopped looping the current song"
@@ -305,7 +232,27 @@ export default class MusicComponent {
         if (voiceChannel instanceof StageChannel) {
             return undefined;
         } else {
-            return this.musicPlayer.getVoiceChannel(voiceChannel, message);
+            if (this.guildProperties.modes.isRadio && message.guild) {
+                const radioChannel = this.guildProperties.channels.radioId;
+                if (radioChannel) {
+                    const radioVoiceChannel =
+                        this.bot.channels.cache.get(radioChannel);
+                    if (radioVoiceChannel) {
+                        if (radioVoiceChannel instanceof VoiceChannel) {
+                            return radioVoiceChannel;
+                        }
+                    } else {
+                        this.messageComponent.reply(
+                            message,
+                            "Radio channel not available for current server!",
+                            this.guildProperties
+                        );
+                    }
+                }
+                return voiceChannel;
+            } else {
+                return voiceChannel;
+            }
         }
     }
 
@@ -329,13 +276,13 @@ export default class MusicComponent {
                     "*** at ***" +
                     music.url +
                     "***",
-                false
+                this.guildProperties
             );
         } else {
             this.messageComponent.reply(
                 message,
                 ":musical_note: Queued: ***" + music.url + "***",
-                false
+                this.guildProperties
             );
         }
         if (!this.musicQueue.isPlayingMusic) {
@@ -393,7 +340,10 @@ export default class MusicComponent {
         message
             .reply(reply)
             .then((msg: Message) =>
-                this.messageComponent.deleteMsgTimeout(msg)
+                this.messageComponent.deleteMsgTimeout(
+                    msg,
+                    this.guildProperties
+                )
             );
         this.messageComponent.deleteMsgNow(message);
     }
@@ -406,15 +356,20 @@ export default class MusicComponent {
     replayMusic(message: Message): void {
         const lastSong = this.musicQueue.replay();
         if (lastSong) {
-            this.messageComponent.reply(message, "You replayed a song!");
+            this.messageComponent.reply(
+                message,
+                "You replayed a song!",
+                this.guildProperties
+            );
             this.loggingComponent.log(
                 message.author.username + " replayed a song"
             );
-            this.musicPlayer.playSong(lastSong);
+            this.audioComponent.playSong(lastSong);
         } else {
             this.messageComponent.reply(
                 message,
-                "It seems there are no song to replay."
+                "It seems there are no song to replay.",
+                this.guildProperties
             );
         }
     }
@@ -426,11 +381,29 @@ export default class MusicComponent {
      */
     resumeMusic(message: Message): void {
         if (this.musicQueue.isPlayingMusic) {
-            this.musicPlayer.resumeMusic(message);
+            this.musicQueue.isPaused = false;
+            if (!this.musicQueue.isPaused) {
+                this.messageComponent.reply(
+                    message,
+                    "You resumed playing the music.",
+                    this.guildProperties
+                );
+                this.loggingComponent.log(
+                    message.author.username + " resumed playing the music"
+                );
+                this.audioComponent.resumeMusic();
+            } else {
+                this.messageComponent.reply(
+                    message,
+                    "You can't resume the music right now.",
+                    this.guildProperties
+                );
+            }
         } else {
             this.messageComponent.reply(
                 message,
-                "Not playing a song currently!"
+                "Not playing a song currently!",
+                this.guildProperties
             );
         }
     }
@@ -442,11 +415,29 @@ export default class MusicComponent {
      */
     pauseMusic(message: Message): void {
         if (this.musicQueue.isPlayingMusic) {
-            this.musicPlayer.pauseMusic(message);
+            this.musicQueue.isPaused = true;
+            if (this.musicQueue.isPaused) {
+                this.messageComponent.reply(
+                    message,
+                    "You paused the music.",
+                    this.guildProperties
+                );
+                this.loggingComponent.log(
+                    message.author.username + " paused the music"
+                );
+                this.audioComponent.pauseMusic();
+            } else {
+                this.messageComponent.reply(
+                    message,
+                    "You can't pause the music right now.",
+                    this.guildProperties
+                );
+            }
         } else {
             this.messageComponent.reply(
                 message,
-                "Not playing a song currently!"
+                "Not playing a song currently!",
+                this.guildProperties
             );
         }
     }
@@ -459,7 +450,11 @@ export default class MusicComponent {
     shuffleMusic(message: Message): void {
         if (this.musicQueue.isPlayingMusic) {
             if (this.musicQueue.shuffle()) {
-                this.messageComponent.reply(message, "You shuffled the music.");
+                this.messageComponent.reply(
+                    message,
+                    "You shuffled the music.",
+                    this.guildProperties
+                );
                 this.loggingComponent.log(
                     message.author.username + " shuffled the music"
                 );
@@ -467,7 +462,8 @@ export default class MusicComponent {
         } else {
             this.messageComponent.reply(
                 message,
-                "Not playing a song currently!"
+                "Not playing a song currently!",
+                this.guildProperties
             );
         }
     }
@@ -479,15 +475,20 @@ export default class MusicComponent {
      */
     skipSong(message: Message): void {
         if (this.musicQueue.isPlayingMusic) {
-            this.messageComponent.reply(message, "You skipped a song!");
+            this.messageComponent.reply(
+                message,
+                "You skipped a song!",
+                this.guildProperties
+            );
             this.loggingComponent.log(
                 message.author.username + " skipped a song"
             );
-            this.continuePlayingMusic();
+            this.audioComponent.skip();
         } else {
             this.messageComponent.reply(
                 message,
-                "Not playing a song currently!"
+                "Not playing a song currently!",
+                this.guildProperties
             );
         }
     }
@@ -511,7 +512,7 @@ export default class MusicComponent {
             this.messageComponent.reply(
                 message,
                 "You started playing a YouTube Playlist!",
-                false
+                this.guildProperties
             );
 
             this.loggingComponent.log(
@@ -534,7 +535,7 @@ export default class MusicComponent {
         music: MusicData
     ): void {
         this.musicQueue.play(music);
-        this.musicPlayer.play(message, voiceChannel, music);
+        this.play(message, voiceChannel, music);
         this.activityDisplayComponent.setMusicPlaying();
     }
 
@@ -542,15 +543,83 @@ export default class MusicComponent {
      * Continues playing music if the queue is not empty
      */
     continuePlayingMusic(): void {
-        if (this.musicPlayer.hasMembersInVoice()) {
+        if (this.audioComponent.hasMembersInVoice()) {
             const currentSong = this.musicQueue.getNext();
             if (currentSong) {
-                this.musicPlayer.playSong(currentSong);
+                this.audioComponent.playSong(currentSong);
             } else {
+
                 this.stopMusic();
             }
         } else {
             this.stopMusic();
         }
     }
+
+    /**
+     * Starts playing a song
+     *
+     * @param {?Message} message a Discord message
+     * @param {VoiceChannel} channel a Discord channel
+     * @param {MusicData} song the song to be played
+     */
+    async play(
+        message: Message | undefined,
+        channel: VoiceChannel,
+        song: MusicData
+    ): Promise<void> {
+        this.audioComponent.playSong(song, channel, () => {
+            this.continuePlayingMusic();
+        });
+        if (message) {
+            if (song.title) {
+                this.messageComponent.reply(
+                    message,
+                    ":musical_note: Now Playing ***" +
+                        song.title +
+                        "*** at ***" +
+                        song.url +
+                        "***",
+                    this.guildProperties
+                );
+            } else {
+                this.messageComponent.reply(
+                    message,
+                    ":musical_note: Now Playing ***" + song.url + "***",
+                    this.guildProperties
+                );
+            }
+            this.loggingComponent.log(
+                message.author.username + " played: " + song.url
+            );
+        }
+    }
+}
+
+/**
+ * Gets the music commands in an array
+ *
+ * @param {PlayCommand} playCommand the play command in the commands, needed for DI, since the play command has DI
+ * @param {QueueSongCommand} queueSongCommand  the queue command in the commands, needed for DI, since the play command has DI
+ * @returns {Command[]} the array of the command objects
+ */
+export function getMusicCommands(
+    playCommand: PlayCommand,
+    queueSongCommand: QueueSongCommand
+): Command[] {
+    return [
+        new CurrentSongCommand(),
+        new GetQueueCommand(),
+        new LeaveCommand(),
+        new LoopQueueCommand(),
+        new LoopSongCommand(),
+        new PauseCommand(),
+        playCommand,
+        queueSongCommand,
+        new RemoveSongFromQueueCommand(),
+        new ReplaySongCommand(),
+        new ResumeSongCommand(),
+        new ShuffleQueueCommand(),
+        new SkipSongCommand(),
+    ];
 }

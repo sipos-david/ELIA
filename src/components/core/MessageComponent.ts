@@ -1,8 +1,6 @@
-import { Client, Message, MessageEmbed } from "discord.js";
+import { Message, MessageEmbed } from "discord.js";
 import Command from "../../commands/Command";
-import { CommandTypeEnum } from "../../commands/CommandTypeEnum";
-import CommandComponent from "../CommandComponent";
-import DataComponent from "./DataComponent";
+import GuildProperties from "../../model/GuildProperties";
 import LoggingComponent from "./LoggingComponent";
 
 /**
@@ -10,70 +8,38 @@ import LoggingComponent from "./LoggingComponent";
  */
 export default class MessageComponent {
     constructor(
-        bot: Client,
-        dataComponent: DataComponent,
-        loggingComponent: LoggingComponent,
-        commandComponent: CommandComponent
-    ) {
-        this.bot = bot;
-        this.dataComponent = dataComponent;
-        this.loggingComponent = loggingComponent;
-        this.commandComponent = commandComponent;
-    }
-
-    /**
-     * The Discord Client
-     *
-     * @type {Client}
-     */
-    bot: Client;
-
-    /**
-     * The component for data
-     *
-     * @type {DataComponent}
-     */
-    dataComponent: DataComponent;
-
-    /**
-     * The component for logging
-     *
-     * @type {LoggingComponent}
-     */
-    loggingComponent: LoggingComponent;
-
-    /**
-     * The component for commands
-     *
-     * @type {CommandComponent}
-     */
-    commandComponent: CommandComponent;
+        /**
+         * The component for logging
+         *
+         * @type {LoggingComponent}
+         */
+        private readonly loggingComponent: LoggingComponent
+    ) {}
 
     /**
      * Replies to the message.
      *
      * @param {Message} message the Discord message to reply to
      * @param {string} answer the answer in string
+     * @param {GuildProperties} props the properties of the guild which the message was sent
      * @param {?boolean} shouldDelete optional, determines to delete the message after the reply, default is true
      */
-    reply(message: Message, answer: string, shouldDelete = true): void {
+    reply(message: Message, answer: string, props: GuildProperties): void {
         const replyMsg = this.buildBaseEmbed().setTitle(answer);
         this.addFooterToEmbed(message, replyMsg);
 
         message.channel.send({ embeds: [replyMsg] }).then((msg: Message) => {
-            this.deleteMsgTimeout(msg);
+            this.deleteMsgTimeout(msg, props);
         });
-        if (shouldDelete) {
-            this.deleteMsgNow(message);
-        }
     }
 
     /**
      * Deletes a message after a given time.
      *
      * @param {Message} message the Discord message to delete
+     * @param {GuildProperties} props the properties of the guild which the message was sent
      */
-    deleteMsgTimeout(message: Message): void {
+    deleteMsgTimeout(message: Message, props: GuildProperties): void {
         if (
             message &&
             !message.deleted &&
@@ -85,7 +51,7 @@ export default class MessageComponent {
                     message.delete().catch((error: any) => {
                         this.loggingComponent.error(error);
                     }),
-                this.dataComponent.getMessageDisplayTime()
+                props.messageDisplayTime
             );
     }
 
@@ -112,8 +78,13 @@ export default class MessageComponent {
      *
      * @param {Message} message the Discord message which has the command
      * @param {Command} command the used Command
+     * @param {GuildProperties} props the properties of the guild which the message was sent
      */
-    replyDidntProvideCommandArgs(message: Message, command: Command): void {
+    replyDidntProvideCommandArgs(
+        message: Message,
+        command: Command,
+        props: GuildProperties
+    ): void {
         const embedMessage = this.buildBaseEmbed();
         this.addFooterToEmbed(message, embedMessage);
 
@@ -122,16 +93,14 @@ export default class MessageComponent {
         if (command.usage) {
             embedMessage.addField(
                 "The proper usage would be:",
-                `\`\`\`${this.dataComponent.getPrefix()}${command.name} ${
-                    command.usage
-                }\`\`\``,
+                `\`\`\`${props.prefix}${command.name} ${command.usage}\`\`\``,
                 true
             );
         }
 
         message.channel
             .send({ embeds: [embedMessage] })
-            .then((msg: Message) => this.deleteMsgTimeout(msg));
+            .then((msg: Message) => this.deleteMsgTimeout(msg, props));
         this.deleteMsgNow(message);
     }
 
@@ -161,116 +130,5 @@ export default class MessageComponent {
                 text: `${message.author.username}`,
                 iconURL: message.author.displayAvatarURL(),
             });
-    }
-
-    /**
-     * Reply's all commands to the user
-     *
-     * @param {Message} message the Discord message which requested all commands
-     */
-    helpSendAllCommands(message: Message): void {
-        const embedMessage = this.buildBaseEmbed();
-        this.addFooterToEmbed(message, embedMessage);
-        embedMessage.setTitle("Here's a list of all my commands:");
-        if (this.bot.user) {
-            embedMessage.setThumbnail(this.bot.user.displayAvatarURL());
-        }
-        const musicCommandsList: string[] = [];
-        const soundEffectCommandsList: string[] = [];
-        const utilityCommandsList: string[] = [];
-        const otherCommandsList: string[] = [];
-
-        this.commandComponent.commands.forEach(
-            (command: { type: CommandTypeEnum; name: string }) => {
-                switch (command.type) {
-                    case CommandTypeEnum.MUSIC:
-                        musicCommandsList.push(command.name);
-                        break;
-                    case CommandTypeEnum.SOUNDEFFECT:
-                        soundEffectCommandsList.push(command.name);
-                        break;
-                    case CommandTypeEnum.UTILITY:
-                        utilityCommandsList.push(command.name);
-                        break;
-                    case CommandTypeEnum.OTHER:
-                        otherCommandsList.push(command.name);
-                        break;
-                }
-            }
-        );
-
-        embedMessage.addFields(
-            {
-                name: "Music Commands",
-                value: musicCommandsList.join(", "),
-            },
-            {
-                name: "SoundEffect Commands",
-                value: soundEffectCommandsList.join(", "),
-            },
-
-            {
-                name: "Utility Commands",
-                value: utilityCommandsList.join(", "),
-            },
-            {
-                name: "Other Commands",
-                value: otherCommandsList.join(", "),
-            },
-            {
-                name: "Use the command below to get info on a specific command!",
-                value: `\`\`\`${this.dataComponent.getPrefix()}help [command name]\`\`\``,
-            }
-        );
-
-        message.author
-            .send({ embeds: [embedMessage] })
-            .then((msg: Message) => {
-                this.reply(message, "I've sent you a DM with all my commands!");
-                this.deleteMsgTimeout(msg);
-            })
-            .catch((error: any) => {
-                this.loggingComponent.log(
-                    `Could not send help DM to ${message.author.tag}.\n`
-                );
-                this.loggingComponent.error(error);
-                message.reply(
-                    "it seems like I can't DM you! Do you have DMs disabled?"
-                );
-            });
-    }
-
-    /**
-     * Reply's a command use to the user
-     *
-     * @param {Message} message the Discord message which requested help for a command
-     * @param {Command} command the command to display the usage
-     */
-    helpCommandUsage(message: Message, command: Command): void {
-        const embedMessage = this.buildBaseEmbed();
-        this.addFooterToEmbed(message, embedMessage);
-
-        embedMessage.setTitle("Here's the help for: " + command.name);
-
-        if (this.bot.user) {
-            embedMessage.setThumbnail(this.bot.user.displayAvatarURL());
-        }
-        embedMessage.addFields(
-            {
-                name: "Description",
-                value: command.description,
-            },
-            {
-                name: "Usage:",
-                value: `\`\`\`${this.dataComponent.getPrefix()}${
-                    command.name
-                } ${command.usage}\`\`\``,
-            }
-        );
-
-        message.channel
-            .send({ embeds: [embedMessage] })
-            .then((msg: Message) => this.deleteMsgTimeout(msg));
-        this.deleteMsgNow(message);
     }
 }

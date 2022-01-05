@@ -1,5 +1,5 @@
 import { Message } from "discord.js";
-import Elia from "../../Elia";
+import EliaInstance from "../../EliaInstance";
 import Command from "../Command";
 import { CommandTypeEnum } from "../CommandTypeEnum";
 
@@ -10,18 +10,20 @@ export default class DeleteMessagesCommand extends Command {
     type = CommandTypeEnum.UTILITY;
     shouldDelete = false;
 
-    execute(message: Message, args: string[], elia: Elia): void {
+    execute(message: Message, args: string[], elia: EliaInstance): void {
         if (message.channel.type === "DM")
             return elia.messageComponent.reply(
                 message,
-                "You can't use this command in DMs"
+                "You can't use this command in DMs",
+                elia.properties
             );
 
         if (message.member) {
             if (!message.member.permissions.has("MANAGE_MESSAGES")) {
                 return elia.messageComponent.reply(
                     message,
-                    "You don't have the permissions for deleting messages!"
+                    "You don't have the permissions for deleting messages!",
+                    elia.properties
                 );
             }
         }
@@ -33,7 +35,8 @@ export default class DeleteMessagesCommand extends Command {
             if (!deleteCount || deleteCount < 1 || deleteCount > 99)
                 return elia.messageComponent.reply(
                     message,
-                    "Please provide a number between 1 and 99 for the number of messages to delete"
+                    "Please provide a number between 1 and 99 for the number of messages to delete",
+                    elia.properties
                 );
 
             // Delete messages
@@ -43,7 +46,8 @@ export default class DeleteMessagesCommand extends Command {
                     elia.loggingComponent.error(error);
                     elia.messageComponent.reply(
                         message,
-                        "there was an error trying to delete messages in this channel!"
+                        "there was an error trying to delete messages in this channel!",
+                        elia.properties
                     );
                 });
             elia.loggingComponent.log(
