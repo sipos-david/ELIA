@@ -42,7 +42,6 @@ export default class Elia {
         private readonly activityDisplayComponent: ActivityDisplayComponent,
         private readonly youtubeService: YoutubeService
     ) {
-        // Add core components
         // Generate instances
         this.generateInstances();
     }
@@ -287,6 +286,22 @@ export default class Elia {
         guilds.push({ id: guild.id });
         this.loggingComponent.log("Joined guild: " + guild.id);
         this.addSlashCommandsToGuild(token, clientId, guild);
+        const instance = this.createInstance(
+            this.createGuildProperties({
+                id: guild.id,
+                prefix: undefined,
+                devMode: undefined,
+                radioMode: undefined,
+                musicVolume: undefined,
+                messageDisplayTime: undefined,
+                pinTextChannelID: undefined,
+                memeTextChannelID: undefined,
+                musicControlTextChannelID: undefined,
+                botSpamChannelID: undefined,
+                radioChannelID: undefined,
+            })
+        );
+        this.instances.set(guild.id, instance);
     }
 
     private generateInstances(): void {
