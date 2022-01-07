@@ -1,9 +1,10 @@
 import Command from "../../Command";
 import { CommandTypeEnum } from "../../CommandTypeEnum";
 import isValidURL from "../../../lib/UrlChecker";
-import { VoiceChannel, Message } from "discord.js";
+import { VoiceChannel } from "discord.js";
 import YoutubeService from "../../../services/YoutubeService";
 import EliaInstance from "../../../EliaInstance";
+import CommandCallSource from "../../../model/CommandCallSource";
 
 export default class PlayCommand extends Command {
     constructor(youtubeService: YoutubeService) {
@@ -20,28 +21,28 @@ export default class PlayCommand extends Command {
     hasArguments = true;
 
     async execute(
-        message: Message,
+        source: CommandCallSource,
         args: string[],
         elia: EliaInstance
     ): Promise<void> {
         if (
             elia.properties.modes.isRadio ||
-            (elia.musicComponent?.messageSenderInVoiceChannel(message) &&
-                elia.musicComponent.messageSenderHasRightPermissions(message))
+            (elia.musicComponent?.messageSenderInVoiceChannel(source) &&
+                elia.musicComponent.messageSenderHasRightPermissions(source))
         ) {
-            if (message.member && message.member.voice.channel) {
+            if (source.member && source.member.voice.channel) {
                 const voiceChannel = await elia.musicComponent?.getVoiceChannel(
-                    message.member.voice.channel,
-                    message
+                    source.member.voice.channel,
+                    source
                 );
                 if (voiceChannel) {
                     const arg = args[0];
                     if (arg && isValidURL(arg)) {
-                        this.playFromYouTube(voiceChannel, message, elia, arg);
+                        this.playFromYouTube(voiceChannel, source, elia, arg);
                     } else {
                         this.searchAndPlayFromYouTube(
                             voiceChannel,
-                            message,
+                            source,
                             args.join(" "),
                             elia
                         );
@@ -55,24 +56,24 @@ export default class PlayCommand extends Command {
      * Play's a video or playlist from YouTube
      *
      * @param {VoiceChannel} voiceChannel the VoiceChannel to join
-     * @param {Message} message the message which requested the music
+     * @param {CommandCallSource} source the message which requested the music
      * @param {EliaInstance} elia the elia bot
      * @param {string} url a youtube video url
      */
     async playFromYouTube(
         voiceChannel: VoiceChannel,
-        message: Message,
+        source: CommandCallSource,
         elia: EliaInstance,
         url: string
     ): Promise<void> {
         const id = this.youtubeService.getPlaylistIdFromUrl(url);
         if (id != null)
-            elia.musicComponent?.playYouTubePlaylist(message, voiceChannel, id);
+            elia.musicComponent?.playYouTubePlaylist(source, voiceChannel, id);
         else {
             const video = await this.youtubeService.getMusicFromUrl(url);
             if (video) {
                 elia?.musicComponent?.startPlayingMusic(
-                    message,
+                    source,
                     voiceChannel,
                     video
                 );
@@ -84,29 +85,21 @@ export default class PlayCommand extends Command {
      * Searches a query in YouTube and then play's the first video result match, if result exits
      *
      * @param {VoiceChannel} voiceChannel the VoiceChannel to join
-     * @param {Message} message the message which requested the music
+     * @param {CommandCallSource} source the message which requested the music
      * @param {string} query the search terms in one string
      * @param {EliaInstance} elia the elia bot
      */
     async searchAndPlayFromYouTube(
         voiceChannel: VoiceChannel,
-        message: Message,
+        source: CommandCallSource,
         query: string,
         elia: EliaInstance
     ): Promise<void> {
         const video = await this.youtubeService.getMusicFromQuery(query);
         if (video) {
-            elia.musicComponent?.startPlayingMusic(
-                message,
-                voiceChannel,
-                video
-            );
+            elia.musicComponent?.startPlayingMusic(source, voiceChannel, video);
         } else {
-            elia.messageComponent.reply(
-                message,
-                "No video results found.",
-                elia.properties
-            );
+            elia.messageComponent.reply(source, "No video results found.");
         }
     }
 }

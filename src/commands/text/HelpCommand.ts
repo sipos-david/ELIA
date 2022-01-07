@@ -1,5 +1,6 @@
 import { Message } from "discord.js";
 import EliaInstance from "../../EliaInstance";
+import CommandCallSource from "../../model/CommandCallSource";
 import Command from "../Command";
 import { CommandTypeEnum } from "../CommandTypeEnum";
 
@@ -14,22 +15,25 @@ export default class HelpCommand extends Command {
         super();
     }
 
-    execute(message: Message, args: string[], elia: EliaInstance): void {
-        elia.loggingComponent.log(message.author.username + " requested help");
+    execute(
+        source: CommandCallSource,
+        args: string[],
+        elia: EliaInstance
+    ): void {
+        elia.loggingComponent.log(source.user.username + " requested help");
 
         if (!args.length) {
-            this.helpSendAllCommands(message, elia);
+            this.helpSendAllCommands(source, elia);
         } else {
             const arg = args[0];
             if (arg) {
                 const command = this.commands.get(arg.toLowerCase());
                 if (!command) {
                     return elia.messageComponent.reply(
-                        message,
-                        "that's not a valid command!",
-                        elia.properties
+                        source,
+                        "that's not a valid command!"
                     );
-                } else this.helpCommandUsage(message, command, elia);
+                } else this.helpCommandUsage(source, command, elia);
             }
         }
     }
@@ -37,12 +41,12 @@ export default class HelpCommand extends Command {
     /**
      * Reply's all commands to the user
      *
-     * @param {Message} message the Discord message which requested all commands
+     * @param {CommandCallSource} source the source of the command call
      * @param {EliaInstance} elia the elia instance for the guild
      */
-    helpSendAllCommands(message: Message, elia: EliaInstance): void {
+    helpSendAllCommands(source: CommandCallSource, elia: EliaInstance): void {
         const embedMessage = elia.messageComponent.buildBaseEmbed();
-        elia.messageComponent.addFooterToEmbed(message, embedMessage);
+        elia.messageComponent.addFooterToEmbed(source, embedMessage);
         embedMessage.setTitle("Here's a list of all my commands:");
         if (elia.bot.user) {
             embedMessage.setThumbnail(elia.bot.user.displayAvatarURL());
@@ -95,22 +99,22 @@ export default class HelpCommand extends Command {
             }
         );
 
-        message.author
+        source.user
             .send({ embeds: [embedMessage] })
             .then((msg: Message) => {
                 elia.messageComponent.reply(
-                    message,
-                    "I've sent you a DM with all my commands!",
-                    elia.properties
+                    source,
+                    "I've sent you a DM with all my commands!"
                 );
-                elia.messageComponent.deleteMsgTimeout(msg, elia.properties);
+                elia.messageComponent.deleteMsgTimeout(msg);
             })
-            .catch((error: any) => {
+            .catch((error: unknown) => {
                 elia.loggingComponent.log(
-                    `Could not send help DM to ${message.author.tag}.\n`
+                    `Could not send help DM to ${source.user.tag}.\n`
                 );
                 elia.loggingComponent.error(error);
-                message.reply(
+                elia.messageComponent.reply(
+                    source,
                     "it seems like I can't DM you! Do you have DMs disabled?"
                 );
             });
@@ -119,17 +123,17 @@ export default class HelpCommand extends Command {
     /**
      * Reply's a command use to the user
      *
-     * @param {Message} message the Discord message which requested help for a command
+     * @param {CommandCallSource} source the source of the command call
      * @param {Command} command the command to display the usage
      * @param {EliaInstance} elia the elia instance for the guild
      */
     helpCommandUsage(
-        message: Message,
+        source: CommandCallSource,
         command: Command,
         elia: EliaInstance
     ): void {
         const embedMessage = elia.messageComponent.buildBaseEmbed();
-        elia.messageComponent.addFooterToEmbed(message, embedMessage);
+        elia.messageComponent.addFooterToEmbed(source, embedMessage);
 
         embedMessage.setTitle("Here's the help for: " + command.name);
 
@@ -147,11 +151,13 @@ export default class HelpCommand extends Command {
             }
         );
 
-        message.channel
-            .send({ embeds: [embedMessage] })
-            .then((msg: Message) =>
-                elia.messageComponent.deleteMsgTimeout(msg, elia.properties)
-            );
-        elia.messageComponent.deleteMsgNow(message);
+        const channel = source.channel;
+        if (channel) {
+            channel
+                .send({ embeds: [embedMessage] })
+                .then((msg: Message) =>
+                    elia.messageComponent.deleteMsgTimeout(msg)
+                );
+        }
     }
 }

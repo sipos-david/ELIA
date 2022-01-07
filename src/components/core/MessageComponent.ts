@@ -1,5 +1,6 @@
 import { Message, MessageEmbed } from "discord.js";
 import Command from "../../commands/Command";
+import CommandCallSource from "../../model/CommandCallSource";
 import GuildProperties from "../../model/GuildProperties";
 import LoggingComponent from "./LoggingComponent";
 
@@ -8,6 +9,7 @@ import LoggingComponent from "./LoggingComponent";
  */
 export default class MessageComponent {
     constructor(
+        private readonly properties: GuildProperties,
         /**
          * The component for logging
          *
@@ -19,39 +21,34 @@ export default class MessageComponent {
     /**
      * Replies to the message.
      *
-     * @param {Message} message the Discord message to reply to
+     * @param {CommandCallSource} source the call source
      * @param {string} answer the answer in string
-     * @param {GuildProperties} props the properties of the guild which the message was sent
-     * @param {?boolean} shouldDelete optional, determines to delete the message after the reply, default is true
      */
-    reply(message: Message, answer: string, props: GuildProperties): void {
+    reply(source: CommandCallSource, answer: string): void {
         const replyMsg = this.buildBaseEmbed().setTitle(answer);
-        this.addFooterToEmbed(message, replyMsg);
+        this.addFooterToEmbed(source, replyMsg);
 
-        message.channel.send({ embeds: [replyMsg] }).then((msg: Message) => {
-            this.deleteMsgTimeout(msg, props);
-        });
+        const channel = source.channel;
+        if (channel) {
+            channel.send({ embeds: [replyMsg] }).then((msg: Message) => {
+                this.deleteMsgTimeout(msg);
+            });
+        }
     }
 
     /**
      * Deletes a message after a given time.
      *
      * @param {Message} message the Discord message to delete
-     * @param {GuildProperties} props the properties of the guild which the message was sent
      */
-    deleteMsgTimeout(message: Message, props: GuildProperties): void {
-        if (
-            message &&
-            !message.deleted &&
-            message.deletable &&
-            message.channel.type !== "DM"
-        )
+    deleteMsgTimeout(message: Message): void {
+        if (message && message.deletable && message.channel.type !== "DM")
             setTimeout(
                 () =>
-                    message.delete().catch((error: any) => {
+                    message.delete().catch((error: unknown) => {
                         this.loggingComponent.error(error);
                     }),
-                props.messageDisplayTime
+                this.properties.messageDisplayTime
             );
     }
 
@@ -61,13 +58,8 @@ export default class MessageComponent {
      * @param {Message} message the Discord message to delete
      */
     deleteMsgNow(message: Message): void {
-        if (
-            message &&
-            !message.deleted &&
-            message.deletable &&
-            message.channel.type !== "DM"
-        )
-            message.delete().catch((error: any) => {
+        if (message && message.deletable && message.channel.type !== "DM")
+            message.delete().catch((error: unknown) => {
                 this.loggingComponent.error(error);
             });
     }
@@ -76,32 +68,32 @@ export default class MessageComponent {
      * Replies to the user that no arguments was provided, but
      * it was necessary, with the proper command usage.
      *
-     * @param {Message} message the Discord message which has the command
+     * @param {CommandCallSource} source the Discord message which has the command
      * @param {Command} command the used Command
-     * @param {GuildProperties} props the properties of the guild which the message was sent
      */
     replyDidntProvideCommandArgs(
-        message: Message,
-        command: Command,
-        props: GuildProperties
+        source: CommandCallSource,
+        command: Command
     ): void {
         const embedMessage = this.buildBaseEmbed();
-        this.addFooterToEmbed(message, embedMessage);
+        this.addFooterToEmbed(source, embedMessage);
 
         embedMessage.setTitle("You didn't provide any arguments!");
 
         if (command.usage) {
             embedMessage.addField(
                 "The proper usage would be:",
-                `\`\`\`${props.prefix}${command.name} ${command.usage}\`\`\``,
+                `\`\`\`${this.properties.prefix}${command.name} ${command.usage}\`\`\``,
                 true
             );
         }
 
-        message.channel
-            .send({ embeds: [embedMessage] })
-            .then((msg: Message) => this.deleteMsgTimeout(msg, props));
-        this.deleteMsgNow(message);
+        const channel = source.channel;
+        if (channel) {
+            source.channel
+                .send({ embeds: [embedMessage] })
+                .then((msg: Message) => this.deleteMsgTimeout(msg));
+        }
     }
 
     /**
@@ -116,19 +108,22 @@ export default class MessageComponent {
     /**
      * Adds a simple footer to the embed message
      *
-     * @param {Message} message the message to be edited
+     * @param {CommandCallSource} source the caller of the command
      * @param {MessageEmbed} embedMessage the edited embed message
      */
-    addFooterToEmbed(message: Message, embedMessage: MessageEmbed): void {
-        if (message.channel.type !== "DM" && message.member)
+    addFooterToEmbed(
+        source: CommandCallSource,
+        embedMessage: MessageEmbed
+    ): void {
+        if (source.channel?.type !== "DM" && source.member)
             embedMessage.setFooter({
-                text: `${message.member?.displayName}`,
-                iconURL: message.author.displayAvatarURL(),
+                text: `${source.member?.displayName}`,
+                iconURL: source.user.displayAvatarURL(),
             });
         else
             embedMessage.setFooter({
-                text: `${message.author.username}`,
-                iconURL: message.author.displayAvatarURL(),
+                text: `${source.user.username}`,
+                iconURL: source.user.displayAvatarURL(),
             });
     }
 }

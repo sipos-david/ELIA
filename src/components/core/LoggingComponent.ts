@@ -16,7 +16,7 @@ export default class LoggingComponent {
      *
      * @param {*} error the error
      */
-    error(error: any): void {
+    error(error: unknown): void {
         console.error(error);
     }
 }

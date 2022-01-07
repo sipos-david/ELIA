@@ -1,8 +1,7 @@
-import Discord from "discord.js";
+import Discord, { Interaction } from "discord.js";
 import Elia from "./Elia";
 import ActivityDisplayComponent from "./components/core/ActivityDisplayComponent";
 import LoggingComponent from "./components/core/LoggingComponent";
-import MessageComponent from "./components/core/MessageComponent";
 import { getMusicCommands } from "./components/music/MusicComponent";
 import DeleteMessagesCommand from "./commands/text/DeleteMessagesCommand";
 import HelpCommand from "./commands/text/HelpCommand";
@@ -16,6 +15,7 @@ import QueueSongCommand from "./commands/voice/music/QueueSongCommand";
 import { getSoundEffectCommands } from "./commands/voice/SoundEffectCommand";
 
 const TOKEN = process.env["DISCORD_TOKEN"];
+const CLIENT_ID = process.env["CLIENT_ID"];
 const bot = new Discord.Client({
     intents: [
         Discord.Intents.FLAGS.DIRECT_MESSAGES,
@@ -34,14 +34,12 @@ const youtubeService = new YoutubeService();
 // create components
 const loggingComponent = new LoggingComponent();
 const activityDisplayComponent = new ActivityDisplayComponent(bot);
-const messageComponent = new MessageComponent(loggingComponent);
 
 // create ELIA
 const elia = new Elia(
     bot,
     loggingComponent,
     activityDisplayComponent,
-    messageComponent,
     youtubeService
 );
 
@@ -70,6 +68,7 @@ elia.addCommands(
 loggingComponent.log("Music commands added to Elia.");
 
 elia.getAvailableCommands();
+if (TOKEN && CLIENT_ID) elia.refreshSlashCommands(TOKEN, CLIENT_ID);
 
 // on start
 bot.on("ready", () => {
@@ -77,8 +76,13 @@ bot.on("ready", () => {
 });
 
 // setup message handling
-bot.on("messageCreate", (message: Discord.Message) => {
+bot.on("messageCreate", async (message: Discord.Message) => {
     elia.onMessage(message);
+});
+
+// Handles slash command interactions
+bot.on("interactionCreate", async (interaction: Interaction) => {
+    elia.onInteraction(interaction);
 });
 
 // bot login

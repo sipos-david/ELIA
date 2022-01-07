@@ -1,5 +1,5 @@
-import { Message } from "discord.js";
 import EliaInstance from "../../../EliaInstance";
+import CommandCallSource from "../../../model/CommandCallSource";
 import Command from "../../Command";
 import { CommandTypeEnum } from "../../CommandTypeEnum";
 
@@ -9,15 +9,19 @@ export default class RemoveSongFromQueueCommand extends Command {
     usage =
         " *required:* <number in the queue> *or range in queue:* <from>-<to>";
     type = CommandTypeEnum.MUSIC;
-    execute(message: Message, args: string[], elia: EliaInstance): void {
+    execute(
+        source: CommandCallSource,
+        args: string[],
+        elia: EliaInstance
+    ): void {
         if (
             elia.properties.modes.isRadio ||
-            (elia.musicComponent?.messageSenderInVoiceChannel(message) &&
-                elia.musicComponent.messageSenderHasRightPermissions(message))
+            (elia.musicComponent?.messageSenderInVoiceChannel(source) &&
+                elia.musicComponent.messageSenderHasRightPermissions(source))
         ) {
             const arg = args[0];
             if (arg) {
-                elia.musicComponent?.removeFromQueue(arg, message);
+                elia.musicComponent?.removeFromQueue(source, arg);
             }
         }
     }

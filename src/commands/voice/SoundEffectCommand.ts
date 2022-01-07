@@ -1,10 +1,10 @@
 import { createAudioResource } from "@discordjs/voice";
-import { Message } from "discord.js";
 import Command from "../Command";
 import { CommandTypeEnum } from "../CommandTypeEnum";
 import fs from "fs";
 import LoggingComponent from "../../components/core/LoggingComponent";
 import EliaInstance from "../../EliaInstance";
+import CommandCallSource from "../../model/CommandCallSource";
 
 /**
  * Command for playing sound effects
@@ -22,16 +22,16 @@ export default class SoundEffectCommand extends Command {
     type = CommandTypeEnum.SOUNDEFFECT;
 
     async execute(
-        message: Message,
+        source: CommandCallSource,
         _args: string[],
         elia: EliaInstance
     ): Promise<void> {
-        if (elia.musicComponent?.messageSenderInVoiceChannel(message)) {
+        if (elia.musicComponent?.messageSenderInVoiceChannel(source)) {
             // Only try to join the sender's voice channel if they are in one themselves
-            if (message.member && message.member.voice.channel) {
+            if (source.member && source.member.voice.channel) {
                 const voiceChannel = await elia.musicComponent?.getVoiceChannel(
-                    message.member?.voice?.channel,
-                    message
+                    source.member?.voice?.channel,
+                    source
                 );
                 if (voiceChannel) {
                     const resource = createAudioResource(
@@ -43,9 +43,7 @@ export default class SoundEffectCommand extends Command {
                         voiceChannel,
                         () => {
                             elia.loggingComponent.log(
-                                message.author.username +
-                                    " played: " +
-                                    this.name
+                                source.user.username + " played: " + this.name
                             );
                         }
                     );

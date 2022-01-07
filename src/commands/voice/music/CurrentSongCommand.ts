@@ -1,5 +1,5 @@
-import { Message } from "discord.js";
 import EliaInstance from "../../../EliaInstance";
+import CommandCallSource from "../../../model/CommandCallSource";
 import Command from "../../Command";
 import { CommandTypeEnum } from "../../CommandTypeEnum";
 
@@ -8,12 +8,16 @@ export default class CurrentSongCommand extends Command {
     description = "Get the current song";
     usage = " ";
     type = CommandTypeEnum.MUSIC;
-    execute(message: Message, _args: string[], elia: EliaInstance): void {
+    execute(
+        source: CommandCallSource,
+        _args: string[],
+        elia: EliaInstance
+    ): void {
         if (
             elia.properties.modes.isRadio ||
-            (elia.musicComponent?.messageSenderInVoiceChannel(message) &&
-                elia.musicComponent.messageSenderHasRightPermissions(message))
+            (elia.musicComponent?.messageSenderInVoiceChannel(source) &&
+                elia.musicComponent.messageSenderHasRightPermissions(source))
         )
-            elia.musicComponent?.getCurrentSong(message);
+            elia.musicComponent?.getCurrentSong(source);
     }
 }

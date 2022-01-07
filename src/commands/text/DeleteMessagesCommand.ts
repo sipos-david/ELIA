@@ -1,5 +1,5 @@
-import { Message } from "discord.js";
 import EliaInstance from "../../EliaInstance";
+import CommandCallSource from "../../model/CommandCallSource";
 import Command from "../Command";
 import { CommandTypeEnum } from "../CommandTypeEnum";
 
@@ -10,20 +10,22 @@ export default class DeleteMessagesCommand extends Command {
     type = CommandTypeEnum.UTILITY;
     shouldDelete = false;
 
-    execute(message: Message, args: string[], elia: EliaInstance): void {
-        if (message.channel.type === "DM")
+    execute(
+        source: CommandCallSource,
+        args: string[],
+        elia: EliaInstance
+    ): void {
+        if (source.channel?.type === "DM")
             return elia.messageComponent.reply(
-                message,
-                "You can't use this command in DMs",
-                elia.properties
+                source,
+                "You can't use this command in DMs"
             );
 
-        if (message.member) {
-            if (!message.member.permissions.has("MANAGE_MESSAGES")) {
+        if (source.member) {
+            if (!source.member.permissions.has("MANAGE_MESSAGES")) {
                 return elia.messageComponent.reply(
-                    message,
-                    "You don't have the permissions for deleting messages!",
-                    elia.properties
+                    source,
+                    "You don't have the permissions for deleting messages!"
                 );
             }
         }
@@ -34,27 +36,22 @@ export default class DeleteMessagesCommand extends Command {
 
             if (!deleteCount || deleteCount < 1 || deleteCount > 99)
                 return elia.messageComponent.reply(
-                    message,
-                    "Please provide a number between 1 and 99 for the number of messages to delete",
-                    elia.properties
+                    source,
+                    "Please provide a number between 1 and 99 for the number of messages to delete"
                 );
 
             // Delete messages
-            message.channel
-                .bulkDelete(deleteCount + 1, true)
-                .catch((error: any) => {
+            source.channel
+                ?.bulkDelete(deleteCount + 1, true)
+                .catch((error: unknown) => {
                     elia.loggingComponent.error(error);
                     elia.messageComponent.reply(
-                        message,
-                        "there was an error trying to delete messages in this channel!",
-                        elia.properties
+                        source,
+                        "there was an error trying to delete messages in this channel!"
                     );
                 });
             elia.loggingComponent.log(
-                message.author.username +
-                    " deleted " +
-                    deleteCount +
-                    " messages"
+                source.user.username + " deleted " + deleteCount + " messages"
             );
         }
     }

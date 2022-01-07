@@ -1,5 +1,5 @@
-import { Message } from "discord.js";
 import EliaInstance from "../../../EliaInstance";
+import CommandCallSource from "../../../model/CommandCallSource";
 import Command from "../../Command";
 import { CommandTypeEnum } from "../../CommandTypeEnum";
 
@@ -8,12 +8,16 @@ export default class SkipSongCommand extends Command {
     description = "Skip a song";
     usage = "";
     type = CommandTypeEnum.MUSIC;
-    execute(message: Message, _args_: string[], elia: EliaInstance): void {
+    execute(
+        source: CommandCallSource,
+        _args_: string[],
+        elia: EliaInstance
+    ): void {
         if (
             elia.properties.modes.isDev ||
-            (elia.musicComponent?.messageSenderInVoiceChannel(message) &&
-                elia.musicComponent.messageSenderHasRightPermissions(message))
+            (elia.musicComponent?.messageSenderInVoiceChannel(source) &&
+                elia.musicComponent.messageSenderHasRightPermissions(source))
         )
-            elia.musicComponent?.skipSong(message);
+            elia.musicComponent?.skipSong(source);
     }
 }

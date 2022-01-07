@@ -1,5 +1,5 @@
-import { Message } from "discord.js";
 import EliaInstance from "../../EliaInstance";
+import CommandCallSource from "../../model/CommandCallSource";
 import Command from "../Command";
 import { CommandTypeEnum } from "../CommandTypeEnum";
 
@@ -8,7 +8,11 @@ export default class PingCommand extends Command {
     description = "Pings the bot";
     usage = " ";
     type = CommandTypeEnum.OTHER;
-    execute(message: Message, _args: string[], elia: EliaInstance): void {
-        elia.messageComponent.reply(message, "Pong!", elia.properties);
+    execute(
+        source: CommandCallSource,
+        _args: string[],
+        elia: EliaInstance
+    ): void {
+        elia.messageComponent.reply(source, "Pong!");
     }
 }

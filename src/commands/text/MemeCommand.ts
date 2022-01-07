@@ -1,5 +1,6 @@
-import { Message, TextChannel } from "discord.js";
+import { TextChannel } from "discord.js";
 import EliaInstance from "../../EliaInstance";
+import CommandCallSource from "../../model/CommandCallSource";
 import Command from "../Command";
 import { CommandTypeEnum } from "../CommandTypeEnum";
 
@@ -11,20 +12,20 @@ export default class MemeCommand extends Command {
     type = CommandTypeEnum.OTHER;
     shouldDelete = false;
     async execute(
-        message: Message,
+        source: CommandCallSource,
         args: string[],
         elia: EliaInstance
     ): Promise<void> {
-        if (message.guild !== null) {
+        if (source.guild !== null) {
             const channelID = elia.properties.channels.memeId;
             if (channelID) {
-                const channel = await message.client.channels.fetch(channelID);
+                const channel = await source.client?.channels.fetch(channelID);
                 if (channel && channel instanceof TextChannel) {
                     const messageText = args.join(" ");
-                    channel.send(`${message.author.toString()} ` + messageText);
-                    message.delete();
+                    channel.send(`${source.user.toString()} ` + messageText);
+
                     elia.loggingComponent.log(
-                        message.author.username + " sent memes"
+                        source.user.username + " sent memes"
                     );
                 }
             }

@@ -316,7 +316,7 @@ export default class AudioComponent {
                 }
             );
 
-            this.audioPlayer.on("error", (error: { resource: any }) => {
+            this.audioPlayer.on("error", (error: { resource: unknown }) => {
                 this.loggingComponent.error(error);
                 onFinish();
             });

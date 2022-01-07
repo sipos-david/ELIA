@@ -1,5 +1,5 @@
-import { Message } from "discord.js";
 import EliaInstance from "../EliaInstance";
+import CommandCallSource from "../model/CommandCallSource";
 import { CommandTypeEnum } from "./CommandTypeEnum";
 
 export default abstract class Command {
@@ -56,12 +56,12 @@ export default abstract class Command {
     /**
      * Execute the command
      *
-     * @param {Message} message the Discord message object
+     * @param {CommandCallSource} source the source of the command call
      * @param {string[]} args the arguments for the commands
      * @param {EliaInstance} elia the EliaInstance object
      */
     abstract execute(
-        message: Message,
+        source: CommandCallSource,
         args: string[],
         eliaInstance: EliaInstance
     ): void;

@@ -2,6 +2,7 @@ import Command from "../Command";
 import Discord, { EmojiIdentifierResolvable, Message } from "discord.js";
 import { CommandTypeEnum } from "../CommandTypeEnum";
 import EliaInstance from "../../EliaInstance";
+import CommandCallSource from "../../model/CommandCallSource";
 
 export default class PollCommand extends Command {
     name = "poll";
@@ -10,12 +11,15 @@ export default class PollCommand extends Command {
     hasArguments = true;
     type = CommandTypeEnum.OTHER;
     emojis = ["0️⃣", "1️⃣", "2️⃣", "3️⃣", "4️⃣", "5️⃣", "6️⃣", "7️⃣", "8️⃣", "9️⃣", "🔟"];
-    execute(message: Message, args: string[], elia: EliaInstance): void {
+    execute(
+        source: CommandCallSource,
+        args: string[],
+        elia: EliaInstance
+    ): void {
         if (!args.length)
             return elia.messageComponent.reply(
-                message,
-                "You need to send the arguments!",
-                elia.properties
+                source,
+                "You need to send the arguments!"
             );
 
         const command = args.join(" ");
@@ -29,45 +33,49 @@ export default class PollCommand extends Command {
         });
 
         if (pollArgs.length > 10)
-            return elia.messageComponent.reply(
-                message,
-                "Too many arguments!",
-                elia.properties
-            );
+            return elia.messageComponent.reply(source, "Too many arguments!");
 
         let pollMessage = new Discord.MessageEmbed().setColor(0x61b15a);
 
-        if (message.member) {
+        if (source.member) {
             pollMessage = pollMessage.setDescription(
-                "Submitted by " + message.member.displayName
+                "Submitted by " + source.member.displayName
             );
         }
-        if (message.author) {
-            const avatar = message.author.avatarURL();
-            if (avatar != null) {
-                pollMessage = pollMessage.setThumbnail(avatar);
-            }
-        }
-        if (message.guild) {
-            pollMessage = pollMessage.setFooter(message.guild.name);
+
+        const avatar = source.user.avatarURL();
+        if (avatar != null) {
+            pollMessage = pollMessage.setThumbnail(avatar);
         }
 
-        if (pollArgs.length == 1 && pollArgs[0] !== undefined) {
-            pollMessage.setTitle(pollArgs[0]);
-            message.channel
-                .send({ embeds: [pollMessage] })
-                .then((messageReaction: Message) => {
-                    messageReaction.react("👍");
-                    messageReaction.react("👎");
-                });
+        if (source.guild) {
+            pollMessage = pollMessage.setFooter({ text: source.guild.name });
+        }
+
+        if (pollArgs.length == 1) {
+            this.createYesOrNoPoll(pollMessage, pollArgs, source);
         } else {
-            let options = "";
-            for (let i = 0; i < pollArgs.length; i++) {
-                options += "\n\n" + this.emojis[i + 1] + " " + pollArgs[i];
-            }
-            pollMessage.setTitle("Choose one!");
-            pollMessage.addField("Available options:", options, false);
-            message.channel
+            this.createOptionsPoll(pollArgs, pollMessage, source);
+        }
+
+        elia.loggingComponent.log(source.user.username + " created a poll");
+    }
+
+    private createOptionsPoll(
+        pollArgs: string[],
+        pollMessage: Discord.MessageEmbed,
+        source: CommandCallSource
+    ) {
+        let options = "";
+        for (let i = 0; i < pollArgs.length; i++) {
+            options += "\n\n" + this.emojis[i + 1] + " " + pollArgs[i];
+        }
+        pollMessage.setTitle("Choose one!");
+        pollMessage.addField("Available options:", options, false);
+
+        const channel = source.channel;
+        if (channel) {
+            channel
                 .send({ embeds: [pollMessage] })
                 .then((messageReaction: Message) => {
                     for (let i = 0; i < pollArgs.length; i++) {
@@ -77,7 +85,24 @@ export default class PollCommand extends Command {
                     }
                 });
         }
+    }
 
-        elia.loggingComponent.log(message.author.username + " created a poll");
+    private createYesOrNoPoll(
+        pollMessage: Discord.MessageEmbed,
+        pollArgs: string[],
+        source: CommandCallSource
+    ) {
+        if (pollArgs[0] !== undefined) {
+            pollMessage.setTitle(pollArgs[0]);
+            const channel = source.channel;
+            if (channel) {
+                channel
+                    .send({ embeds: [pollMessage] })
+                    .then((messageReaction: Message) => {
+                        messageReaction.react("👍");
+                        messageReaction.react("👎");
+                    });
+            }
+        }
     }
 }

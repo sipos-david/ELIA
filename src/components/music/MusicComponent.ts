@@ -1,5 +1,5 @@
 import MusicQueue from "./MusicQueue";
-import { Client, Message, StageChannel, VoiceChannel } from "discord.js";
+import { Client, StageChannel, VoiceChannel } from "discord.js";
 import MusicData from "../../model/MusicData";
 import MessageComponent from "../core/MessageComponent";
 import YoutubeService from "../../services/YoutubeService";
@@ -22,6 +22,7 @@ import ReplaySongCommand from "../../commands/voice/music/ReplaySongCommand";
 import ResumeSongCommand from "../../commands/voice/music/ResumeSongCommand";
 import ShuffleQueueCommand from "../../commands/voice/music/ShuffleQueueCommand";
 import SkipSongCommand from "../../commands/voice/music/SkipSongCommand";
+import CommandCallSource from "../../model/CommandCallSource";
 
 /**
  * Component for ELIA handles the music commands
@@ -42,27 +43,27 @@ export default class MusicComponent {
     /**
      * Check's if the user who sent the massage has permissions to connect and speak in the channel he/she currently in.
      *
-     * @param {Message} message the message which the user sent with valid music command
+     * @param {CommandCallSource} source the message which the user sent with valid music command
      * @returns {boolean} true if the user has the right permissions, else false
      */
-    messageSenderHasRightPermissions(message: Message): boolean {
+    messageSenderHasRightPermissions(source: CommandCallSource): boolean {
+        const sender = source.member;
         if (
-            message.member &&
-            message.member.voice &&
-            message.member.voice.channel &&
-            message.client.user
+            sender &&
+            sender.voice &&
+            sender.voice.channel &&
+            sender.client.user
         ) {
-            const permissions = message.member.voice.channel.permissionsFor(
-                message.client.user
+            const permissions = sender.voice.channel.permissionsFor(
+                sender.client.user
             );
             if (
                 permissions &&
                 (!permissions.has("CONNECT") || !permissions.has("SPEAK"))
             ) {
                 this.messageComponent.reply(
-                    message,
-                    "You don't have the correct permissions",
-                    this.guildProperties
+                    source,
+                    "You don't have the correct permissions"
                 );
                 return false;
             } else return true;
@@ -72,22 +73,21 @@ export default class MusicComponent {
     /**
      * Check's if the sender of the message is in a voice channel.
      *
-     * @param {Message} message the message which the user sent with valid music command
+     * @param {CommandCallSource} source the message which the user sent with valid music command
      * @returns {boolean} true if the user is a voice channel
      */
-    messageSenderInVoiceChannel(message: Message): boolean {
+    messageSenderInVoiceChannel(source: CommandCallSource): boolean {
         if (
-            message.member &&
-            message.member.voice &&
-            message.member.voice.channel
+            source.member &&
+            source.member.voice &&
+            source.member.voice.channel
         ) {
             return true;
         } else {
             if (this.messageComponent) {
                 this.messageComponent.reply(
-                    message,
-                    "You need to be in a channel to execute this command!",
-                    this.guildProperties
+                    source,
+                    "You need to be in a channel to execute this command!"
                 );
             }
             return false;
@@ -97,19 +97,18 @@ export default class MusicComponent {
     /**
      * Get's the current song, and sends it to the user
      *
-     * @param {Message} message the Discord message which requested to get the current song
+     * @param {CommandCallSource} source the Discord message which requested to get the current song
      */
-    getCurrentSong(message: Message): void {
+    getCurrentSong(source: CommandCallSource): void {
         const current = this.musicQueue.getCurrentSong();
         if (current) {
             this.messageComponent.reply(
-                message,
+                source,
                 "Current song: ***" +
                     current.title +
                     "*** at ***" +
                     current.url +
-                    "***",
-                this.guildProperties
+                    "***"
             );
         }
     }
@@ -117,9 +116,9 @@ export default class MusicComponent {
     /**
      * Get's the current music queue, and sends it to the user
      *
-     * @param {Message} message the Discord message which requested to get the queue
+     * @param {CommandCallSource} source the Discord message which requested to get the queue
      */
-    getQueuedMusic(message: Message): void {
+    getQueuedMusic(source: CommandCallSource): void {
         // TODO current queue in nice format
         const current = this.musicQueue.getCurrentSong();
         const queue = this.musicQueue.getQueuedMusic();
@@ -133,31 +132,22 @@ export default class MusicComponent {
                 reply += song.title + " at " + song.url + "\n";
             }
         }
-        message
-            .reply(reply)
-            .then((msg: Message) =>
-                this.messageComponent.deleteMsgTimeout(
-                    msg,
-                    this.guildProperties
-                )
-            );
-        this.messageComponent.deleteMsgNow(message);
+        this.messageComponent.reply(source, reply);
     }
 
     /**
      * Stop's playing music
      *
-     * @param {?Message} message the message that requested to stop the music
+     * @param {?CommandCallSource} source the message that requested to stop the music
      */
-    stopMusic(message: Message | undefined = undefined): void {
+    stopMusic(source: CommandCallSource | undefined = undefined): void {
         this.audioComponent.stop();
         this.musicQueue.stop();
         this.activityDisplayComponent.setDefault();
-        if (message) {
+        if (source) {
             this.messageComponent.reply(
-                message,
-                "Bye Bye :smiling_face_with_tear:",
-                this.guildProperties
+                source,
+                "Bye Bye :smiling_face_with_tear:"
             );
         }
     }
@@ -165,27 +155,25 @@ export default class MusicComponent {
     /**
      * Start's or stop's looping the current queue in the queue
      *
-     * @param {Message} message the Discord message which requested to loop the queue
+     * @param {CommandCallSource} source the Discord message which requested to loop the queue
      */
-    loopMusicQueue(message: Message): void {
+    loopMusicQueue(source: CommandCallSource): void {
         const isQueueLooping = this.musicQueue.toogleQueueLooping();
         if (isQueueLooping) {
             this.messageComponent.reply(
-                message,
-                "You started looping the queue!",
-                this.guildProperties
+                source,
+                "You started looping the queue!"
             );
             this.loggingComponent.log(
-                message.author.username + " started looping the queue"
+                source.user.username + " started looping the queue"
             );
         } else {
             this.messageComponent.reply(
-                message,
-                "You stopped looping the queue!",
-                this.guildProperties
+                source,
+                "You stopped looping the queue!"
             );
             this.loggingComponent.log(
-                message.author.username + " stopped looping the queue"
+                source.user.username + " stopped looping the queue"
             );
         }
     }
@@ -193,27 +181,25 @@ export default class MusicComponent {
     /**
      * Start's or stop's looping the current song in the queue
      *
-     * @param {Message} message the Discord message which requested to loop the current song
+     * @param {CommandCallSource} source the Discord message which requested to loop the current song
      */
-    loopCurrentSong(message: Message): void {
+    loopCurrentSong(source: CommandCallSource): void {
         const isSongLooping = this.musicQueue.toogleSongLooping();
         if (isSongLooping) {
             this.messageComponent.reply(
-                message,
-                "You started looping the current song!",
-                this.guildProperties
+                source,
+                "You started looping the current song!"
             );
             this.loggingComponent.log(
-                message.author.username + " started looping the current song"
+                source.user.username + " started looping the current song"
             );
         } else {
             this.messageComponent.reply(
-                message,
-                "You stopped looping the current song!",
-                this.guildProperties
+                source,
+                "You stopped looping the current song!"
             );
             this.loggingComponent.log(
-                message.author.username + " stopped looping the current song"
+                source.user.username + " stopped looping the current song"
             );
         }
     }
@@ -222,32 +208,20 @@ export default class MusicComponent {
      * Get the voice channel from message, if config not available, falls back to function parameter
      *
      * @param {VoiceChannel} voiceChannel the voice channel the user is in
-     * @param {Message} message the message that has the music command
+     * @param {CommandCallSource} source the message that has the music command
      * @returns {?VoiceChannel} the new music voice channel
      */
     async getVoiceChannel(
         voiceChannel: VoiceChannel | StageChannel,
-        message: Message
+        source: CommandCallSource
     ): Promise<VoiceChannel | undefined> {
         if (voiceChannel instanceof StageChannel) {
             return undefined;
         } else {
-            if (this.guildProperties.modes.isRadio && message.guild) {
+            if (this.guildProperties.modes.isRadio && source.guild) {
                 const radioChannel = this.guildProperties.channels.radioId;
                 if (radioChannel) {
-                    const radioVoiceChannel =
-                        this.bot.channels.cache.get(radioChannel);
-                    if (radioVoiceChannel) {
-                        if (radioVoiceChannel instanceof VoiceChannel) {
-                            return radioVoiceChannel;
-                        }
-                    } else {
-                        this.messageComponent.reply(
-                            message,
-                            "Radio channel not available for current server!",
-                            this.guildProperties
-                        );
-                    }
+                    return this.getRadioChannel(source, radioChannel);
                 }
                 return voiceChannel;
             } else {
@@ -256,50 +230,67 @@ export default class MusicComponent {
         }
     }
 
+    private getRadioChannel(
+        source: CommandCallSource,
+        radioChannel: string
+    ): VoiceChannel | undefined {
+        const radioVoiceChannel = this.bot.channels.cache.get(radioChannel);
+        if (radioVoiceChannel) {
+            if (radioVoiceChannel instanceof VoiceChannel) {
+                return radioVoiceChannel;
+            } else {
+                return undefined;
+            }
+        } else {
+            this.messageComponent.reply(
+                source,
+                "Radio channel not available for current server!"
+            );
+            return undefined;
+        }
+    }
+
     /**
      * Queues a music from YouTube
      *
-     * @param {Message} message the Discord message containing the URL
+     * @param {CommandCallSource} source the Discord message containing the URL
      * @param {VoiceChannel} voiceChannel the message sender's voice channel
      * @param {MusicData} music the music to be played
      */
     queueMusic(
-        message: Message,
+        source: CommandCallSource,
         voiceChannel: VoiceChannel,
         music: MusicData
     ): void {
         if (music.title) {
             this.messageComponent.reply(
-                message,
+                source,
                 ":musical_note: Queued: ***" +
                     music.title +
                     "*** at ***" +
                     music.url +
-                    "***",
-                this.guildProperties
+                    "***"
             );
         } else {
             this.messageComponent.reply(
-                message,
-                ":musical_note: Queued: ***" + music.url + "***",
-                this.guildProperties
+                source,
+                ":musical_note: Queued: ***" + music.url + "***"
             );
         }
         if (!this.musicQueue.isPlayingMusic) {
-            this.startPlayingMusic(message, voiceChannel, music);
+            this.startPlayingMusic(source, voiceChannel, music);
         } else {
             this.musicQueue.add([music]);
-            this.messageComponent.deleteMsgNow(message);
         }
     }
 
     /**
      * Removes music from the queue
      *
+     * @param {CommandCallSource} source the Discord message which requested to remove the music from the queue
      * @param {string} number the index or range in the queue
-     * @param {Message} message the Discord message which requested to remove the music from the queue
      */
-    removeFromQueue(number: string, message: Message): void {
+    removeFromQueue(source: CommandCallSource, number: string): void {
         let removedSongs: MusicData[] = [];
         if (number.indexOf("-") === -1) {
             const removed = this.musicQueue.remove(parseInt(number) - 1);
@@ -332,44 +323,28 @@ export default class MusicComponent {
             reply += song.title + " at " + song.url + "\n";
         }
         this.loggingComponent.log(
-            message.author.username +
-                " removed " +
-                removedSongs.length +
-                " songs"
+            source.user.username + " removed " + removedSongs.length + " songs"
         );
-        message
-            .reply(reply)
-            .then((msg: Message) =>
-                this.messageComponent.deleteMsgTimeout(
-                    msg,
-                    this.guildProperties
-                )
-            );
-        this.messageComponent.deleteMsgNow(message);
+        this.messageComponent.reply(source, reply);
     }
 
     /**
      * Replays the current song
      *
-     * @param {Message} message the Discord message which requested the replay
+     * @param {CommandCallSource} source the Discord message which requested the replay
      */
-    replayMusic(message: Message): void {
+    replayMusic(source: CommandCallSource): void {
         const lastSong = this.musicQueue.replay();
         if (lastSong) {
-            this.messageComponent.reply(
-                message,
-                "You replayed a song!",
-                this.guildProperties
-            );
+            this.messageComponent.reply(source, "You replayed a song!");
             this.loggingComponent.log(
-                message.author.username + " replayed a song"
+                source.user.username + " replayed a song"
             );
             this.audioComponent.playSong(lastSong);
         } else {
             this.messageComponent.reply(
-                message,
-                "It seems there are no song to replay.",
-                this.guildProperties
+                source,
+                "It seems there are no song to replay."
             );
         }
     }
@@ -377,33 +352,30 @@ export default class MusicComponent {
     /**
      * Resumes playing music
      *
-     * @param {Message} message the Discord message which requested the resume
+     * @param {CommandCallSource} source the Discord message which requested the resume
      */
-    resumeMusic(message: Message): void {
+    resumeMusic(source: CommandCallSource): void {
         if (this.musicQueue.isPlayingMusic) {
             this.musicQueue.isPaused = false;
             if (!this.musicQueue.isPaused) {
                 this.messageComponent.reply(
-                    message,
-                    "You resumed playing the music.",
-                    this.guildProperties
+                    source,
+                    "You resumed playing the music."
                 );
                 this.loggingComponent.log(
-                    message.author.username + " resumed playing the music"
+                    source.user.username + " resumed playing the music"
                 );
                 this.audioComponent.resumeMusic();
             } else {
                 this.messageComponent.reply(
-                    message,
-                    "You can't resume the music right now.",
-                    this.guildProperties
+                    source,
+                    "You can't resume the music right now."
                 );
             }
         } else {
             this.messageComponent.reply(
-                message,
-                "Not playing a song currently!",
-                this.guildProperties
+                source,
+                "Not playing a song currently!"
             );
         }
     }
@@ -411,33 +383,27 @@ export default class MusicComponent {
     /**
      * Pauses the music
      *
-     * @param {Message} message the Discord message which requested the pause
+     * @param {CommandCallSource} source the Discord message which requested the pause
      */
-    pauseMusic(message: Message): void {
+    pauseMusic(source: CommandCallSource): void {
         if (this.musicQueue.isPlayingMusic) {
             this.musicQueue.isPaused = true;
             if (this.musicQueue.isPaused) {
-                this.messageComponent.reply(
-                    message,
-                    "You paused the music.",
-                    this.guildProperties
-                );
+                this.messageComponent.reply(source, "You paused the music.");
                 this.loggingComponent.log(
-                    message.author.username + " paused the music"
+                    source.user.username + " paused the music"
                 );
                 this.audioComponent.pauseMusic();
             } else {
                 this.messageComponent.reply(
-                    message,
-                    "You can't pause the music right now.",
-                    this.guildProperties
+                    source,
+                    "You can't pause the music right now."
                 );
             }
         } else {
             this.messageComponent.reply(
-                message,
-                "Not playing a song currently!",
-                this.guildProperties
+                source,
+                "Not playing a song currently!"
             );
         }
     }
@@ -445,25 +411,20 @@ export default class MusicComponent {
     /**
      * Shuffle's the queue
      *
-     * @param {Message} message the Discord message which requested to shuffle the queue
+     * @param {CommandCallSource} source the Discord message which requested to shuffle the queue
      */
-    shuffleMusic(message: Message): void {
+    shuffleMusic(source: CommandCallSource): void {
         if (this.musicQueue.isPlayingMusic) {
             if (this.musicQueue.shuffle()) {
-                this.messageComponent.reply(
-                    message,
-                    "You shuffled the music.",
-                    this.guildProperties
-                );
+                this.messageComponent.reply(source, "You shuffled the music.");
                 this.loggingComponent.log(
-                    message.author.username + " shuffled the music"
+                    source.user.username + " shuffled the music"
                 );
             }
         } else {
             this.messageComponent.reply(
-                message,
-                "Not playing a song currently!",
-                this.guildProperties
+                source,
+                "Not playing a song currently!"
             );
         }
     }
@@ -471,24 +432,17 @@ export default class MusicComponent {
     /**
      * Skip's a song
      *
-     * @param {Message} message the Discord message which requested to skip a song
+     * @param {CommandCallSource} source the Discord message which requested to skip a song
      */
-    skipSong(message: Message): void {
+    skipSong(source: CommandCallSource): void {
         if (this.musicQueue.isPlayingMusic) {
-            this.messageComponent.reply(
-                message,
-                "You skipped a song!",
-                this.guildProperties
-            );
-            this.loggingComponent.log(
-                message.author.username + " skipped a song"
-            );
+            this.messageComponent.reply(source, "You skipped a song!");
+            this.loggingComponent.log(source.user.username + " skipped a song");
             this.audioComponent.skip();
         } else {
             this.messageComponent.reply(
-                message,
-                "Not playing a song currently!",
-                this.guildProperties
+                source,
+                "Not playing a song currently!"
             );
         }
     }
@@ -496,12 +450,12 @@ export default class MusicComponent {
     /**
      * Imports and plays a YouTube playlist
      *
-     * @param {Message} message the Discord message which requested to play a playlist
+     * @param {CommandCallSource} source the Discord message which requested to play a playlist
      * @param {VoiceChannel} voiceChannel the Discord channel where to play the music
      * @param {string} id the YouTube id of the playlist
      */
     async playYouTubePlaylist(
-        message: Message,
+        source: CommandCallSource,
         voiceChannel: VoiceChannel,
         id: string
     ): Promise<void> {
@@ -510,32 +464,31 @@ export default class MusicComponent {
         const current = this.musicQueue.getNext();
         if (current) {
             this.messageComponent.reply(
-                message,
-                "You started playing a YouTube Playlist!",
-                this.guildProperties
+                source,
+                "You started playing a YouTube Playlist!"
             );
 
             this.loggingComponent.log(
-                message.author.username + " imported a YouTube playlist"
+                source.user.username + " imported a YouTube playlist"
             );
-            this.startPlayingMusic(message, voiceChannel, current);
+            this.startPlayingMusic(source, voiceChannel, current);
         }
     }
 
     /**
      * Play's music. If currently playing music, overrides it, if not, starts playing music.
      *
-     * @param {Message} message the Discord message containing the URL
+     * @param {CommandCallSource} source the Discord message containing the URL
      * @param {VoiceChannel} voiceChannel the message sender's voice channel
      * @param {MusicData} music the music to be played
      */
     startPlayingMusic(
-        message: Message,
+        source: CommandCallSource,
         voiceChannel: VoiceChannel,
         music: MusicData
     ): void {
         this.musicQueue.play(music);
-        this.play(message, voiceChannel, music);
+        this.play(source, voiceChannel, music);
         this.activityDisplayComponent.setMusicPlaying();
     }
 
@@ -548,7 +501,6 @@ export default class MusicComponent {
             if (currentSong) {
                 this.audioComponent.playSong(currentSong);
             } else {
-
                 this.stopMusic();
             }
         } else {
@@ -559,38 +511,36 @@ export default class MusicComponent {
     /**
      * Starts playing a song
      *
-     * @param {?Message} message a Discord message
+     * @param {?CommandCallSource} source a Discord message
      * @param {VoiceChannel} channel a Discord channel
      * @param {MusicData} song the song to be played
      */
     async play(
-        message: Message | undefined,
+        source: CommandCallSource | undefined,
         channel: VoiceChannel,
         song: MusicData
     ): Promise<void> {
         this.audioComponent.playSong(song, channel, () => {
             this.continuePlayingMusic();
         });
-        if (message) {
+        if (source) {
             if (song.title) {
                 this.messageComponent.reply(
-                    message,
+                    source,
                     ":musical_note: Now Playing ***" +
                         song.title +
                         "*** at ***" +
                         song.url +
-                        "***",
-                    this.guildProperties
+                        "***"
                 );
             } else {
                 this.messageComponent.reply(
-                    message,
-                    ":musical_note: Now Playing ***" + song.url + "***",
-                    this.guildProperties
+                    source,
+                    ":musical_note: Now Playing ***" + song.url + "***"
                 );
             }
             this.loggingComponent.log(
-                message.author.username + " played: " + song.url
+                source.user.username + " played: " + song.url
             );
         }
     }

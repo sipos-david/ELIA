@@ -9,10 +9,10 @@ export default class EliaInstance {
     constructor(
         // Shared
         public bot: Client,
-        public messageComponent: MessageComponent,
         public loggingComponent: LoggingComponent,
         // Instanced
         public properties: GuildProperties,
+        public messageComponent: MessageComponent,
         public musicComponent: MusicComponent,
         public audioComponent: AudioComponent
     ) {}
