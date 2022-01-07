@@ -17,9 +17,9 @@ export default class SoundEffectCommand extends Command {
     constructor(name: string) {
         super();
         this.name = name;
-        this.description = "plays " + this.name + "soundeffect";
+        this.description = "Plays " + this.name + " soundeffect";
     }
-    usage = " ";
+    usage = "";
     type = CommandTypeEnum.SOUNDEFFECT;
 
     async execute(

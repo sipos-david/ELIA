@@ -15,9 +15,9 @@ export default class PlayCommand extends Command {
     youtubeService: YoutubeService;
 
     name = "play";
-    description = "Joins and plays a video from youtube";
+    description = "Joins and plays a video from YouTube";
     usage =
-        " *required:* <Youtube link> *or search terms:* <term1> <term2> <term3> ...";
+        "*required:* <YouTube link> or search terms: <term1> <term2> <term3> ...";
     type = CommandTypeEnum.MUSIC;
     hasArguments = true;
 
@@ -111,6 +111,14 @@ export default class PlayCommand extends Command {
     > {
         return new SlashCommandBuilder()
             .setName(this.name)
-            .setDescription(this.description);
+            .setDescription(this.description)
+            .addStringOption((option) =>
+                option
+                    .setName("query")
+                    .setDescription(
+                        "<YouTube link> or search terms: <term1> <term2> <term3> ..."
+                    )
+                    .setRequired(true)
+            );
     }
 }

@@ -7,8 +7,8 @@ import { SlashCommandBuilder } from "@discordjs/builders";
 
 export default class HelpCommand extends Command {
     name = "help";
-    description = "List all of my commands or info about a specific command.";
-    usage = "*optional:* [command name]";
+    description = "Lists all of the commands or info about a specific command";
+    usage = "*optional:* <command name>";
     type = CommandTypeEnum.UTILITY;
     guildOnly = false;
 
@@ -169,6 +169,12 @@ export default class HelpCommand extends Command {
     > {
         return new SlashCommandBuilder()
             .setName(this.name)
-            .setDescription(this.description);
+            .setDescription(this.description)
+            .addStringOption((option) =>
+                option
+                    .setName("name")
+                    .setDescription("The name of the command to get details")
+                    .setRequired(false)
+            );
     }
 }

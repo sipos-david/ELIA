@@ -6,7 +6,7 @@ import { SlashCommandBuilder } from "@discordjs/builders";
 
 export default class SkipSongCommand extends Command {
     name = "skip";
-    description = "Skip a song";
+    description = "Skips a song";
     usage = "";
     type = CommandTypeEnum.MUSIC;
     execute(

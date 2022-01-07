@@ -7,8 +7,8 @@ import { SlashCommandBuilder } from "@discordjs/builders";
 
 export default class PinCommand extends Command {
     name = "pin";
-    description = "send messages to the server's pin channel";
-    usage = " <message>";
+    description = "Send messages to the server's pin channel";
+    usage = "<message>";
     hasArguments = true;
     type = CommandTypeEnum.OTHER;
     shouldDelete = false;
@@ -41,6 +41,12 @@ export default class PinCommand extends Command {
     > {
         return new SlashCommandBuilder()
             .setName(this.name)
-            .setDescription(this.description);
+            .setDescription(this.description)
+            .addStringOption((option) =>
+                option
+                    .setName("message")
+                    .setDescription("<message>")
+                    .setRequired(true)
+            );
     }
 }

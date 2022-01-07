@@ -7,7 +7,7 @@ import { SlashCommandBuilder } from "@discordjs/builders";
 export default class PingCommand extends Command {
     name = "ping";
     description = "Pings the bot";
-    usage = " ";
+    usage = "";
     type = CommandTypeEnum.OTHER;
     execute(
         source: CommandCallSource,

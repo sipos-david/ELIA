@@ -8,7 +8,7 @@ export default class RemoveSongFromQueueCommand extends Command {
     name = "rmsong";
     description = "Remove's a song or a range of songs from the music queue";
     usage =
-        " *required:* <number in the queue> *or range in queue:* <from>-<to>";
+        "*required:* <number in the queue> *or range in queue:* <from>-<to>";
     type = CommandTypeEnum.MUSIC;
     execute(
         source: CommandCallSource,
@@ -34,6 +34,14 @@ export default class RemoveSongFromQueueCommand extends Command {
     > {
         return new SlashCommandBuilder()
             .setName(this.name)
-            .setDescription(this.description);
+            .setDescription(this.description)
+            .addStringOption((option) =>
+                option
+                    .setName("interval")
+                    .setDescription(
+                        "<number in the queue> *or range in queue:* <from>-<to>"
+                    )
+                    .setRequired(true)
+            );
     }
 }

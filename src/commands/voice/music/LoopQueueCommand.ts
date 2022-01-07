@@ -6,7 +6,7 @@ import { SlashCommandBuilder } from "@discordjs/builders";
 
 export default class LoopQueueCommand extends Command {
     name = "loopqueue";
-    description = "Start's or stops the queue from looping";
+    description = "Starts or stops the queue from looping";
     usage = "";
     type = CommandTypeEnum.MUSIC;
     execute(

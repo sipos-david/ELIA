@@ -6,8 +6,8 @@ import { SlashCommandBuilder } from "@discordjs/builders";
 
 export default class DeleteMessagesCommand extends Command {
     name = "delete";
-    description = "deletes messages";
-    usage = " *required:* <number of messages before this command>";
+    description = "Deletes messages";
+    usage = "*required:* <number of messages before this command>";
     type = CommandTypeEnum.UTILITY;
     shouldDelete = false;
 
@@ -64,6 +64,12 @@ export default class DeleteMessagesCommand extends Command {
     > {
         return new SlashCommandBuilder()
             .setName(this.name)
-            .setDescription(this.description);
+            .setDescription(this.description)
+            .addIntegerOption((option) =>
+                option
+                    .setName("number")
+                    .setDescription("Number of messages before this command")
+                    .setRequired(true)
+            );
     }
 }

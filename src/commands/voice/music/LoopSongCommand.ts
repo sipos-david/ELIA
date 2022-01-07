@@ -6,7 +6,7 @@ import { SlashCommandBuilder } from "@discordjs/builders";
 
 export default class LoopSongCommand extends Command {
     name = "loopsong";
-    description = "Start's or stops the current song from looping";
+    description = "Starts or stops the current song from looping";
     usage = "";
     type = CommandTypeEnum.MUSIC;
     execute(

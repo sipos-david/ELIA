@@ -7,9 +7,9 @@ import { SlashCommandBuilder } from "@discordjs/builders";
 
 export default class MemeCommand extends Command {
     name = "meme";
-    description = "send memes to the server's specific meme channel";
+    description = "Send memes to the server's specific meme channel";
     hasArguments = true;
-    usage = " <link>";
+    usage = "<link>";
     type = CommandTypeEnum.OTHER;
     shouldDelete = false;
     async execute(
@@ -40,6 +40,12 @@ export default class MemeCommand extends Command {
     > {
         return new SlashCommandBuilder()
             .setName(this.name)
-            .setDescription(this.description);
+            .setDescription(this.description)
+            .addStringOption((option) =>
+                option
+                    .setName("link")
+                    .setDescription("<link>")
+                    .setRequired(true)
+            );
     }
 }

@@ -6,7 +6,7 @@ import { SlashCommandBuilder } from "@discordjs/builders";
 
 export default class ShuffleQueueCommand extends Command {
     name = "shuffle";
-    description = "Shuffles the music queue in a random way";
+    description = "Shuffles the music queue in a random order";
     usage = "";
     type = CommandTypeEnum.MUSIC;
     execute(

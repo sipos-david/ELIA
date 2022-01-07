@@ -7,8 +7,8 @@ import { SlashCommandBuilder } from "@discordjs/builders";
 
 export default class PollCommand extends Command {
     name = "poll";
-    description = "Creates a poll, up to 10 choices";
-    usage = "  'option1' 'option2' 'option3' ... 'option10' ";
+    description = "Creates a poll, from 2, up to 10 choices";
+    usage = "*required:* <option1> <option2> <option3> ... '<option10>";
     hasArguments = true;
     type = CommandTypeEnum.OTHER;
     emojis = ["0️⃣", "1️⃣", "2️⃣", "3️⃣", "4️⃣", "5️⃣", "6️⃣", "7️⃣", "8️⃣", "9️⃣", "🔟"];
@@ -114,6 +114,14 @@ export default class PollCommand extends Command {
     > {
         return new SlashCommandBuilder()
             .setName(this.name)
-            .setDescription(this.description);
+            .setDescription(this.description)
+            .addStringOption((option) =>
+                option
+                    .setName("options")
+                    .setDescription(
+                        "<option1> <option2> <option3> ... <option10>"
+                    )
+                    .setRequired(true)
+            );
     }
 }

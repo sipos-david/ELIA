@@ -16,9 +16,9 @@ export default class QueueSongCommand extends Command {
 
     name = "queue";
     description =
-        "Queue a video from youtube, if no music plays starts playing it.";
+        "Queue a video from YouTube, if no music plays starts playing it.";
     usage =
-        " *required:* <Youtube link> *or search terms:* <term1> <term2> <term3> ...";
+        "*required:* <YouTube link> or search terms: <term1> <term2> <term3> ...";
     hasArguments = true;
     type = CommandTypeEnum.MUSIC;
     async execute(
@@ -107,6 +107,14 @@ export default class QueueSongCommand extends Command {
     > {
         return new SlashCommandBuilder()
             .setName(this.name)
-            .setDescription(this.description);
+            .setDescription(this.description)
+            .addStringOption((option) =>
+                option
+                    .setName("query")
+                    .setDescription(
+                        "<YouTube link> or search terms: <term1> <term2> <term3> ..."
+                    )
+                    .setRequired(true)
+            );
     }
 }
