@@ -21,6 +21,7 @@ import CommandCallSource, {
     InteractionCallSource,
     MessageCallSource,
 } from "./model/CommandCallSource";
+import { SlashCommandBuilder } from "@discordjs/builders";
 
 /**
  *  Main class for the Discord bot
@@ -210,20 +211,30 @@ export default class Elia {
                 "Started refreshing application (/) commands."
             );
 
-            const slashCommands: { name: string; description: string }[] = [];
+            const slashCommands: Omit<
+                SlashCommandBuilder,
+                "addSubcommand" | "addSubcommandGroup"
+            >[] = [];
 
             this.commands.forEach((command) =>
-                slashCommands.push({
-                    name: command.name,
-                    description: command.description,
-                })
+                slashCommands.push(command.createSlashCommandData())
             );
 
             config.guilds.forEach(async (guild) => {
-                await rest.put(
-                    Routes.applicationGuildCommands(clientId, guild.id),
-                    { body: slashCommands }
-                );
+                try {
+                    await rest.put(
+                        Routes.applicationGuildCommands(clientId, guild.id),
+                        { body: slashCommands }
+                    );
+                    this.loggingComponent.log(
+                        "\t(/) commands added to: " + guild.id
+                    );
+                } catch (error) {
+                    this.loggingComponent.error(
+                        "\tFailed adding (/) commands added to: " + guild.id
+                    );
+                    this.loggingComponent.error(error);
+                }
             });
 
             this.loggingComponent.log(

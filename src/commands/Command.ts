@@ -1,7 +1,7 @@
 import EliaInstance from "../EliaInstance";
 import CommandCallSource from "../model/CommandCallSource";
 import { CommandTypeEnum } from "./CommandTypeEnum";
-
+import { SlashCommandBuilder } from "@discordjs/builders";
 export default abstract class Command {
     /**
      * The name of the command, this comes after the prefix
@@ -65,4 +65,9 @@ export default abstract class Command {
         args: string[],
         eliaInstance: EliaInstance
     ): void;
+
+    abstract createSlashCommandData(): Omit<
+        SlashCommandBuilder,
+        "addSubcommand" | "addSubcommandGroup"
+    >;
 }

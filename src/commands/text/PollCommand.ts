@@ -3,6 +3,7 @@ import Discord, { EmojiIdentifierResolvable, Message } from "discord.js";
 import { CommandTypeEnum } from "../CommandTypeEnum";
 import EliaInstance from "../../EliaInstance";
 import CommandCallSource from "../../model/CommandCallSource";
+import { SlashCommandBuilder } from "@discordjs/builders";
 
 export default class PollCommand extends Command {
     name = "poll";
@@ -104,5 +105,15 @@ export default class PollCommand extends Command {
                     });
             }
         }
+    }
+
+    createSlashCommandData(): Omit<
+        SlashCommandBuilder,
+        "addSubcommand" | "addSubcommandGroup"
+        // eslint-disable-next-line indent
+    > {
+        return new SlashCommandBuilder()
+            .setName(this.name)
+            .setDescription(this.description);
     }
 }

@@ -5,6 +5,7 @@ import fs from "fs";
 import LoggingComponent from "../../components/core/LoggingComponent";
 import EliaInstance from "../../EliaInstance";
 import CommandCallSource from "../../model/CommandCallSource";
+import { SlashCommandBuilder } from "@discordjs/builders";
 
 /**
  * Command for playing sound effects
@@ -50,6 +51,16 @@ export default class SoundEffectCommand extends Command {
                 }
             }
         }
+    }
+
+    createSlashCommandData(): Omit<
+        SlashCommandBuilder,
+        "addSubcommand" | "addSubcommandGroup"
+        // eslint-disable-next-line indent
+    > {
+        return new SlashCommandBuilder()
+            .setName(this.name)
+            .setDescription(this.description);
     }
 }
 

@@ -5,6 +5,7 @@ import isValidURL from "../../../lib/UrlChecker.js";
 import YoutubeService from "../../../services/YoutubeService";
 import EliaInstance from "../../../EliaInstance";
 import CommandCallSource from "../../../model/CommandCallSource";
+import { SlashCommandBuilder } from "@discordjs/builders";
 
 export default class QueueSongCommand extends Command {
     constructor(youtubeService: YoutubeService) {
@@ -97,5 +98,15 @@ export default class QueueSongCommand extends Command {
         } else {
             elia.messageComponent.reply(source, "No video results found.");
         }
+    }
+
+    createSlashCommandData(): Omit<
+        SlashCommandBuilder,
+        "addSubcommand" | "addSubcommandGroup"
+        // eslint-disable-next-line indent
+    > {
+        return new SlashCommandBuilder()
+            .setName(this.name)
+            .setDescription(this.description);
     }
 }
