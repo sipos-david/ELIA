@@ -204,6 +204,22 @@ export default class Elia {
         commands.forEach((cmd) => this._commands.set(cmd.name, cmd));
     }
 
+    private getSlashCommands(): Omit<
+        SlashCommandBuilder,
+        "addSubcommand" | "addSubcommandGroup"
+    >[] {
+        const slashCommands: Omit<
+            SlashCommandBuilder,
+            "addSubcommand" | "addSubcommandGroup"
+        >[] = [];
+
+        this.commands.forEach((command) =>
+            slashCommands.push(command.createSlashCommandData())
+        );
+
+        return slashCommands;
+    }
+
     public async refreshSlashCommands(token: string, clientId: string) {
         const rest = new REST({ version: "9" }).setToken(token);
         try {
@@ -211,14 +227,7 @@ export default class Elia {
                 "Started refreshing application (/) commands."
             );
 
-            const slashCommands: Omit<
-                SlashCommandBuilder,
-                "addSubcommand" | "addSubcommandGroup"
-            >[] = [];
-
-            this.commands.forEach((command) =>
-                slashCommands.push(command.createSlashCommandData())
-            );
+            const slashCommands = this.getSlashCommands();
 
             config.guilds.forEach(async (guild) => {
                 try {
@@ -243,28 +252,6 @@ export default class Elia {
         } catch (error) {
             this.loggingComponent.error(error);
         }
-    }
-
-    public async deleteSlashCommands(token: string, clientId: string) {
-        const rest = new REST({ version: "9" }).setToken(token);
-        config.guilds.forEach(async (guild) => {
-            rest.get(Routes.applicationGuildCommands(clientId, guild.id)).then(
-                (data: any) => {
-                    const promises = [];
-                    for (const command of data) {
-                        promises.push(
-                            rest.delete(
-                                `${Routes.applicationGuildCommands(
-                                    clientId,
-                                    guild.id
-                                )}/${command.id}`
-                            )
-                        );
-                    }
-                    return Promise.all(promises);
-                }
-            );
-        });
     }
 
     private generateInstances(): void {

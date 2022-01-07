@@ -16,6 +16,7 @@ import { getSoundEffectCommands } from "./commands/voice/SoundEffectCommand";
 
 const TOKEN = process.env["DISCORD_TOKEN"];
 const CLIENT_ID = process.env["CLIENT_ID"];
+
 const bot = new Discord.Client({
     intents: [
         Discord.Intents.FLAGS.DIRECT_MESSAGES,
@@ -68,7 +69,9 @@ elia.addCommands(
 loggingComponent.log("Music commands added to Elia.");
 
 elia.getAvailableCommands();
-if (TOKEN && CLIENT_ID) elia.refreshSlashCommands(TOKEN, CLIENT_ID);
+if (TOKEN && CLIENT_ID) {
+    elia.refreshSlashCommands(TOKEN, CLIENT_ID);
+}
 
 // on start
 bot.on("ready", () => {
