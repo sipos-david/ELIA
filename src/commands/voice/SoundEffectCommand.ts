@@ -38,7 +38,7 @@ export default class SoundEffectCommand extends Command {
                     const resource = createAudioResource(
                         `./src/res/soundeffects/${this.name}.mp3`
                     );
-
+                    elia.messageComponent.reply(source, "Played: " + this.name);
                     elia.audioComponent.playSoundEffect(
                         resource,
                         voiceChannel,
