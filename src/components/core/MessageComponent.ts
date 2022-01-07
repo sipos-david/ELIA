@@ -30,8 +30,10 @@ export default class MessageComponent {
 
         const channel = source.channel;
         if (channel) {
-            channel.send({ embeds: [replyMsg] }).then((msg: Message) => {
-                this.deleteMsgTimeout(msg);
+            source.reply({ embeds: [replyMsg] }).then((msg: Message | void) => {
+                if (msg instanceof Message) {
+                    this.deleteMsgTimeout(msg);
+                }
             });
         }
     }

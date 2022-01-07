@@ -5,6 +5,8 @@ import {
     Guild,
     GuildMember,
     Message,
+    MessagePayload,
+    ReplyMessageOptions,
     TextBasedChannel,
     User,
 } from "discord.js";
@@ -20,6 +22,10 @@ interface CommandCallSource {
     get guild(): Guild | null;
 
     get client(): Client | null;
+
+    reply(
+        options: string | MessagePayload | ReplyMessageOptions
+    ): Promise<void | Message>;
 
     deleteWith(messageComponent: MessageComponent): void;
 }
@@ -57,6 +63,12 @@ class InteractionCallSource implements CommandCallSource {
         /* intentionally empty */
         return;
     }
+
+    reply(
+        options: string | MessagePayload | ReplyMessageOptions
+    ): Promise<void | Message> {
+        return this.interaction.reply(options);
+    }
 }
 
 class MessageCallSource implements CommandCallSource {
@@ -84,6 +96,12 @@ class MessageCallSource implements CommandCallSource {
 
     deleteWith(messageComponent: MessageComponent): void {
         messageComponent.deleteMsgNow(this.message);
+    }
+
+    reply(
+        options: string | MessagePayload | ReplyMessageOptions
+    ): Promise<void | Message> {
+        return this.message.channel.send(options);
     }
 }
 
