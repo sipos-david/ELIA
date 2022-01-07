@@ -5,6 +5,7 @@ import {
     CacheType,
     Client,
     CommandInteraction,
+    Guild,
     Interaction,
     Message,
 } from "discord.js";
@@ -220,8 +221,12 @@ export default class Elia {
         return slashCommands;
     }
 
+    private getRest(token: string): REST {
+        return new REST({ version: "9" }).setToken(token);
+    }
+
     public async refreshSlashCommands(token: string, clientId: string) {
-        const rest = new REST({ version: "9" }).setToken(token);
+        const rest = this.getRest(token);
         try {
             this.loggingComponent.log(
                 "Started refreshing application (/) commands."
@@ -230,28 +235,58 @@ export default class Elia {
             const slashCommands = this.getSlashCommands();
 
             config.guilds.forEach(async (guild) => {
-                try {
-                    await rest.put(
-                        Routes.applicationGuildCommands(clientId, guild.id),
-                        { body: slashCommands }
-                    );
-                    this.loggingComponent.log(
-                        "\t(/) commands added to: " + guild.id
-                    );
-                } catch (error) {
-                    this.loggingComponent.error(
-                        "\tFailed adding (/) commands added to: " + guild.id
-                    );
-                    this.loggingComponent.error(error);
-                }
+                this.addSlashCommandsToGuild(
+                    token,
+                    clientId,
+                    guild,
+                    rest,
+                    slashCommands
+                );
             });
-
-            this.loggingComponent.log(
-                "Successfully reloaded application (/) commands."
-            );
         } catch (error) {
             this.loggingComponent.error(error);
         }
+    }
+
+    private async addSlashCommandsToGuild(
+        token: string,
+        clientId: string,
+        guild: {
+            id: string;
+        },
+        rest: REST | undefined = undefined,
+        slashCommands:
+            | Omit<
+                  SlashCommandBuilder,
+                  "addSubcommand" | "addSubcommandGroup"
+              >[]
+            | undefined = undefined
+    ) {
+        if (!rest) {
+            rest = this.getRest(token);
+        }
+        if (!slashCommands) {
+            slashCommands = this.getSlashCommands();
+        }
+        try {
+            await rest.put(
+                Routes.applicationGuildCommands(clientId, guild.id),
+                { body: slashCommands }
+            );
+            this.loggingComponent.log("(/) commands added to: " + guild.id);
+        } catch (error) {
+            this.loggingComponent.error(
+                "Failed adding (/) commands added to: " + guild.id
+            );
+            this.loggingComponent.error(error);
+        }
+    }
+
+    onJoinGuild(token: string, clientId: string, guild: Guild): void {
+        const guilds = config.guilds as unknown[];
+        guilds.push({ id: guild.id });
+        this.loggingComponent.log("Joined guild: " + guild.id);
+        this.addSlashCommandsToGuild(token, clientId, guild);
     }
 
     private generateInstances(): void {

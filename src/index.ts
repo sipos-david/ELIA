@@ -1,4 +1,4 @@
-import Discord, { Interaction } from "discord.js";
+import Discord, { Guild, Interaction } from "discord.js";
 import Elia from "./Elia";
 import ActivityDisplayComponent from "./components/core/ActivityDisplayComponent";
 import LoggingComponent from "./components/core/LoggingComponent";
@@ -86,6 +86,11 @@ if (TOKEN && CLIENT_ID) {
     bot.on("interactionCreate", async (interaction: Interaction) => {
         elia.onInteraction(interaction);
     });
+
+    // Handle new guild join
+    bot.on("guildCreate", async (guild: Guild) =>
+        elia.onJoinGuild(TOKEN, CLIENT_ID, guild)
+    );
 
     // bot login
     bot.login(TOKEN);
