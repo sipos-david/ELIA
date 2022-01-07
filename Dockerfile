@@ -1,8 +1,7 @@
 FROM node:16
 
-LABEL version="2.2.0"
-LABEL name="ELIA"
-
+LABEL version="3.0.0"
+LABEL name="elia"
 
 # Create app directory
 WORKDIR /usr/src/app
@@ -21,4 +20,4 @@ COPY . .
 
 RUN npm run build
 
-CMD node -r dotenv/config build/index.js dotenv_config_path=.env
+CMD [ "node", "build/index.js" ]

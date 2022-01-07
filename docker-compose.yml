@@ -1,0 +1,8 @@
+version: "3.9"
+services:
+    elia:
+        build: .
+        image: elia:v3
+        environment:
+            - DISCORD_TOKEN=<Your token here>
+            - CLIENT_ID=<Your client id here>

@@ -19,21 +19,24 @@ Depending on what you want, at this point you can run it yourself, with Node.js(
 ### Locally
 Fill the [.env](.env) file with:
   ```properties
-  DISCORD_TOKEN=<Your token here>
+    DISCORD_TOKEN=<Your token here>
+    CLIENT_ID=<Your client id here> 
   ```
 If you want to run it: 
   ```Shell
-   npm run start
+    npm run start
   ```
 
 ### Docker
 In the project directory run:
   ```Shell
-   docker build .
+    docker build -t elia .
   ```
 Then you can run the image with:
   ```Shell
-   docker run <Image name here>
+    docker run elia -e  /
+      DISCORD_TOKEN=<Your token here> /
+      CLIENT_ID=<Your client id here> 
   ```
 
 ## How to contribute
