@@ -116,7 +116,7 @@ export default class HelpCommand extends Command {
                 elia.loggingComponent.error(error);
                 elia.messageComponent.reply(
                     source,
-                    "it seems like I can't DM you! Do you have DMs disabled?"
+                    "It seems like I can't DM you! Do you have DMs disabled?"
                 );
             });
     }
@@ -152,14 +152,9 @@ export default class HelpCommand extends Command {
             }
         );
 
-        const channel = source.channel;
-        if (channel) {
-            channel
-                .send({ embeds: [embedMessage] })
-                .then((msg: Message) =>
-                    elia.messageComponent.deleteMsgTimeout(msg)
-                );
-        }
+        source
+            .reply({ embeds: [embedMessage] })
+            .then(() => source.deleteWith(elia.messageComponent));
     }
 
     createSlashCommandData(): Omit<
