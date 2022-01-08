@@ -114,6 +114,9 @@ export default class AudioComponent {
             await this.joinChannel(channel, onFinish);
         }
         if (this.voiceConnection != null && this.audioPlayer != null) {
+            if (channel && this.voiceChannel?.id !== channel?.id) {
+                this.switchChannel(channel);
+            }
             const stream = await this.youtubeService.getStreamFromUrl(song.url);
             const audio = createAudioResource(stream.stream, {
                 inputType: stream.type,
@@ -121,6 +124,53 @@ export default class AudioComponent {
             audio.volume?.setVolume(this.guildProperties.musicVolume);
             this.audioPlayer.play(audio);
         }
+    }
+
+    switchChannel(channel: VoiceChannel) {
+        this.voiceConnection?.disconnect();
+        this.audioPlayer?.pause();
+
+        this.voiceConnection = joinVoiceChannel({
+            channelId: channel.id,
+            guildId: channel.guild.id,
+            adapterCreator: channel.guild
+                .voiceAdapterCreator as DiscordGatewayAdapterCreator,
+        });
+
+        if (this.voiceConnection) {
+            this.voiceChannel = channel;
+
+            this.setupVoiceConnection();
+
+            if (this.audioPlayer) {
+                this.voiceConnection.subscribe(this.audioPlayer);
+                this.audioPlayer.unpause();
+            }
+        }
+    }
+
+    private setupVoiceConnection(): void {
+        this.voiceConnection?.on(
+            "stateChange",
+            async (_: VoiceConnectionState, newState: VoiceConnectionState) => {
+                if (newState.status === VoiceConnectionStatus.Disconnected) {
+                    await this.handleDisconnect(newState);
+                } else if (
+                    newState.status === VoiceConnectionStatus.Destroyed
+                ) {
+                    /**
+                     * Once destroyed, stop the subscription.
+                     */
+                    this.stop();
+                } else if (
+                    !this.readyLock &&
+                    (newState.status === VoiceConnectionStatus.Connecting ||
+                        newState.status === VoiceConnectionStatus.Signalling)
+                ) {
+                    await this.handleConnectingOrSignalling();
+                }
+            }
+        );
     }
 
     /**
@@ -152,6 +202,7 @@ export default class AudioComponent {
     stop() {
         if (this.voiceConnection) {
             this.audioPlayer?.stop(true);
+            this.voiceConnection.disconnect();
         }
     }
 
@@ -184,33 +235,7 @@ export default class AudioComponent {
                 },
             });
 
-            this.voiceConnection.on(
-                "stateChange",
-                async (
-                    _: VoiceConnectionState,
-                    newState: VoiceConnectionState
-                ) => {
-                    if (
-                        newState.status === VoiceConnectionStatus.Disconnected
-                    ) {
-                        await this.handleDisconnect(newState);
-                    } else if (
-                        newState.status === VoiceConnectionStatus.Destroyed
-                    ) {
-                        /**
-                         * Once destroyed, stop the subscription.
-                         */
-                        this.stop();
-                    } else if (
-                        !this.readyLock &&
-                        (newState.status === VoiceConnectionStatus.Connecting ||
-                            newState.status ===
-                                VoiceConnectionStatus.Signalling)
-                    ) {
-                        await this.handleConnectingOrSignalling();
-                    }
-                }
-            );
+            this.setupVoiceConnection();
 
             this.configureAudioPlayer(onFinish);
 
