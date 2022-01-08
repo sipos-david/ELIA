@@ -178,19 +178,17 @@ export default class AudioComponent {
      *
      * @param {? AudioResource<null>} resource the sound effect to be played
      * @param {VoiceChannel} channel the channel to play
-     * @param {void} onFinish the callback to call after the song is played
      */
     async playSoundEffect(
         resource: AudioResource<null>,
-        channel: VoiceChannel | undefined = undefined,
-        onFinish: () => void = () => {
-            /* empty */
-        }
+        channel: VoiceChannel | undefined = undefined
     ): Promise<void> {
-        if (this.voiceConnection === null && channel != undefined) {
-            await this.joinChannel(channel, onFinish);
+        if (this.voiceConnection === null && channel !== undefined) {
+            await this.joinChannel(channel, () => {
+                this.stop();
+            });
         }
-        if (this.voiceConnection != null && this.audioPlayer != null) {
+        if (this.voiceConnection !== null && this.audioPlayer !== null) {
             resource.volume?.setVolume(this.guildProperties.musicVolume);
             this.audioPlayer.play(resource);
         }

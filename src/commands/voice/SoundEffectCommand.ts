@@ -39,15 +39,10 @@ export default class SoundEffectCommand extends Command {
                         `./src/res/soundeffects/${this.name}.mp3`
                     );
                     elia.messageComponent.reply(source, "Played: " + this.name);
-                    elia.audioComponent.playSoundEffect(
-                        resource,
-                        voiceChannel,
-                        () => {
-                            elia.loggingComponent.log(
-                                source.user.username + " played: " + this.name
-                            );
-                        }
+                    elia.loggingComponent.log(
+                        source.user.username + " played: " + this.name
                     );
+                    elia.audioComponent.playSoundEffect(resource, voiceChannel);
                 }
             }
         }
