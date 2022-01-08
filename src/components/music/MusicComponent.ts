@@ -48,22 +48,15 @@ export default class MusicComponent {
      */
     messageSenderHasRightPermissions(source: CommandCallSource): boolean {
         const sender = source.member;
-        if (
-            sender &&
-            sender.voice &&
-            sender.voice.channel &&
-            sender.client.user
-        ) {
-            const permissions = sender.voice.channel.permissionsFor(
-                sender.client.user
-            );
+        if (sender && sender.voice && sender.voice.channel) {
+            const permissions = sender.voice.channel.permissionsFor(sender);
             if (
                 permissions &&
                 (!permissions.has("CONNECT") || !permissions.has("SPEAK"))
             ) {
                 this.messageComponent.reply(
                     source,
-                    "You don't have the correct permissions"
+                    "You don't have permissions to connect and speak in that voice channel"
                 );
                 return false;
             } else return true;
