@@ -16,8 +16,8 @@ import EliaInstance from "./EliaInstance";
 import YoutubeService from "./services/YoutubeService";
 import config from "./config.json";
 import GuildProperties, { FlatGuildProperties } from "./model/GuildProperties";
-import MusicComponent from "./components/music/MusicComponent";
-import AudioComponent from "./components/AudioComponent";
+import MusicComponent from "./components/audio/MusicComponent";
+import AudioComponent from "./components/audio/AudioComponent";
 import CommandCallSource, {
     InteractionCallSource,
     MessageCallSource,

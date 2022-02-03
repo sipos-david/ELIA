@@ -2,7 +2,7 @@ import Discord, { Guild, Interaction } from "discord.js";
 import Elia from "./Elia";
 import ActivityDisplayComponent from "./components/core/ActivityDisplayComponent";
 import LoggingComponent from "./components/core/LoggingComponent";
-import { getMusicCommands } from "./components/music/MusicComponent";
+import { getMusicCommands } from "./components/audio/MusicComponent";
 import DeleteMessagesCommand from "./commands/text/DeleteMessagesCommand";
 import HelpCommand from "./commands/text/HelpCommand";
 import MemeCommand from "./commands/text/MemeCommand";

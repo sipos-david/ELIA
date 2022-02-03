@@ -5,7 +5,7 @@ import MessageComponent from "../core/MessageComponent";
 import YoutubeService from "../../services/YoutubeService";
 import ActivityDisplayComponent from "../core/ActivityDisplayComponent";
 import LoggingComponent from "../core/LoggingComponent";
-import AudioComponent from "../AudioComponent";
+import AudioComponent from "./AudioComponent";
 import GuildProperties from "../../model/GuildProperties";
 //song command imports
 import Command from "../../commands/Command";
