@@ -6,5 +6,9 @@
         "musicVolume": "0.4",
         "messageDisplayTime": "10000"
     },
-    "guilds": []
+    "guilds": [
+        {
+            "id": "GUILD_ID"
+        }
+    ]
 }
