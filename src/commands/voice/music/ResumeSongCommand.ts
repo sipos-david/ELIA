@@ -12,14 +12,13 @@ export default class ResumeSongCommand extends Command {
     execute(
         source: CommandCallSource,
         _args: string[],
-        elia: EliaInstance
+        elia: EliaInstance,
     ): void {
         if (
             elia.properties.modes.isRadio ||
             (elia.musicComponent?.messageSenderInVoiceChannel(source) &&
                 elia.musicComponent.messageSenderHasRightPermissions(source))
-        )
-            elia.musicComponent?.resumeMusic(source);
+        ) {elia.musicComponent?.resumeMusic(source);}
     }
 
     createSlashCommandData(): Omit<

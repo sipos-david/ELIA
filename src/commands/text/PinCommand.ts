@@ -16,7 +16,7 @@ export default class PinCommand extends Command {
     async execute(
         source: CommandCallSource,
         args: string[],
-        elia: EliaInstance
+        elia: EliaInstance,
     ): Promise<void> {
         if (source.guild) {
             const channelID = elia.properties.channels.pinId;
@@ -27,7 +27,7 @@ export default class PinCommand extends Command {
                     channel.send(`${source.user.toString()} ` + messageText);
 
                     elia.loggingComponent.log(
-                        source.user.username + " pinned a message"
+                        source.user.username + " pinned a message",
                     );
                 }
             }
@@ -46,7 +46,7 @@ export default class PinCommand extends Command {
                 option
                     .setName("message")
                     .setDescription("<message>")
-                    .setRequired(true)
+                    .setRequired(true),
             );
     }
 }

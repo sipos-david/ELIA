@@ -41,7 +41,7 @@ if (TOKEN && CLIENT_ID) {
         bot,
         loggingComponent,
         activityDisplayComponent,
-        youtubeService
+        youtubeService,
     );
 
     // Add the base commands
@@ -63,8 +63,8 @@ if (TOKEN && CLIENT_ID) {
     elia.addCommands(
         getMusicCommands(
             new PlayCommand(youtubeService),
-            new QueueSongCommand(youtubeService)
-        )
+            new QueueSongCommand(youtubeService),
+        ),
     );
     loggingComponent.log("Music commands added to Elia.");
 
@@ -89,7 +89,7 @@ if (TOKEN && CLIENT_ID) {
 
     // Handle new guild join
     bot.on("guildCreate", async (guild: Guild) =>
-        elia.onJoinGuild(TOKEN, CLIENT_ID, guild)
+        elia.onJoinGuild(TOKEN, CLIENT_ID, guild),
     );
 
     // bot login

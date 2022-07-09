@@ -40,7 +40,7 @@ export default class AudioComponent {
          *
          * @type {Client}
          */
-        private readonly bot: Client
+        private readonly bot: Client,
     ) { }
 
     /**
@@ -68,7 +68,7 @@ export default class AudioComponent {
         ) {
             this.loggingComponent.log("Elia was left alone...");
             return false;
-        } else return true;
+        } else {return true;}
     }
 
     /**
@@ -83,7 +83,7 @@ export default class AudioComponent {
         channel: VoiceChannel | undefined = undefined,
         onFinish: () => void = () => {
             /* empty */
-        }
+        },
     ): Promise<void> {
         if (channel && this.voiceChannel?.id !== channel?.id) {
             this.audioInstance = new AudioInstance(this.loggingComponent, channel, onFinish);
@@ -107,7 +107,7 @@ export default class AudioComponent {
      */
     async playSoundEffect(
         resource: AudioResource<null>,
-        channel: VoiceChannel
+        channel: VoiceChannel,
     ): Promise<void> {
         if (!this.voiceChannel) {
             this.voiceChannel = channel;

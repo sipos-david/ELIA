@@ -19,7 +19,7 @@ export default class HelpCommand extends Command {
     execute(
         source: CommandCallSource,
         args: string[],
-        elia: EliaInstance
+        elia: EliaInstance,
     ): void {
         elia.loggingComponent.log(source.user.username + " requested help");
 
@@ -32,9 +32,9 @@ export default class HelpCommand extends Command {
                 if (!command) {
                     return elia.messageComponent.reply(
                         source,
-                        "that's not a valid command!"
+                        "that's not a valid command!",
                     );
-                } else this.helpCommandUsage(source, command, elia);
+                } else { this.helpCommandUsage(source, command, elia); }
             }
         }
     }
@@ -73,7 +73,7 @@ export default class HelpCommand extends Command {
                         otherCommandsList.push(command.name);
                         break;
                 }
-            }
+            },
         );
 
         embedMessage.addFields(
@@ -97,7 +97,7 @@ export default class HelpCommand extends Command {
             {
                 name: "Use the command below to get info on a specific command!",
                 value: `\`\`\`${elia.properties.prefix}help [command name]\`\`\``,
-            }
+            },
         );
 
         source.user
@@ -105,18 +105,18 @@ export default class HelpCommand extends Command {
             .then((msg: Message) => {
                 elia.messageComponent.reply(
                     source,
-                    "I've sent you a DM with all my commands!"
+                    "I've sent you a DM with all my commands!",
                 );
                 elia.messageComponent.deleteMsgTimeout(msg);
             })
             .catch((error: unknown) => {
                 elia.loggingComponent.log(
-                    `Could not send help DM to ${source.user.tag}.\n`
+                    `Could not send help DM to ${source.user.tag}.\n`,
                 );
                 elia.loggingComponent.error(error);
                 elia.messageComponent.reply(
                     source,
-                    "It seems like I can't DM you! Do you have DMs disabled?"
+                    "It seems like I can't DM you! Do you have DMs disabled?",
                 );
             });
     }
@@ -131,7 +131,7 @@ export default class HelpCommand extends Command {
     helpCommandUsage(
         source: CommandCallSource,
         command: Command,
-        elia: EliaInstance
+        elia: EliaInstance,
     ): void {
         const embedMessage = elia.messageComponent.buildBaseEmbed();
         elia.messageComponent.addFooterToEmbed(source, embedMessage);
@@ -149,27 +149,23 @@ export default class HelpCommand extends Command {
             {
                 name: "Usage:",
                 value: `\`\`\`${elia.properties.prefix}${command.name} ${command.usage}\`\`\``,
-            }
+            },
         );
 
         source
-            .reply({ embeds: [embedMessage] })
+            .reply(embedMessage)
             .then(() => source.deleteWith(elia.messageComponent));
     }
 
-    createSlashCommandData(): Omit<
-        SlashCommandBuilder,
-        "addSubcommand" | "addSubcommandGroup"
-        // eslint-disable-next-line indent
-    > {
+    createSlashCommandData(): Omit<SlashCommandBuilder, "addSubcommand" | "addSubcommandGroup"> {
         return new SlashCommandBuilder()
             .setName(this.name)
             .setDescription(this.description)
-            .addStringOption((option) =>
+            .addStringOption((option: any) =>
                 option
                     .setName("name")
                     .setDescription("The name of the command to get details")
-                    .setRequired(false)
+                    .setRequired(false),
             );
     }
 }

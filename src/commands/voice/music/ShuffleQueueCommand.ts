@@ -12,14 +12,13 @@ export default class ShuffleQueueCommand extends Command {
     execute(
         source: CommandCallSource,
         _args_: string[],
-        elia: EliaInstance
+        elia: EliaInstance,
     ): void {
         if (
             elia.properties.modes.isRadio ||
             (elia.musicComponent?.messageSenderInVoiceChannel(source) &&
                 elia.musicComponent.messageSenderHasRightPermissions(source))
-        )
-            elia.musicComponent?.shuffleMusic(source);
+        ) {elia.musicComponent?.shuffleMusic(source);}
     }
 
     createSlashCommandData(): Omit<

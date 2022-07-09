@@ -15,13 +15,14 @@ export default class PollCommand extends Command {
     execute(
         source: CommandCallSource,
         args: string[],
-        elia: EliaInstance
+        elia: EliaInstance,
     ): void {
-        if (!args.length)
+        if (!args.length) {
             return elia.messageComponent.reply(
                 source,
-                "You need to send the arguments!"
+                "You need to send the arguments!",
             );
+        }
 
         const command = args.join(" ");
         // eslint-disable-next-line quotes
@@ -33,14 +34,13 @@ export default class PollCommand extends Command {
             pollArgs.push(item.slice(1, -1));
         });
 
-        if (pollArgs.length > 10)
-            return elia.messageComponent.reply(source, "Too many arguments!");
+        if (pollArgs.length > 10) {return elia.messageComponent.reply(source, "Too many arguments!");}
 
         let pollMessage = new Discord.MessageEmbed().setColor(0x61b15a);
 
         if (source.member) {
             pollMessage = pollMessage.setDescription(
-                "Submitted by " + source.member.displayName
+                "Submitted by " + source.member.displayName,
             );
         }
 
@@ -65,7 +65,7 @@ export default class PollCommand extends Command {
     private createOptionsPoll(
         pollArgs: string[],
         pollMessage: Discord.MessageEmbed,
-        source: CommandCallSource
+        source: CommandCallSource,
     ) {
         let options = "";
         for (let i = 0; i < pollArgs.length; i++) {
@@ -81,7 +81,7 @@ export default class PollCommand extends Command {
                 .then((messageReaction: Message) => {
                     for (let i = 0; i < pollArgs.length; i++) {
                         messageReaction.react(
-                            this.emojis[i + 1] as EmojiIdentifierResolvable
+                            this.emojis[i + 1] as EmojiIdentifierResolvable,
                         );
                     }
                 });
@@ -91,7 +91,7 @@ export default class PollCommand extends Command {
     private createYesOrNoPoll(
         pollMessage: Discord.MessageEmbed,
         pollArgs: string[],
-        source: CommandCallSource
+        source: CommandCallSource,
     ) {
         if (pollArgs[0] !== undefined) {
             pollMessage.setTitle(pollArgs[0]);
@@ -119,9 +119,9 @@ export default class PollCommand extends Command {
                 option
                     .setName("options")
                     .setDescription(
-                        "<option1> <option2> <option3> ... <option10>"
+                        "<option1> <option2> <option3> ... <option10>",
                     )
-                    .setRequired(true)
+                    .setRequired(true),
             );
     }
 }

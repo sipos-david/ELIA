@@ -14,6 +14,6 @@ export default class EliaInstance {
         public properties: GuildProperties,
         public messageComponent: MessageComponent,
         public musicComponent: MusicComponent,
-        public audioComponent: AudioComponent
+        public audioComponent: AudioComponent,
     ) {}
 }

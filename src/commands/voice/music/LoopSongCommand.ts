@@ -12,14 +12,13 @@ export default class LoopSongCommand extends Command {
     execute(
         source: CommandCallSource,
         _args: string[],
-        elia: EliaInstance
+        elia: EliaInstance,
     ): void {
         if (
             elia.properties.modes.isRadio ||
             (elia.musicComponent?.messageSenderInVoiceChannel(source) &&
                 elia.musicComponent.messageSenderHasRightPermissions(source))
-        )
-            elia.musicComponent?.loopCurrentSong(source);
+        ) {elia.musicComponent?.loopCurrentSong(source);}
     }
 
     createSlashCommandData(): Omit<

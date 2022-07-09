@@ -15,7 +15,7 @@ export default class YoutubeService {
      * @returns {any} the stream containing the audio
      */
     async getStreamFromUrl(
-        url: string
+        url: string,
     ): Promise<YouTubeStream | SoundCloudStream> {
         return play.stream(url);
     }

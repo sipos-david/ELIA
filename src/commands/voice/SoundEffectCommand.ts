@@ -25,22 +25,22 @@ export default class SoundEffectCommand extends Command {
     async execute(
         source: CommandCallSource,
         _args: string[],
-        elia: EliaInstance
+        elia: EliaInstance,
     ): Promise<void> {
         if (elia.musicComponent?.messageSenderInVoiceChannel(source)) {
             // Only try to join the sender's voice channel if they are in one themselves
             if (source.member && source.member.voice.channel) {
                 const voiceChannel = await elia.musicComponent?.getVoiceChannel(
                     source.member?.voice?.channel,
-                    source
+                    source,
                 );
                 if (voiceChannel) {
                     const resource = createAudioResource(
-                        `./src/res/soundeffects/${this.name}.mp3`
+                        `./src/res/soundeffects/${this.name}.mp3`,
                     );
                     elia.messageComponent.reply(source, "Played: " + this.name);
                     elia.loggingComponent.log(
-                        source.user.username + " played: " + this.name
+                        source.user.username + " played: " + this.name,
                     );
                     elia.audioComponent.playSoundEffect(resource, voiceChannel);
                 }
@@ -67,10 +67,10 @@ export default class SoundEffectCommand extends Command {
  * @returns {Command[]} the list of sound effect commands
  */
 export function getSoundEffectCommands(
-    loggingComponent: LoggingComponent
+    loggingComponent: LoggingComponent,
 ): Command[] {
     const commands: Command[] = [];
-    //import sound effects
+    // import sound effects
     loggingComponent.log("Generating soundeffect commands:");
     const soundEffects = fs
         .readdirSync("./src/res/soundeffects")
@@ -78,7 +78,7 @@ export function getSoundEffectCommands(
 
     for (const soundEffect of soundEffects) {
         const newSoundEffectCommand = new SoundEffectCommand(
-            soundEffect.replace(".mp3", "").toLowerCase()
+            soundEffect.replace(".mp3", "").toLowerCase(),
         );
         commands.push(newSoundEffectCommand);
         loggingComponent.log(soundEffect + " -> " + newSoundEffectCommand.name);

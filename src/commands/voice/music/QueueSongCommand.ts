@@ -24,7 +24,7 @@ export default class QueueSongCommand extends Command {
     async execute(
         source: CommandCallSource,
         args: string[],
-        elia: EliaInstance
+        elia: EliaInstance,
     ): Promise<void> {
         if (
             elia.properties.modes.isRadio ||
@@ -34,7 +34,7 @@ export default class QueueSongCommand extends Command {
             if (source.member && source.member.voice.channel) {
                 const voiceChannel = await elia.musicComponent?.getVoiceChannel(
                     source.member.voice.channel,
-                    source
+                    source,
                 );
                 if (voiceChannel) {
                     const arg = args[0];
@@ -45,7 +45,7 @@ export default class QueueSongCommand extends Command {
                             voiceChannel,
                             source,
                             args.join(" "),
-                            elia
+                            elia,
                         );
                     }
                 }
@@ -65,12 +65,10 @@ export default class QueueSongCommand extends Command {
         voiceChannel: VoiceChannel,
         source: CommandCallSource,
         elia: EliaInstance,
-        url: string
+        url: string,
     ): Promise<void> {
         const id = this.youtubeService.getPlaylistIdFromUrl(url);
-        if (id != null)
-            elia.musicComponent?.playYouTubePlaylist(source, voiceChannel, id);
-        else {
+        if (id != null) {elia.musicComponent?.playYouTubePlaylist(source, voiceChannel, id);} else {
             const video = await this.youtubeService.getMusicFromUrl(url);
             if (video) {
                 elia?.musicComponent?.queueMusic(source, voiceChannel, video);
@@ -90,7 +88,7 @@ export default class QueueSongCommand extends Command {
         voiceChannel: VoiceChannel,
         source: CommandCallSource,
         query: string,
-        elia: EliaInstance
+        elia: EliaInstance,
     ): Promise<void> {
         const video = await this.youtubeService.getMusicFromQuery(query);
         if (video) {
@@ -112,9 +110,9 @@ export default class QueueSongCommand extends Command {
                 option
                     .setName("query")
                     .setDescription(
-                        "<YouTube link> or search terms: <term1> <term2> <term3> ..."
+                        "<YouTube link> or search terms: <term1> <term2> <term3> ...",
                     )
-                    .setRequired(true)
+                    .setRequired(true),
             );
     }
 }

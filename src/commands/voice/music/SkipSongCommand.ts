@@ -12,14 +12,13 @@ export default class SkipSongCommand extends Command {
     execute(
         source: CommandCallSource,
         _args_: string[],
-        elia: EliaInstance
+        elia: EliaInstance,
     ): void {
         if (
             elia.properties.modes.isDev ||
             (elia.musicComponent?.messageSenderInVoiceChannel(source) &&
                 elia.musicComponent.messageSenderHasRightPermissions(source))
-        )
-            elia.musicComponent?.skipSong(source);
+        ) {elia.musicComponent?.skipSong(source);}
     }
 
     createSlashCommandData(): Omit<

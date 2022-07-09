@@ -14,19 +14,20 @@ export default class DeleteMessagesCommand extends Command {
     execute(
         source: CommandCallSource,
         args: string[],
-        elia: EliaInstance
+        elia: EliaInstance,
     ): void {
-        if (source.channel?.type === "DM")
+        if (source.channel?.type === "DM") {
             return elia.messageComponent.reply(
                 source,
-                "You can't use this command in DMs"
+                "You can't use this command in DMs",
             );
+        }
 
         if (source.member) {
             if (!source.member.permissions.has("MANAGE_MESSAGES")) {
                 return elia.messageComponent.reply(
                     source,
-                    "You don't have the permissions for deleting messages!"
+                    "You don't have the permissions for deleting messages!",
                 );
             }
         }
@@ -35,11 +36,12 @@ export default class DeleteMessagesCommand extends Command {
             // get the delete count, as an actual number.
             const deleteCount = parseInt(args[0], 10);
 
-            if (!deleteCount || deleteCount < 1 || deleteCount > 99)
+            if (!deleteCount || deleteCount < 1 || deleteCount > 99) {
                 return elia.messageComponent.reply(
                     source,
-                    "Please provide a number between 1 and 99 for the number of messages to delete"
+                    "Please provide a number between 1 and 99 for the number of messages to delete",
                 );
+            }
 
             // Delete messages
             source.channel
@@ -48,11 +50,11 @@ export default class DeleteMessagesCommand extends Command {
                     elia.loggingComponent.error(error);
                     elia.messageComponent.reply(
                         source,
-                        "there was an error trying to delete messages in this channel!"
+                        "there was an error trying to delete messages in this channel!",
                     );
                 });
             elia.loggingComponent.log(
-                source.user.username + " deleted " + deleteCount + " messages"
+                source.user.username + " deleted " + deleteCount + " messages",
             );
         }
     }
@@ -69,7 +71,7 @@ export default class DeleteMessagesCommand extends Command {
                 option
                     .setName("number")
                     .setDescription("Number of messages before this command")
-                    .setRequired(true)
+                    .setRequired(true),
             );
     }
 }

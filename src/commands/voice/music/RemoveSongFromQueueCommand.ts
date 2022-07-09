@@ -13,7 +13,7 @@ export default class RemoveSongFromQueueCommand extends Command {
     execute(
         source: CommandCallSource,
         args: string[],
-        elia: EliaInstance
+        elia: EliaInstance,
     ): void {
         if (
             elia.properties.modes.isRadio ||
@@ -39,9 +39,9 @@ export default class RemoveSongFromQueueCommand extends Command {
                 option
                     .setName("interval")
                     .setDescription(
-                        "<number in the queue> *or range in queue:* <from>-<to>"
+                        "<number in the queue> *or range in queue:* <from>-<to>",
                     )
-                    .setRequired(true)
+                    .setRequired(true),
             );
     }
 }

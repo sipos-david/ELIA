@@ -15,7 +15,7 @@ export default class MemeCommand extends Command {
     async execute(
         source: CommandCallSource,
         args: string[],
-        elia: EliaInstance
+        elia: EliaInstance,
     ): Promise<void> {
         if (source.guild !== null) {
             const channelID = elia.properties.channels.memeId;
@@ -26,7 +26,7 @@ export default class MemeCommand extends Command {
                     channel.send(`${source.user.toString()} ` + messageText);
 
                     elia.loggingComponent.log(
-                        source.user.username + " sent memes"
+                        source.user.username + " sent memes",
                     );
                 }
             }
@@ -45,7 +45,7 @@ export default class MemeCommand extends Command {
                 option
                     .setName("link")
                     .setDescription("<link>")
-                    .setRequired(true)
+                    .setRequired(true),
             );
     }
 }

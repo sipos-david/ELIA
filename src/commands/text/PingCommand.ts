@@ -12,7 +12,7 @@ export default class PingCommand extends Command {
     execute(
         source: CommandCallSource,
         _args: string[],
-        elia: EliaInstance
+        elia: EliaInstance,
     ): void {
         elia.messageComponent.reply(source, "Pong!");
     }

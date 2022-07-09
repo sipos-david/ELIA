@@ -8,7 +8,7 @@ export default class MusicData {
      */
     constructor(
         public readonly url: string,
-        title: string | undefined = undefined
+        title: string | undefined = undefined,
     ) {
         if (title) {
             this.title = title;

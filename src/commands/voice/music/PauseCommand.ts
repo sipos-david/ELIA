@@ -12,14 +12,13 @@ export default class PauseCommand extends Command {
     execute(
         source: CommandCallSource,
         _args: string[],
-        elia: EliaInstance
+        elia: EliaInstance,
     ): void {
         if (
             elia.properties.modes.isRadio ||
             (elia.musicComponent?.messageSenderInVoiceChannel(source) &&
                 elia.musicComponent.messageSenderHasRightPermissions(source))
-        )
-            elia.musicComponent?.pauseMusic(source);
+        ) {elia.musicComponent?.pauseMusic(source);}
     }
 
     createSlashCommandData(): Omit<

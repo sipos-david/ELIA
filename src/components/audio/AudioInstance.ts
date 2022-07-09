@@ -25,7 +25,7 @@ export default class AudioInstance {
     constructor(
         private readonly loggingComponent: LoggingComponent,
         channel: VoiceChannel,
-        onFinish: () => void
+        onFinish: () => void,
     ) {
         this.voiceConnection = joinVoiceChannel({
             channelId: channel.id,
@@ -64,7 +64,7 @@ export default class AudioInstance {
     private readyLock = false;
 
     private setupVoiceConnection(): void {
-        this.voiceConnection?.on(
+        this.voiceConnection?.on<"stateChange">(
             "stateChange",
             async (_: VoiceConnectionState, newState: VoiceConnectionState) => {
                 if (newState.status === VoiceConnectionStatus.Disconnected) {
@@ -81,13 +81,13 @@ export default class AudioInstance {
                 ) {
                     await this.handleConnectingOrSignalling();
                 }
-            }
+            },
         );
     }
 
     /**
      * Play audio
-     * 
+     *
      * @param {AudioResource} audio the song to play
      */
     play(audio: AudioResource): void {
@@ -141,14 +141,15 @@ export default class AudioInstance {
                 await entersState(
                     this.voiceConnection,
                     VoiceConnectionStatus.Ready,
-                    20000
+                    20000,
                 );
             }
         } catch {
             if (
                 this.voiceConnection?.state.status !== VoiceConnectionStatus.Destroyed
-            )
+            ) {
                 this.voiceConnection?.destroy();
+            }
         } finally {
             this.readyLock = false;
         }
@@ -176,7 +177,7 @@ export default class AudioInstance {
                     await entersState(
                         this.voiceConnection,
                         VoiceConnectionStatus.Connecting,
-                        5000
+                        5000,
                     );
                 }
                 // Probably moved voice channel
@@ -190,7 +191,7 @@ export default class AudioInstance {
              */
             setTimeout(
                 () => this.voiceConnection?.rejoin(),
-                (getRejoinAttempts(this.voiceConnection) + 1) * 5000
+                (getRejoinAttempts(this.voiceConnection) + 1) * 5000,
             );
         } else {
             /**
@@ -208,7 +209,8 @@ export default class AudioInstance {
     private configureAudioPlayer(onFinish: () => void): void {
         if (this.audioPlayer) {
             // Configure audio player
-            this.audioPlayer.on(
+
+            this.audioPlayer.on<"stateChange">(
                 "stateChange",
                 (oldState: AudioPlayerState, newState: AudioPlayerState) => {
                     if (
@@ -223,7 +225,7 @@ export default class AudioInstance {
                         // If the Playing state has been entered, then a new track has started playback.
                         newState.resource as AudioResource<MusicData>;
                     }
-                }
+                },
             );
 
             this.audioPlayer.on("error", (error: { resource: unknown }) => {
@@ -243,5 +245,7 @@ export default class AudioInstance {
 function getRejoinAttempts(voiceConnection: VoiceConnection | null): number {
     if (voiceConnection?.rejoinAttempts !== undefined) {
         return voiceConnection.rejoinAttempts;
-    } else return 0;
+    } else {
+        return 0;
+    }
 }

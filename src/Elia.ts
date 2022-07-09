@@ -40,7 +40,7 @@ export default class Elia {
         private readonly bot: Client,
         private readonly loggingComponent: LoggingComponent,
         private readonly activityDisplayComponent: ActivityDisplayComponent,
-        private readonly youtubeService: YoutubeService
+        private readonly youtubeService: YoutubeService,
     ) {
         // Generate instances
         this.generateInstances();
@@ -90,7 +90,7 @@ export default class Elia {
 
     handleInteraction(
         interaction: CommandInteraction<CacheType>,
-        instanceId: string
+        instanceId: string,
     ): void {
         const instance = this.instances.get(instanceId);
         if (instance !== undefined) {
@@ -106,7 +106,7 @@ export default class Elia {
                 new InteractionCallSource(interaction),
                 interaction.commandName,
                 args,
-                instance
+                instance,
             );
         }
     }
@@ -119,8 +119,7 @@ export default class Elia {
             if (
                 !message.content.startsWith(instance.properties.prefix) ||
                 (message.author.bot && !instance.properties.modes.isDev)
-            )
-                return;
+            ) {return;}
 
             const args = message.content.substring(1).split(/ +/);
             const commandRawString = args.shift();
@@ -131,7 +130,7 @@ export default class Elia {
                     new MessageCallSource(message),
                     commandName,
                     args,
-                    instance
+                    instance,
                 );
             }
         }
@@ -141,22 +140,23 @@ export default class Elia {
         commandSource: CommandCallSource,
         commandName: string,
         args: string[],
-        instance: EliaInstance
+        instance: EliaInstance,
     ) {
         const command = this.commands.get(commandName);
 
         // If the command doesn't exists return
-        if (command === undefined)
+        if (command === undefined) {
             return instance.messageComponent.reply(
                 commandSource,
-                "I can't understand that command!"
+                "I can't understand that command!",
             );
+        }
 
         // Handle text origin(DM or guild)
         if (command.guildOnly && commandSource.channel?.type === "DM") {
             return instance.messageComponent.reply(
                 commandSource,
-                "I can't execute that command inside DMs!"
+                "I can't execute that command inside DMs!",
             );
         }
 
@@ -164,7 +164,7 @@ export default class Elia {
         if (command.hasArguments && !args.length) {
             return instance.messageComponent.replyDidntProvideCommandArgs(
                 commandSource,
-                command
+                command,
             );
         }
 
@@ -180,7 +180,7 @@ export default class Elia {
             this.loggingComponent.error(error);
             instance.messageComponent.reply(
                 commandSource,
-                "There was an error trying to execute that command!"
+                "There was an error trying to execute that command!",
             );
         }
     }
@@ -214,7 +214,7 @@ export default class Elia {
         >[] = [];
 
         this.commands.forEach((command) =>
-            slashCommands.push(command.createSlashCommandData())
+            slashCommands.push(command.createSlashCommandData()),
         );
 
         return slashCommands;
@@ -228,7 +228,7 @@ export default class Elia {
         const rest = this.getRest(token);
         try {
             this.loggingComponent.log(
-                "Started refreshing application (/) commands."
+                "Started refreshing application (/) commands.",
             );
 
             const slashCommands = this.getSlashCommands();
@@ -239,7 +239,7 @@ export default class Elia {
                     clientId,
                     guild,
                     rest,
-                    slashCommands
+                    slashCommands,
                 );
             });
         } catch (error) {
@@ -256,10 +256,10 @@ export default class Elia {
         rest: REST | undefined = undefined,
         slashCommands:
             | Omit<
-                  SlashCommandBuilder,
-                  "addSubcommand" | "addSubcommandGroup"
-              >[]
-            | undefined = undefined
+                SlashCommandBuilder,
+                "addSubcommand" | "addSubcommandGroup"
+            >[]
+            | undefined = undefined,
     ) {
         if (!rest) {
             rest = this.getRest(token);
@@ -270,12 +270,12 @@ export default class Elia {
         try {
             await rest.put(
                 Routes.applicationGuildCommands(clientId, guild.id),
-                { body: slashCommands }
+                { body: slashCommands },
             );
             this.loggingComponent.log("(/) commands added to: " + guild.id);
         } catch (error) {
             this.loggingComponent.error(
-                "Failed adding (/) commands added to: " + guild.id
+                "Failed adding (/) commands added to: " + guild.id,
             );
             this.loggingComponent.error(error);
         }
@@ -299,7 +299,7 @@ export default class Elia {
                 musicControlTextChannelID: undefined,
                 botSpamChannelID: undefined,
                 radioChannelID: undefined,
-            })
+            }),
         );
         this.instances.set(guild.id, instance);
     }
@@ -307,12 +307,12 @@ export default class Elia {
     private generateInstances(): void {
         config.guilds.forEach((guild) => {
             const instance = this.createInstance(
-                this.createGuildProperties(guild as FlatGuildProperties)
+                this.createGuildProperties(guild as FlatGuildProperties),
             );
             this.instances.set(guild.id, instance);
         });
         const defaultInstance = this.createInstance(
-            this.createDefaultProperties()
+            this.createDefaultProperties(),
         );
         this.instances.set(this.DEFAULT_INSTANCE, defaultInstance);
     }
@@ -320,14 +320,14 @@ export default class Elia {
     private createInstance(props: GuildProperties): EliaInstance {
         const messageComponent = new MessageComponent(
             props,
-            this.loggingComponent
+            this.loggingComponent,
         );
 
         const audioComponent = new AudioComponent(
             props,
             this.youtubeService,
             this.loggingComponent,
-            this.bot
+            this.bot,
         );
         const musicComponent = new MusicComponent(
             props,
@@ -336,7 +336,7 @@ export default class Elia {
             this.activityDisplayComponent,
             messageComponent,
             this.loggingComponent,
-            audioComponent
+            audioComponent,
         );
         return new EliaInstance(
             this.bot,
@@ -344,7 +344,7 @@ export default class Elia {
             props,
             messageComponent,
             musicComponent,
-            audioComponent
+            audioComponent,
         );
     }
 

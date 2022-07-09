@@ -7,7 +7,7 @@ import ActivityDisplayComponent from "../core/ActivityDisplayComponent";
 import LoggingComponent from "../core/LoggingComponent";
 import AudioComponent from "./AudioComponent";
 import GuildProperties from "../../model/GuildProperties";
-//song command imports
+// song command imports
 import Command from "../../commands/Command";
 import CurrentSongCommand from "../../commands/voice/music/CurrentSongCommand";
 import GetQueueCommand from "../../commands/voice/music/GetQueueCommand";
@@ -35,8 +35,8 @@ export default class MusicComponent {
         private readonly activityDisplayComponent: ActivityDisplayComponent,
         private readonly messageComponent: MessageComponent,
         private readonly loggingComponent: LoggingComponent,
-        private readonly audioComponent: AudioComponent
-    ) {}
+        private readonly audioComponent: AudioComponent,
+    ) { }
 
     private readonly musicQueue: MusicQueue = new MusicQueue();
 
@@ -56,11 +56,11 @@ export default class MusicComponent {
             ) {
                 this.messageComponent.reply(
                     source,
-                    "You don't have permissions to connect and speak in that voice channel"
+                    "You don't have permissions to connect and speak in that voice channel",
                 );
                 return false;
-            } else return true;
-        } else return false;
+            } else { return true; }
+        } else { return false; }
     }
 
     /**
@@ -80,7 +80,7 @@ export default class MusicComponent {
             if (this.messageComponent) {
                 this.messageComponent.reply(
                     source,
-                    "You need to be in a channel to execute this command!"
+                    "You need to be in a channel to execute this command!",
                 );
             }
             return false;
@@ -98,10 +98,10 @@ export default class MusicComponent {
             this.messageComponent.reply(
                 source,
                 "Current song: ***" +
-                    current.title +
-                    "*** at ***" +
-                    current.url +
-                    "***"
+                current.title +
+                "*** at ***" +
+                current.url +
+                "***",
             );
         }
     }
@@ -140,7 +140,7 @@ export default class MusicComponent {
         if (source) {
             this.messageComponent.reply(
                 source,
-                "Bye Bye :smiling_face_with_tear:"
+                "Bye Bye :smiling_face_with_tear:",
             );
         }
     }
@@ -155,18 +155,18 @@ export default class MusicComponent {
         if (isQueueLooping) {
             this.messageComponent.reply(
                 source,
-                "You started looping the queue!"
+                "You started looping the queue!",
             );
             this.loggingComponent.log(
-                source.user.username + " started looping the queue"
+                source.user.username + " started looping the queue",
             );
         } else {
             this.messageComponent.reply(
                 source,
-                "You stopped looping the queue!"
+                "You stopped looping the queue!",
             );
             this.loggingComponent.log(
-                source.user.username + " stopped looping the queue"
+                source.user.username + " stopped looping the queue",
             );
         }
     }
@@ -181,18 +181,18 @@ export default class MusicComponent {
         if (isSongLooping) {
             this.messageComponent.reply(
                 source,
-                "You started looping the current song!"
+                "You started looping the current song!",
             );
             this.loggingComponent.log(
-                source.user.username + " started looping the current song"
+                source.user.username + " started looping the current song",
             );
         } else {
             this.messageComponent.reply(
                 source,
-                "You stopped looping the current song!"
+                "You stopped looping the current song!",
             );
             this.loggingComponent.log(
-                source.user.username + " stopped looping the current song"
+                source.user.username + " stopped looping the current song",
             );
         }
     }
@@ -206,26 +206,24 @@ export default class MusicComponent {
      */
     async getVoiceChannel(
         voiceChannel: VoiceChannel | StageChannel,
-        source: CommandCallSource
+        source: CommandCallSource,
     ): Promise<VoiceChannel | undefined> {
         if (voiceChannel instanceof StageChannel) {
             return undefined;
-        } else {
-            if (this.guildProperties.modes.isRadio && source.guild) {
-                const radioChannel = this.guildProperties.channels.radioId;
-                if (radioChannel) {
-                    return this.getRadioChannel(source, radioChannel);
-                }
-                return voiceChannel;
-            } else {
-                return voiceChannel;
+        } else if (this.guildProperties.modes.isRadio && source.guild) {
+            const radioChannel = this.guildProperties.channels.radioId;
+            if (radioChannel) {
+                return this.getRadioChannel(source, radioChannel);
             }
+            return voiceChannel;
+        } else {
+            return voiceChannel;
         }
     }
 
     private getRadioChannel(
         source: CommandCallSource,
-        radioChannel: string
+        radioChannel: string,
     ): VoiceChannel | undefined {
         const radioVoiceChannel = this.bot.channels.cache.get(radioChannel);
         if (radioVoiceChannel) {
@@ -237,7 +235,7 @@ export default class MusicComponent {
         } else {
             this.messageComponent.reply(
                 source,
-                "Radio channel not available for current server!"
+                "Radio channel not available for current server!",
             );
             return undefined;
         }
@@ -253,21 +251,21 @@ export default class MusicComponent {
     queueMusic(
         source: CommandCallSource,
         voiceChannel: VoiceChannel,
-        music: MusicData
+        music: MusicData,
     ): void {
         if (music.title) {
             this.messageComponent.reply(
                 source,
                 ":musical_note: Queued: ***" +
-                    music.title +
-                    "*** at ***" +
-                    music.url +
-                    "***"
+                music.title +
+                "*** at ***" +
+                music.url +
+                "***",
             );
         } else {
             this.messageComponent.reply(
                 source,
-                ":musical_note: Queued: ***" + music.url + "***"
+                ":musical_note: Queued: ***" + music.url + "***",
             );
         }
         if (!this.musicQueue.isPlayingMusic) {
@@ -296,16 +294,17 @@ export default class MusicComponent {
             if (indexes[0] && indexes[1]) {
                 const indexFrom = parseInt(indexes[0]) - 1;
                 const indexTo = parseInt(indexes[1]) - 1;
-                if (indexFrom == indexTo) this.musicQueue.remove(indexFrom);
-                else if (indexFrom < indexTo) {
+                if (indexFrom == indexTo) {
+                    this.musicQueue.remove(indexFrom);
+                } else if (indexFrom < indexTo) {
                     removedSongs = this.musicQueue.removeRange(
                         indexFrom,
-                        indexTo
+                        indexTo,
                     );
                 } else {
                     removedSongs = this.musicQueue.removeRange(
                         indexTo,
-                        indexFrom
+                        indexFrom,
                     );
                 }
             }
@@ -316,7 +315,7 @@ export default class MusicComponent {
             reply += song.title + " at " + song.url + "\n";
         }
         this.loggingComponent.log(
-            source.user.username + " removed " + removedSongs.length + " songs"
+            source.user.username + " removed " + removedSongs.length + " songs",
         );
         this.messageComponent.reply(source, reply);
     }
@@ -331,13 +330,13 @@ export default class MusicComponent {
         if (lastSong) {
             this.messageComponent.reply(source, "You replayed a song!");
             this.loggingComponent.log(
-                source.user.username + " replayed a song"
+                source.user.username + " replayed a song",
             );
             this.audioComponent.playSong(lastSong);
         } else {
             this.messageComponent.reply(
                 source,
-                "It seems there are no song to replay."
+                "It seems there are no song to replay.",
             );
         }
     }
@@ -353,22 +352,22 @@ export default class MusicComponent {
             if (!this.musicQueue.isPaused) {
                 this.messageComponent.reply(
                     source,
-                    "You resumed playing the music."
+                    "You resumed playing the music.",
                 );
                 this.loggingComponent.log(
-                    source.user.username + " resumed playing the music"
+                    source.user.username + " resumed playing the music",
                 );
                 this.audioComponent.resumeMusic();
             } else {
                 this.messageComponent.reply(
                     source,
-                    "You can't resume the music right now."
+                    "You can't resume the music right now.",
                 );
             }
         } else {
             this.messageComponent.reply(
                 source,
-                "Not playing a song currently!"
+                "Not playing a song currently!",
             );
         }
     }
@@ -384,19 +383,19 @@ export default class MusicComponent {
             if (this.musicQueue.isPaused) {
                 this.messageComponent.reply(source, "You paused the music.");
                 this.loggingComponent.log(
-                    source.user.username + " paused the music"
+                    source.user.username + " paused the music",
                 );
                 this.audioComponent.pauseMusic();
             } else {
                 this.messageComponent.reply(
                     source,
-                    "You can't pause the music right now."
+                    "You can't pause the music right now.",
                 );
             }
         } else {
             this.messageComponent.reply(
                 source,
-                "Not playing a song currently!"
+                "Not playing a song currently!",
             );
         }
     }
@@ -411,13 +410,13 @@ export default class MusicComponent {
             if (this.musicQueue.shuffle()) {
                 this.messageComponent.reply(source, "You shuffled the music.");
                 this.loggingComponent.log(
-                    source.user.username + " shuffled the music"
+                    source.user.username + " shuffled the music",
                 );
             }
         } else {
             this.messageComponent.reply(
                 source,
-                "Not playing a song currently!"
+                "Not playing a song currently!",
             );
         }
     }
@@ -435,7 +434,7 @@ export default class MusicComponent {
         } else {
             this.messageComponent.reply(
                 source,
-                "Not playing a song currently!"
+                "Not playing a song currently!",
             );
         }
     }
@@ -450,7 +449,7 @@ export default class MusicComponent {
     async playYouTubePlaylist(
         source: CommandCallSource,
         voiceChannel: VoiceChannel,
-        id: string
+        id: string,
     ): Promise<void> {
         const songs = await this.youtubeService.getPlaylistFromId(id);
         this.musicQueue.add(songs);
@@ -458,11 +457,11 @@ export default class MusicComponent {
         if (current) {
             this.messageComponent.reply(
                 source,
-                "You started playing a YouTube Playlist!"
+                "You started playing a YouTube Playlist!",
             );
 
             this.loggingComponent.log(
-                source.user.username + " imported a YouTube playlist"
+                source.user.username + " imported a YouTube playlist",
             );
             this.startPlayingMusic(source, voiceChannel, current);
         }
@@ -478,7 +477,7 @@ export default class MusicComponent {
     startPlayingMusic(
         source: CommandCallSource,
         voiceChannel: VoiceChannel,
-        music: MusicData
+        music: MusicData,
     ): void {
         this.musicQueue.play(music);
         this.play(source, voiceChannel, music);
@@ -511,7 +510,7 @@ export default class MusicComponent {
     async play(
         source: CommandCallSource | undefined,
         channel: VoiceChannel,
-        song: MusicData
+        song: MusicData,
     ): Promise<void> {
         this.audioComponent.playSong(song, channel, () => {
             this.continuePlayingMusic();
@@ -521,19 +520,19 @@ export default class MusicComponent {
                 this.messageComponent.reply(
                     source,
                     ":musical_note: Now Playing ***" +
-                        song.title +
-                        "*** at ***" +
-                        song.url +
-                        "***"
+                    song.title +
+                    "*** at ***" +
+                    song.url +
+                    "***",
                 );
             } else {
                 this.messageComponent.reply(
                     source,
-                    ":musical_note: Now Playing ***" + song.url + "***"
+                    ":musical_note: Now Playing ***" + song.url + "***",
                 );
             }
             this.loggingComponent.log(
-                source.user.username + " played: " + song.url
+                source.user.username + " played: " + song.url,
             );
         }
     }
@@ -548,7 +547,7 @@ export default class MusicComponent {
  */
 export function getMusicCommands(
     playCommand: PlayCommand,
-    queueSongCommand: QueueSongCommand
+    queueSongCommand: QueueSongCommand,
 ): Command[] {
     return [
         new CurrentSongCommand(),
