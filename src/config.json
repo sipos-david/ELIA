@@ -8,7 +8,12 @@
     },
     "guilds": [
         {
-            "id": "GUILD_ID"
+            "id": "Guild Id here",
+            "pinTextChannelID": "Pin textchannel Id here",
+            "memeTextChannelID": "Meme textchannel Id here",
+            "musicControlTextChannelID": "Music textchannel Id here",
+            "botSpamChannelID": "Bot textchannel Id here",
+            "radioChannelID": "Radio textchannel Id here"
         }
     ]
 }
