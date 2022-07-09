@@ -15,8 +15,8 @@ export default class MessageComponent {
          *
          * @type {LoggingComponent}
          */
-        private readonly loggingComponent: LoggingComponent
-    ) {}
+        private readonly loggingComponent: LoggingComponent,
+    ) { }
 
     /**
      * Replies to the message.
@@ -30,7 +30,7 @@ export default class MessageComponent {
 
         const channel = source.channel;
         if (channel) {
-            source.reply({ embeds: [replyMsg] }).then((msg: Message | void) => {
+            source.reply(replyMsg).then((msg: Message | void) => {
                 if (msg instanceof Message) {
                     this.deleteMsgTimeout(msg);
                 }
@@ -44,14 +44,15 @@ export default class MessageComponent {
      * @param {Message} message the Discord message to delete
      */
     deleteMsgTimeout(message: Message): void {
-        if (message && message.deletable && message.channel.type !== "DM")
+        if (message && message.deletable && message.channel.type !== "DM") {
             setTimeout(
                 () =>
                     message.delete().catch((error: unknown) => {
                         this.loggingComponent.error(error);
                     }),
-                this.properties.messageDisplayTime
+                this.properties.messageDisplayTime,
             );
+        }
     }
 
     /**
@@ -60,10 +61,11 @@ export default class MessageComponent {
      * @param {Message} message the Discord message to delete
      */
     deleteMsgNow(message: Message): void {
-        if (message && message.deletable && message.channel.type !== "DM")
+        if (message && message.deletable && message.channel.type !== "DM") {
             message.delete().catch((error: unknown) => {
                 this.loggingComponent.error(error);
             });
+        }
     }
 
     /**
@@ -75,7 +77,7 @@ export default class MessageComponent {
      */
     replyDidntProvideCommandArgs(
         source: CommandCallSource,
-        command: Command
+        command: Command,
     ): void {
         const embedMessage = this.buildBaseEmbed();
         this.addFooterToEmbed(source, embedMessage);
@@ -86,7 +88,7 @@ export default class MessageComponent {
             embedMessage.addField(
                 "The proper usage would be:",
                 `\`\`\`${this.properties.prefix}${command.name} ${command.usage}\`\`\``,
-                true
+                true,
             );
         }
 
@@ -115,17 +117,18 @@ export default class MessageComponent {
      */
     addFooterToEmbed(
         source: CommandCallSource,
-        embedMessage: MessageEmbed
+        embedMessage: MessageEmbed,
     ): void {
-        if (source.channel?.type !== "DM" && source.member)
+        if (source.channel?.type !== "DM" && source.member) {
             embedMessage.setFooter({
                 text: `${source.member?.displayName}`,
                 iconURL: source.user.displayAvatarURL(),
             });
-        else
+        } else {
             embedMessage.setFooter({
                 text: `${source.user.username}`,
                 iconURL: source.user.displayAvatarURL(),
             });
+        }
     }
 }

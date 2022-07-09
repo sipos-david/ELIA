@@ -5,8 +5,7 @@ import {
     Guild,
     GuildMember,
     Message,
-    MessagePayload,
-    ReplyMessageOptions,
+    MessageEmbed,
     TextBasedChannel,
     User,
 } from "discord.js";
@@ -23,15 +22,13 @@ interface CommandCallSource {
 
     get client(): Client | null;
 
-    reply(
-        options: string | MessagePayload | ReplyMessageOptions
-    ): Promise<void | Message>;
+    reply(content: MessageEmbed): Promise<void | Message>;
 
     deleteWith(messageComponent: MessageComponent): void;
 }
 
 class InteractionCallSource implements CommandCallSource {
-    constructor(public readonly interaction: CommandInteraction<CacheType>) {}
+    constructor(public readonly interaction: CommandInteraction<CacheType>) { }
 
     get client(): Client | null {
         return this.interaction.client;
@@ -65,14 +62,14 @@ class InteractionCallSource implements CommandCallSource {
     }
 
     reply(
-        options: string | MessagePayload | ReplyMessageOptions
+        content: MessageEmbed,
     ): Promise<void | Message> {
-        return this.interaction.reply(options);
+        return this.interaction.reply({ embeds: [content] });
     }
 }
 
 class MessageCallSource implements CommandCallSource {
-    constructor(public readonly message: Message) {}
+    constructor(public readonly message: Message) { }
 
     get client(): Client | null {
         return this.message.client;
@@ -98,10 +95,8 @@ class MessageCallSource implements CommandCallSource {
         messageComponent.deleteMsgNow(this.message);
     }
 
-    reply(
-        options: string | MessagePayload | ReplyMessageOptions
-    ): Promise<void | Message> {
-        return this.message.channel.send(options);
+    reply(content: MessageEmbed): Promise<void | Message> {
+        return this.message.channel.send(({ embeds: [content] }));
     }
 }
 
